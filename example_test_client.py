@@ -53,42 +53,42 @@ def main():
 
     # 2. Query Capabilities
     Request = QueryCapabilities_Request()
-    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0) / Request
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=TestClientID) / Request
     (rc, RecvPacket) = send_recv_msg(commObject, SendPacket)
     if rc is False:
         return 2
 
     # 3. Configure Test Service
     Request = ConfigureTestService_Request()
-    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0) / Request
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=TestClientID) / Request
     (rc, RecvPacket) = send_recv_msg(commObject, SendPacket)
     if rc is False:
         return 3
 
     # 4. Query System Inventory
     Request = QuerySystemInventory_Request()
-    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0) / Request
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=TestClientID) / Request
     (rc, RecvPacket) = send_recv_msg(commObject, SendPacket)
     if rc is False:
         return 4
 
     # 5. Configure DUT
     Request = ConfigureDeviceUnderTest_Request()
-    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0) / Request
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=TestClientID) / Request
     (rc, RecvPacket) = send_recv_msg(commObject, SendPacket)
     if rc is False:
         return 5
 
     # 6. Register to Protocol
     Request = RegisterToProtocol_Request()
-    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0) / Request
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=TestClientID) / Request
     (rc, RecvPacket) = send_recv_msg(commObject, SendPacket)
     if rc is False:
         return 6
 
     # 7. Register Async Message Recipient
     Request = RegisterAsyncMessageRecipient_Request()
-    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0) / Request
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=TestClientID) / Request
     (rc, RecvPacket) = send_recv_msg(commObject, SendPacket)
     if rc is False:
         return 7
@@ -107,7 +107,7 @@ def main():
     Response.show2()
 
     # Send a Vendor Defined Admin message
-    TestWrapper = TestServiceWrapper(ProtocolType=0xF1, Direction=0)
+    TestWrapper = TestServiceWrapper(ProtocolType=0xF1, Direction=0, TestClientID=TestClientID)
     Request = VendorDefinedAdmin_Request(IANA=0x1234)
     SendPacket = TestWrapper / Request
 
@@ -115,7 +115,7 @@ def main():
 
     # 8. Disconnect
     Request = Disconnect_Request()
-    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0) / Request
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=TestClientID) / Request
     (rc, RecvPacket) = send_recv_msg(commObject, SendPacket)
 
     if rc is False:
