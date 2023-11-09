@@ -141,39 +141,6 @@ class PLDM_TYPE_2_PAYLOAD(PLDM_PAYLOAD):
 
 ########## PLDM Type 2 Message Classes ############
 
-class SetTID_Request(PLDM_TYPE_2_PAYLOAD):
-    name = "Set TID Request"
-    CommandValue = 0x01
-
-    fields_desc = [
-        XByteField("TID", 0x01)
-    ]
-
-
-class SetTID_Response(PLDM_TYPE_2_PAYLOAD):
-    name = "Set TID Response"
-    CommandValue = 0x01
-
-    fields_desc = [
-        XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-    ]
-
-
-class GetTID_Request(PLDM_TYPE_2_PAYLOAD):
-    name = "Get TID Request"
-    CommandValue = 0x02
-
-
-class GetTID_Response(PLDM_TYPE_2_PAYLOAD):
-    name = "Get TID Response"
-    CommandValue = 0x02
-
-    fields_desc = [
-        XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        ByteField("TID", 0x00)
-    ]
-
-
 class GetTerminusUID_Request(PLDM_TYPE_2_PAYLOAD):
     name = "Get Terminus UID Request"
     CommandValue = 0x03
@@ -184,7 +151,10 @@ class GetTerminusUID_Response(PLDM_TYPE_2_PAYLOAD):
     CommandValue = 0x03
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        PacketField("UUID", PLDM_UUID(), PLDM_UUID)
+        ConditionalField(
+            PacketField("UUID", PLDM_UUID(), PLDM_UUID),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -249,18 +219,23 @@ class GetEventReceiver_Response(PLDM_TYPE_2_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        XByteEnumField(
-            "TransportProtocolType",
-            0x00,
-            PLDM_TYPE_2_PAYLOAD.TransportProtocolTypesValues,
+
+        ConditionalField(
+            XByteEnumField(
+                "TransportProtocolType",
+                0x00,
+                PLDM_TYPE_2_PAYLOAD.TransportProtocolTypesValues,
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
+
         ConditionalField(
             XByteField("EventReceiverAddressInfo", 0x00),
-            lambda pkt: pkt.TransportProtocolType in [0x00, 0x01],
+            lambda pkt: pkt.CompletionCode == 0 and pkt.TransportProtocolType in [0x00, 0x01],
         ),
         ConditionalField(
             XLEIntField("IANAEnterpriseNumber", 0x00000000),
-            lambda pkt: pkt.TransportProtocolType == 0xFF,
+            lambda pkt: pkt.CompletionCode == 0 and pkt.TransportProtocolType == 0xFF,
         )
     ]
 
@@ -651,17 +626,20 @@ class PlatformEventMessage_Response(PLDM_TYPE_2_PAYLOAD):
             0x00,
             {**PLDM_BASE_CODES, 0x81: "UNSUPPORTED_EVENT_FORMAT_VERSION"},
         ),
-        ByteEnumField(
-            "Status",
-            0,
-            {
-                0: "noLogging",
-                1: "loggingDisabled",
-                2: "logFull",
-                3: "acceptedForLogging",
-                4: "logged",
-                5: "loggingRejected",
-            },
+        ConditionalField(
+            ByteEnumField(
+                "Status",
+                0,
+                {
+                    0: "noLogging",
+                    1: "loggingDisabled",
+                    2: "logFull",
+                    3: "acceptedForLogging",
+                    4: "logged",
+                    5: "loggingRejected",
+                },
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         )
     ]
 
@@ -696,20 +674,38 @@ class PollForPlatformEventMessage_Response(PLDM_TYPE_2_PAYLOAD):
                 0x82: "EVENT_ID_NOT_VALID",
             },
         ),
-        XByteField("TID", 0x00),
-        XLEShortField("EventID", 0x0000),
-        XLEIntField("NextDataTransferHandle", 0x00000000),
-        ByteEnumField("TransferFlag", 0x01, TransferFlagsPldm2),
-        XByteEnumField("EventClass", 0x00, PLDM_TYPE_2_PAYLOAD.PldmEventTypes),
-        XLEIntField("EventDataSize", 0x00000000),
+        ConditionalField(
+            XByteField("TID", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XLEShortField("EventID", 0x0000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XLEIntField("NextDataTransferHandle", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            ByteEnumField("TransferFlag", 0x01, TransferFlagsPldm2),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XByteEnumField("EventClass", 0x00, PLDM_TYPE_2_PAYLOAD.PldmEventTypes),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XLEIntField("EventDataSize", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
         # TODO: check var chunk !!!!
         ConditionalField(
             PacketField("SensorEventData", SensorEventData(), SensorEventData),
-            lambda pkt: pkt.EventClass == 0x00,
+            lambda pkt: pkt.EventClass == 0x00 and pkt.CompletionCode == 0
         ),  # sensors event data
         ConditionalField(
             PacketField("EffecterEventData", EffecterEventData(), EffecterEventData),
-            lambda pkt: pkt.EventClass == 0x01,
+            lambda pkt: pkt.EventClass == 0x01 and pkt.CompletionCode == 0
         ),  # effecter event data
         ConditionalField(
             PacketField(
@@ -717,7 +713,7 @@ class PollForPlatformEventMessage_Response(PLDM_TYPE_2_PAYLOAD):
                 RedfishTaskExecutedEventData(),
                 RedfishTaskExecutedEventData,
             ),
-            lambda pkt: pkt.EventClass == 0x02,
+            lambda pkt: pkt.EventClass == 0x02 and pkt.CompletionCode == 0
         ),  # redfish task executed event data
         ConditionalField(
             PacketField(
@@ -725,7 +721,7 @@ class PollForPlatformEventMessage_Response(PLDM_TYPE_2_PAYLOAD):
                 RedfishMessageEventData(),
                 RedfishMessageEventData,
             ),
-            lambda pkt: pkt.EventClass == 0x03,
+            lambda pkt: pkt.EventClass == 0x03 and pkt.CompletionCode == 0
         ),  # redfish message  event data
         ConditionalField(
             PacketField(
@@ -733,7 +729,7 @@ class PollForPlatformEventMessage_Response(PLDM_TYPE_2_PAYLOAD):
                 PldmPDRRepositoryChgEventData(),
                 PldmPDRRepositoryChgEventData,
             ),
-            lambda pkt: pkt.EventClass == 0x04,
+            lambda pkt: pkt.EventClass == 0x04 and pkt.CompletionCode == 0
         ),  # pldm PDR repository changes event data
         ConditionalField(
             PacketField(
@@ -741,7 +737,7 @@ class PollForPlatformEventMessage_Response(PLDM_TYPE_2_PAYLOAD):
                 PldmMessagePollEventData(),
                 PldmMessagePollEventData,
             ),
-            lambda pkt: pkt.EventClass == 0x05,
+            lambda pkt: pkt.EventClass == 0x05 and pkt.CompletionCode == 0
         ),  # pldm message poll  event data
         ConditionalField(
             PacketField(
@@ -749,14 +745,16 @@ class PollForPlatformEventMessage_Response(PLDM_TYPE_2_PAYLOAD):
                 HeartbeatTimerElapsedEventData(),
                 HeartbeatTimerElapsedEventData,
             ),
-            lambda pkt: pkt.EventClass == 0x06,
+            lambda pkt: pkt.EventClass == 0x06 and pkt.CompletionCode == 0
         ),  # heartbeat timer elapsed  event data
-        # TODO: OEM Event data not defined
         ConditionalField(
             PacketField("OemEventData", OemEventData(), OemEventData),
-            lambda pkt: pkt.EventClass in range(0xF0, 0xFE + 1),
+            lambda pkt: pkt.EventClass in range(0xF0, 0xFE + 1) and pkt.CompletionCode == 0
         ),  # OEM  event data
-        XLEIntField("EventDataIntegrityChecksum", 0x00000000),
+        ConditionalField(
+            XLEIntField("EventDataIntegrityChecksum", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -773,6 +771,35 @@ class EventMessageSupported_Response(PLDM_TYPE_2_PAYLOAD):
     name = "Event Message Supported Response"
     CommandValue = 0x0C
 
+    class Data(Packet):
+        fields_desc = [
+            ByteEnumField(
+                "synchronyConfiguration",
+                0x00,
+                {
+                    0x00: "NOT_CONFIGURED",
+                    0x01: "ASYNCHRONOUS_MESSAGING",
+                    0x02: "SYNCHRONOUS_MESSAGING",
+                    0x03: "ASYNCHRONOUS_WITH_HEARTBEAT",
+                },
+            ),
+            BitField("Reserved_2", 0, 4),
+            BitField("AsynchronousMessagingWithHeartbeat", 0, 1),
+            BitField("SynchronousMessaging", 0, 1),
+            BitField("AsynchronousMessagingNoHeartbeat", 0, 1),
+            BitField("Reserved_1", 0, 1),
+            XByteField("NumberEventClassReturned", 0x00),
+            FieldListField(
+                "EventClass",
+                None,
+                XByteField("", 0x00),
+                count_from=lambda pkt: pkt.NumberEventClassReturned,
+            )
+        ]
+
+        def extract_padding(self, pld):
+            return ("", pld,)
+
     fields_desc = [
         XByteEnumField(
             "CompletionCode",
@@ -782,28 +809,10 @@ class EventMessageSupported_Response(PLDM_TYPE_2_PAYLOAD):
                 0x81: "UNSUPPORTED_EVENT_FORMAT_VERSION",
             },
         ),
-        ByteEnumField(
-            "synchronyConfiguration",
-            0x00,
-            {
-                0x00: "NOT_CONFIGURED",
-                0x01: "ASYNCHRONOUS_MESSAGING",
-                0x02: "SYNCHRONOUS_MESSAGING",
-                0x03: "ASYNCHRONOUS_WITH_HEARTBEAT",
-            },
-        ),
-        BitField("Reserved_2", 0, 4),
-        BitField("AsynchronousMessagingWithHeartbeat", 0, 1),
-        BitField("SynchronousMessaging", 0, 1),
-        BitField("AsynchronousMessagingNoHeartbeat", 0, 1),
-        BitField("Reserved_1", 0, 1),
-        XByteField("NumberEventClassReturned", 0x00),
-        FieldListField(
-            "EventClass",
-            None,
-            XByteField("", 0x00),
-            count_from=lambda pkt: pkt.NumberEventClassReturned,
-        ),
+        ConditionalField(
+            PacketField("ResponseData", Data(), Data),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -822,7 +831,12 @@ class EventMessageBufferSize_Response(PLDM_TYPE_2_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        XLEShortField("TerminusMaxBufferSize", 0x0000),
+
+
+        ConditionalField(
+            XLEShortField("TerminusMaxBufferSize", 0x0000),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -853,7 +867,7 @@ class SetNumericSensorEnable_Response(PLDM_TYPE_2_PAYLOAD):
                 0x81: "INVALID_SENSOR_OPERATIONAL_STATE",
                 0x82: "EVENT_GENERATION_NOT_SUPPORTED",
             },
-        ),
+        )
     ]
 
 
@@ -865,7 +879,7 @@ class GetSensorReading_Request(PLDM_TYPE_2_PAYLOAD):
         XLEShortField("SensorID", 0x0000),
         XByteField(
             "RearmEventState", 0x00
-        ),  # 0x00 = False, any non-zero value means True
+        )   # 0x00 = False, any non-zero value means True
     ]
 
 
@@ -873,51 +887,55 @@ class GetSensorReading_Response(PLDM_TYPE_2_PAYLOAD):
     name = "Get Sensor Reading Response"
     CommandValue = 0x11
 
+    class Data(Packet):
+        fields_desc = [
+            ByteEnumField("SensorDataSize", 1, PLDM_TYPE_2_PAYLOAD.dataSize),
+            ByteEnumField(
+                "SensorOperationalState", 0, PLDM_TYPE_2_PAYLOAD.sensorOperationalState
+            ),
+            ByteEnumField(
+                "SensorEventMessageEnable",
+                0,
+                {
+                    0: "noEventGeneration",
+                    1: "eventsDisabled",
+                    2: "eventsEnabled",
+                    3: "opEventsOnlyEnabled",
+                    4: "stateEventsOnlyEnabled",
+                },
+            ),
+            ByteEnumField("PresentState", 0, PLDM_TYPE_2_PAYLOAD.states),
+            ByteEnumField("PreviousState", 0, PLDM_TYPE_2_PAYLOAD.states),
+            ByteEnumField("EventState", 0, PLDM_TYPE_2_PAYLOAD.states),
+            MultipleTypeField(
+                [
+                    (
+                        XByteField("PresentReading", 0x00),
+                        lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ),
+                    (
+                        XLEShortField("PresentReading", 0x0000),
+                        lambda pkt: pkt.SensorDataSize in [2, 3],
+                    ),
+                    (
+                        XLEIntField("PresentReading", 0x00000000),
+                        lambda pkt: pkt.SensorDataSize in [4, 5],
+                    ),
+                ],
+                XByteField("PresentReading", 0x00),  # Default field
+            )
+        ]
+
+        def extract_padding(self, pld):
+            return ("", pld,)
+
     fields_desc = [
-        XByteEnumField(
-            "CompletionCode",
-            0x00,
-            {
-                **PLDM_BASE_CODES,
-                0x80: "INVALID_SENSOR_ID",
-                0x81: "REARM_UNAVAILABLE_IN_PRESENT_STATE",
-            },
-        ),
-        ByteEnumField("SensorDataSize", 1, PLDM_TYPE_2_PAYLOAD.dataSize),
-        ByteEnumField(
-            "SensorOperationalState", 0, PLDM_TYPE_2_PAYLOAD.sensorOperationalState
-        ),
-        ByteEnumField(
-            "SensorEventMessageEnable",
-            0,
-            {
-                0: "noEventGeneration",
-                1: "eventsDisabled",
-                2: "eventsEnabled",
-                3: "opEventsOnlyEnabled",
-                4: "stateEventsOnlyEnabled",
-            },
-        ),
-        ByteEnumField("PresentState", 0, PLDM_TYPE_2_PAYLOAD.states),
-        ByteEnumField("PreviousState", 0, PLDM_TYPE_2_PAYLOAD.states),
-        ByteEnumField("EventState", 0, PLDM_TYPE_2_PAYLOAD.states),
-        MultipleTypeField(
-            [
-                (
-                    XByteField("PresentReading", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
-                ),
-                (
-                    XLEShortField("PresentReading", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
-                ),
-                (
-                    XLEIntField("PresentReading", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5],
-                ),
-            ],
-            XByteField("PresentReading", 0x00),  # Default field
-        ),
+        XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
+
+        ConditionalField(
+            PacketField("SensorData", Data(), Data),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -933,112 +951,122 @@ class GetSensorThresholds_Request(PLDM_TYPE_2_PAYLOAD):
 class GetSensorThresholds_Response(PLDM_TYPE_2_PAYLOAD):
     name = "Get Sensor Thresholds Response"
     CommandValue = 0x12
+
+    class Data(Packet):
+        fields_desc = [
+            ByteEnumField("SensorDataSize", 0, PLDM_TYPE_2_PAYLOAD.dataSize),
+            MultipleTypeField(
+                [
+                    (
+                        XByteField("UpperThresholdWarning", 0x00),
+                        lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ),
+                    (
+                        XLEShortField("UpperThresholdWarning", 0x0000),
+                        lambda pkt: pkt.SensorDataSize in [2, 3],
+                    ),
+                    (
+                        XLEIntField("UpperThresholdWarning", 0x00000000),
+                        lambda pkt: pkt.SensorDataSize in [4, 5],
+                    ),
+                ],
+                XByteField("UpperThresholdWarning", 0x00),  # Default field
+            ),
+            MultipleTypeField(
+                [
+                    (
+                        XByteField("UpperThresholdCritical", 0x00),
+                        lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ),
+                    (
+                        XLEShortField("UpperThresholdCritical", 0x0000),
+                        lambda pkt: pkt.SensorDataSize in [2, 3],
+                    ),
+                    (
+                        XLEIntField("UpperThresholdCritical", 0x00000000),
+                        lambda pkt: pkt.SensorDataSize in [4, 5],
+                    ),
+                ],
+                XByteField("UpperThresholdCritical", 0x00),  # Default field
+            ),
+            MultipleTypeField(
+                [
+                    (
+                        XByteField("UpperThresholdFatal", 0x00),
+                        lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ),
+                    (
+                        XLEShortField("UpperThresholdFatal", 0x0000),
+                        lambda pkt: pkt.SensorDataSize in [2, 3],
+                    ),
+                    (
+                        XLEIntField("UpperThresholdFatal", 0x00000000),
+                        lambda pkt: pkt.SensorDataSize in [4, 5],
+                    ),
+                ],
+                XByteField("UpperThresholdFatal", 0x00),  # Default field
+            ),
+            MultipleTypeField(
+                [
+                    (
+                        XByteField("LowerThresholdWarning", 0x00),
+                        lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ),
+                    (
+                        XLEShortField("LowerThresholdWarning", 0x0000),
+                        lambda pkt: pkt.SensorDataSize in [2, 3],
+                    ),
+                    (
+                        XLEIntField("LowerThresholdWarning", 0x00000000),
+                        lambda pkt: pkt.SensorDataSize in [4, 5],
+                    ),
+                ],
+                XByteField("LowerThresholdWarning", 0x00),  # Default field
+            ),
+            MultipleTypeField(
+                [
+                    (
+                        XByteField("LowerThresholdCritical", 0x00),
+                        lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ),
+                    (
+                        XLEShortField("LowerThresholdCritical", 0x0000),
+                        lambda pkt: pkt.SensorDataSize in [2, 3],
+                    ),
+                    (
+                        XLEIntField("LowerThresholdCritical", 0x00000000),
+                        lambda pkt: pkt.SensorDataSize in [4, 5],
+                    ),
+                ],
+                XByteField("LowerThresholdCritical", 0x00),  # Default field
+            ),
+            MultipleTypeField(
+                [
+                    (
+                        XByteField("LowerThresholdFatal", 0x00),
+                        lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ),
+                    (
+                        XLEShortField("LowerThresholdFatal", 0x0000),
+                        lambda pkt: pkt.SensorDataSize in [2, 3],
+                    ),
+                    (
+                        XLEIntField("LowerThresholdFatal", 0x00000000),
+                        lambda pkt: pkt.SensorDataSize in [4, 5],
+                    ),
+                ],
+                XByteField("LowerThresholdFatal", 0x00),  # Default field
+            )
+        ]
+
+        def extract_padding(self, pld):
+            return ("", pld,)
+
     fields_desc = [
-        XByteEnumField(
-            "CompletionCode", 0x00, {**PLDM_BASE_CODES, 0x80: "INVALID_SENSOR_ID"}
-        ),
-        ByteEnumField("SensorDataSize", 0, PLDM_TYPE_2_PAYLOAD.dataSize),
-        MultipleTypeField(
-            [
-                (
-                    XByteField("UpperThresholdWarning", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
-                ),
-                (
-                    XLEShortField("UpperThresholdWarning", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
-                ),
-                (
-                    XLEIntField("UpperThresholdWarning", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5],
-                ),
-            ],
-            XByteField("UpperThresholdWarning", 0x00),  # Default field
-        ),
-        MultipleTypeField(
-            [
-                (
-                    XByteField("UpperThresholdCritical", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
-                ),
-                (
-                    XLEShortField("UpperThresholdCritical", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
-                ),
-                (
-                    XLEIntField("UpperThresholdCritical", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5],
-                ),
-            ],
-            XByteField("UpperThresholdCritical", 0x00),  # Default field
-        ),
-        MultipleTypeField(
-            [
-                (
-                    XByteField("UpperThresholdFatal", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
-                ),
-                (
-                    XLEShortField("UpperThresholdFatal", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
-                ),
-                (
-                    XLEIntField("UpperThresholdFatal", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5],
-                ),
-            ],
-            XByteField("UpperThresholdFatal", 0x00),  # Default field
-        ),
-        MultipleTypeField(
-            [
-                (
-                    XByteField("LowerThresholdWarning", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
-                ),
-                (
-                    XLEShortField("LowerThresholdWarning", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
-                ),
-                (
-                    XLEIntField("LowerThresholdWarning", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5],
-                ),
-            ],
-            XByteField("LowerThresholdWarning", 0x00),  # Default field
-        ),
-        MultipleTypeField(
-            [
-                (
-                    XByteField("LowerThresholdCritical", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
-                ),
-                (
-                    XLEShortField("LowerThresholdCritical", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
-                ),
-                (
-                    XLEIntField("LowerThresholdCritical", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5],
-                ),
-            ],
-            XByteField("LowerThresholdCritical", 0x00),  # Default field
-        ),
-        MultipleTypeField(
-            [
-                (
-                    XByteField("LowerThresholdFatal", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
-                ),
-                (
-                    XLEShortField("LowerThresholdFatal", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
-                ),
-                (
-                    XLEIntField("LowerThresholdFatal", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5],
-                ),
-            ],
-            XByteField("LowerThresholdFatal", 0x00),  # Default field
+        XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
+        ConditionalField(
+            PacketField("ThresholdData", Data(), Data),
+            lambda pkt: pkt.CompletionCode == 0
         )
     ]
 
@@ -1200,23 +1228,29 @@ class GetSensorHysteresis_Response(PLDM_TYPE_2_PAYLOAD):
         XByteEnumField(
             "CompletionCode", 0x00, {**PLDM_BASE_CODES, 0x80: "INVALID_SENSOR_ID"}
         ),
-        ByteEnumField("SensorDataSize", 0, PLDM_TYPE_2_PAYLOAD.dataSize),
-        MultipleTypeField(
-            [
-                (
-                    XByteField("HysteresisValue", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
-                ),
-                (
-                    XLEShortField("HysteresisValue", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
-                ),
-                (
-                    XLEIntField("HysteresisValue", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5],
-                ),
-            ],
-            XByteField("HysteresisValue", 0x00),  # Default field
+        ConditionalField(
+            ByteEnumField("SensorDataSize", 0, PLDM_TYPE_2_PAYLOAD.dataSize),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            MultipleTypeField(
+                [
+                    (
+                        XByteField("HysteresisValue", 0x00),
+                        lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ),
+                    (
+                        XLEShortField("HysteresisValue", 0x0000),
+                        lambda pkt: pkt.SensorDataSize in [2, 3],
+                    ),
+                    (
+                        XLEIntField("HysteresisValue", 0x00000000),
+                        lambda pkt: pkt.SensorDataSize in [4, 5],
+                    ),
+                ],
+                XByteField("HysteresisValue", 0x00),  # Default field
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         )
     ]
 
@@ -1407,16 +1441,19 @@ class GetStateSensorReadings_Response(PLDM_TYPE_2_PAYLOAD):
         XByteEnumField(
             "CompletionCode", 0x00, {**PLDM_BASE_CODES, 0x80: "INVALID_SENSOR_ID"}
         ),
-        # FieldLenField("CompositeSensorCount", None, count_of="SensorReadingState", fmt="B"),  # Values from 0x01 to 0x08
-        # FieldListField("SensorReadingState", [], PacketField("", GetStateSensorField(), GetStateSensorField),
-        #               count_from=lambda pkt: pkt.CompositeSensorCount),
-        XByteField("CompositeSensorCount", 0x00),
-        PacketListField(
-            "SensorReadingStateFields",
-            GetStateSensorField(),
-            GetStateSensorField,
-            count_from=lambda pkt: pkt.CompositeSensorCount,
-        )
+        ConditionalField(
+            XByteField("CompositeSensorCount", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            PacketListField(
+                "SensorReadingStateFields",
+                GetStateSensorField(),
+                GetStateSensorField,
+                count_from=lambda pkt: pkt.CompositeSensorCount,
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
     ]
 
 
@@ -1564,43 +1601,55 @@ class GetNumericEffecterValue_Response(PLDM_TYPE_2_PAYLOAD):
         XByteEnumField(
             "CompletionCode", 0x00, {**PLDM_BASE_CODES, 0x80: "INVALID_EFFECTER_ID"}
         ),
-        ByteEnumField("EffecterDataSize", 0, PLDM_TYPE_2_PAYLOAD.dataSize),
-        ByteEnumField(
-            "EffecterOperationalState", 0, PLDM_TYPE_2_PAYLOAD.effecterOperationalState
+        ConditionalField(
+            ByteEnumField("EffecterDataSize", 0, PLDM_TYPE_2_PAYLOAD.dataSize),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        MultipleTypeField(
-            [
-                (
-                    XByteField("pendingValue", 0x00),
-                    lambda pkt: pkt.EffecterDataSize in [0, 1],
-                ),
-                (
-                    XLEShortField("pendingValue", 0x0000),
-                    lambda pkt: pkt.EffecterDataSize in [2, 3],
-                ),
-                (
-                    XLEIntField("pendingValue", 0x00000000),
-                    lambda pkt: pkt.EffecterDataSize in [4, 5],
-                ),
-            ],
-            XByteField("pendingValue", 0x00),  # Default field
+        ConditionalField(
+            ByteEnumField(
+                "EffecterOperationalState", 0, PLDM_TYPE_2_PAYLOAD.effecterOperationalState
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        MultipleTypeField(
-            [
-                (
-                    XByteField("presentValue", 0x00),
-                    lambda pkt: pkt.EffecterDataSize in [0, 1],
-                ),
-                (
-                    XLEShortField("presentValue", 0x0000),
-                    lambda pkt: pkt.EffecterDataSize in [2, 3],
-                ),
-                (
-                    XLEIntField("presentValue", 0x00000000),
-                    lambda pkt: pkt.EffecterDataSize in [4, 5],
-                ),
-            ],
-            XByteField("presentValue", 0x00),  # Default field
+        ConditionalField(
+            MultipleTypeField(
+                [
+                    (
+                        XByteField("pendingValue", 0x00),
+                        lambda pkt: pkt.EffecterDataSize in [0, 1],
+                    ),
+                    (
+                        XLEShortField("pendingValue", 0x0000),
+                        lambda pkt: pkt.EffecterDataSize in [2, 3],
+                    ),
+                    (
+                        XLEIntField("pendingValue", 0x00000000),
+                        lambda pkt: pkt.EffecterDataSize in [4, 5],
+                    ),
+                ],
+                XByteField("pendingValue", 0x00),  # Default field
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            MultipleTypeField(
+                [
+                    (
+                        XByteField("presentValue", 0x00),
+                        lambda pkt: pkt.EffecterDataSize in [0, 1],
+                    ),
+                    (
+                        XLEShortField("presentValue", 0x0000),
+                        lambda pkt: pkt.EffecterDataSize in [2, 3],
+                    ),
+                    (
+                        XLEIntField("presentValue", 0x00000000),
+                        lambda pkt: pkt.EffecterDataSize in [4, 5],
+                    ),
+                ],
+                XByteField("presentValue", 0x00),  # Default field
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         )
     ]
 
@@ -1719,13 +1768,20 @@ class GetStateEffecterStates_Response(PLDM_TYPE_2_PAYLOAD):
         XByteEnumField(
             "CompletionCode", 0x00, {**PLDM_BASE_CODES, 0x80: "INVALID_EFFECTER_ID"}
         ),
-        XByteField("CompositeEffecterCount", 0x01),  # Values from 0x01 to 0x08
-        PacketListField(
-            "StateFields",
-            GetStateEffecterStatesFields(),
-            GetStateEffecterStatesFields,
-            count_from=lambda pkt: pkt.CompositeEffecterCount,
+
+        ConditionalField(
+            XByteField("CompositeEffecterCount", 0x01),  # Values from 0x01 to 0x08
+            lambda pkt: pkt.CompletionCode == 0
         ),
+        ConditionalField(
+            PacketListField(
+                "StateFields",
+                GetStateEffecterStatesFields(),
+                GetStateEffecterStatesFields,
+                count_from=lambda pkt: pkt.CompositeEffecterCount,
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -1740,19 +1796,30 @@ class GetPDRRepositoryInfo_Response(PLDM_TYPE_2_PAYLOAD):
     name = "Get PDR Repository Info Response"
     CommandValue = 0x50
 
+    class Data(Packet):
+        fields_desc = [
+           ByteEnumField(
+                "RepositoryState", 0, {0: "available", 1: "updateInProgress", 2: "failed"}
+            ),
+            PacketField("UpdateTime", PLDM_TIMESTAMP104(), PLDM_TIMESTAMP104),
+            PacketField("OEMUpdateTime", PLDM_TIMESTAMP104(), PLDM_TIMESTAMP104),
+            XLEIntField("RecordCount", 0x00000000),
+            XLEIntField("RepositorySize", 0x00000000),
+            XLEIntField("LargestRecordSize", 0x00000000),
+            XByteField(
+                "DataTransferHandleTimeout", 0x01
+            )   # 0x00=no timeout 0x01=default min timeout, 0xFF = timeout > 254sec
+        ]
+
+        def extract_padding(self, pld):
+            return ("", pld,)
+
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        ByteEnumField(
-            "RepositoryState", 0, {0: "available", 1: "updateInProgress", 2: "failed"}
-        ),
-        PacketField("UpdateTime", PLDM_TIMESTAMP104(), PLDM_TIMESTAMP104),
-        PacketField("OEMUpdateTime", PLDM_TIMESTAMP104(), PLDM_TIMESTAMP104),
-        XLEIntField("RecordCount", 0x00000000),
-        XLEIntField("RepositorySize", 0x00000000),
-        XLEIntField("LargestRecordSize", 0x00000000),
-        XByteField(
-            "DataTransferHandleTimeout", 0x01
-        )   # 0x00=no timeout 0x01=default min timeout, 0xFF = timeout>254sec
+        ConditionalField(
+            PacketField("RepoInfo", Data(), Data),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -1793,22 +1860,31 @@ class GetPDR_Response(PLDM_TYPE_2_PAYLOAD):
                 0x85: "REPOSITORY_UPDATE_IN_PROGRESS",
             },
         ),
-        XLEIntField("NextRecordHandle", 0x00000000),
-        XLEIntField(
-            "NextDataTransferHandle", 0x00000000
-        ),  # special value: {returns 0x0000_0000 if there is no
-        # remaining data}
-        XByteEnumField("TransferFlag", 0x01, TransferFlagsPldm2),
-        XLEShortField(
-            "ResponseCount", 0x0000
-        ),  # special value: { returns 0x0000 if the requestCount was 0x0000 }
-        # old version without defined PDRs
-        # FieldListField("RecordData", [], XByteField("", 0x00), count_from=lambda pkt: pkt.ResponseCount),
-        # TODO: new version with defined PDRs
-        PacketField("PDR", PDR_HEADER(), PDR_HEADER),
+
         ConditionalField(
-            XByteField("TransferCRC", 0x00), lambda pkt: pkt.TransferFlag == 0x04
-        )   # TODO to check
+            XLEIntField("NextRecordHandle", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XLEIntField("NextDataTransferHandle", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XByteEnumField("TransferFlag", 0x01, TransferFlagsPldm2),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XLEShortField("ResponseCount", 0x0000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            PacketField("PDR", PDR_HEADER(), PDR_HEADER),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XByteField("TransferCRC", 0x00),
+            lambda pkt: pkt.TransferFlag == 0x04 and pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -1866,24 +1942,34 @@ class FindPDR_Response(PLDM_TYPE_2_PAYLOAD):
                 0x85: "REPOSITORY_UPDATE_IN_PROGRESS",
             },
         ),
-        XLEIntField("NextFindHandle", 0x00000000),
-        # special values: { returns 0x0000_0000 if no matching PDR was found.
-        # returns 0xFFFF_FFFF if this response holds data for the last
-        # matching PDR.That's there are no more matching PDRs beyond this one
-        XLEIntField(
-            "NextDataTransferHandle", 0x00000000
-        ),  # special value: { returns 0x0000_0000 if there is no
-        # remaining recordData beyond the recordData that is being
-        # returned in this response data. }
-        XByteEnumField("TransferFlag", 0x01, TransferFlagsPldm2),
-        XLEShortField(
-            "ResponseCount", 0x0000
-        ),  # special value: { returns 0x0000 if the requestCount was 0x0000 }
-        FieldListField(
-            "RecordData",
-            [],
-            XByteField("", 0x00),
-            count_from=lambda pkt: pkt.ResponseCount,
+        ConditionalField(
+            XLEIntField("NextFindHandle", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XLEIntField(
+                "NextDataTransferHandle", 0x00000000
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XByteEnumField("TransferFlag", 0x01, TransferFlagsPldm2),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XLEShortField(
+                "ResponseCount", 0x0000
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            FieldListField(
+                "RecordData",
+                [],
+                XByteField("", 0x00),
+                count_from=lambda pkt: pkt.ResponseCount,
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         )
     ]
 
@@ -1911,11 +1997,11 @@ class RunInitAgent_Request(PLDM_TYPE_2_PAYLOAD):
 class RunInitAgent_Response(PLDM_TYPE_2_PAYLOAD):
     name = "Run Init Agent response"
     CommandValue = 0x58
+
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES)
     ]
 
-# 0x53 command was not specified in Command reference
 
 class GetPDRRepositorySignature_Request(PLDM_TYPE_2_PAYLOAD):
     name = "Get PDR Repository Signature Request"
@@ -1927,7 +2013,10 @@ class GetPDRRepositorySignature_Response(PLDM_TYPE_2_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        XLEIntField("PdrRepositorySignature", 0x00000000),
+        ConditionalField(
+            XLEIntField("PdrRepositorySignature", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -1940,39 +2029,51 @@ class GetPLDMEventLogInfo_Response(PLDM_TYPE_2_PAYLOAD):
     name = "Get PLDM Event Log Info Response"
     CommandValue = 0x40
 
+    class Data(Packet):
+        fields_desc = [
+            ByteEnumField(
+                "LogOperationalStatus", 0, PLDM_TYPE_2_PAYLOAD.LogOperationStatus
+            ),
+            ByteEnumField(
+                "ActiveLogClearingPolicy", 0, PLDM_TYPE_2_PAYLOAD.LogClearingPolicy
+            ),
+            LEIntField("EntryCount", 0),
+            XByteField("StoragePercentUsed", 0x00),  # special value 0xFF = unspecified
+            XByteField("PercentWear", 0x00),  # special value 0xFF = unspecified
+            SignedIntField(
+                "MostRecentAddTimestampUTCOffset", 0x00
+            ),  # special value 0xFF = unspecified
+            StrLenField(
+                "MostRecentAddTimestampSeconds",
+                b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+                length_from=lambda unused: 10,
+            ),
+            XByteField(
+                "MostRecentAddTimestamp100s", 0x00
+            ),  # special value 0xFF = unspecified
+            XByteField(
+                "MostRecentEraseTimestampUTCOffset", 0x00
+            ),  # special value 0xFF = unspecified
+            StrLenField(
+                "MostRecentEraseTimestampSeconds",
+                b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+                length_from=lambda unused: 10,
+            ),
+            XByteField(
+                "MostRecentEraseTimestamp100s", 0x00
+            ),  # special value 0xFF = unspecified
+        ]
+
+        def extract_padding(self, pld):
+            return ("", pld,)
+
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        ByteEnumField(
-            "LogOperationalStatus", 0, PLDM_TYPE_2_PAYLOAD.LogOperationStatus
-        ),
-        ByteEnumField(
-            "ActiveLogClearingPolicy", 0, PLDM_TYPE_2_PAYLOAD.LogClearingPolicy
-        ),
-        LEIntField("EntryCount", 0),
-        XByteField("StoragePercentUsed", 0x00),  # special value 0xFF = unspecified
-        XByteField("PercentWear", 0x00),  # special value 0xFF = unspecified
-        SignedIntField(
-            "MostRecentAddTimestampUTCOffset", 0x00
-        ),  # special value 0xFF = unspecified
-        StrLenField(
-            "MostRecentAddTimestampSeconds",
-            b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
-            length_from=lambda unused: 10,
-        ),
-        XByteField(
-            "MostRecentAddTimestamp100s", 0x00
-        ),  # special value 0xFF = unspecified
-        XByteField(
-            "MostRecentEraseTimestampUTCOffset", 0x00
-        ),  # special value 0xFF = unspecified
-        StrLenField(
-            "MostRecentEraseTimestampSeconds",
-            b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
-            length_from=lambda unused: 10,
-        ),
-        XByteField(
-            "MostRecentEraseTimestamp100s", 0x00
-        ),  # special value 0xFF = unspecified
+
+        ConditionalField(
+            PacketField("EventLogInfo", Data(), Data),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -1990,7 +2091,10 @@ class EnablePLDMEventLogging_Response(PLDM_TYPE_2_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        EnumField("LogOperationalStatus", 0, PLDM_TYPE_2_PAYLOAD.LogOperationStatus),
+        ConditionalField(
+            EnumField("LogOperationalStatus", 0, PLDM_TYPE_2_PAYLOAD.LogOperationStatus),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -2005,9 +2109,14 @@ class ClearPLDMEventLog_Response(PLDM_TYPE_2_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        EnumField("LogOperationalStatus",
-                  0,
-                  PLDM_TYPE_2_PAYLOAD.LogOperationStatus)
+        ConditionalField(
+            EnumField(
+                "LogOperationalStatus",
+                0,
+                PLDM_TYPE_2_PAYLOAD.LogOperationStatus
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -2022,13 +2131,22 @@ class GetPLDMEventLogTimestamp_Response(PLDM_TYPE_2_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        XByteField("EntryTimestampUTCOffset", 0x00),
-        StrLenField(
-            "EntryTimestampSeconds",
-            b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
-            length_from=lambda unused: 10,
+        ConditionalField(
+            XByteField("EntryTimestampUTCOffset", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        XByteField("EntryTimestamp100s", 0x00)
+        ConditionalField(
+            StrLenField(
+                "EntryTimestampSeconds",
+                b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+                length_from=lambda unused: 10,
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XByteField("EntryTimestamp100s", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -2054,14 +2172,26 @@ class SetPLDMEventLogTimestamp_Response(PLDM_TYPE_2_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        XByteField("EntryTimestampUTCOffset", 0x00),
-        StrLenField(
-            "EntryTimestampSeconds",
-            b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
-            length_from=lambda unused: 10,
+        ConditionalField(
+            XByteField("EntryTimestampUTCOffset", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        XByteField("EntryTimestamp100s", 0x00),
-        XByteField("TimestampResolution", 0x00),
+        ConditionalField(
+            StrLenField(
+                "EntryTimestampSeconds",
+                b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+                length_from=lambda unused: 10,
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XByteField("EntryTimestamp100s", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XByteField("TimestampResolution", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -2096,26 +2226,38 @@ class ReadPLDMEventLog_Response(PLDM_TYPE_2_PAYLOAD):
                 0x82: "INVALID_ENTRY_ID",
             },
         ),
-        XLEIntField("NextEntryID", 0x00000000),
-        ByteEnumField(
-            "SplitEntry",
-            0,
-            {
-                0: "full",
-                1: "firstFragment",
-                2: "middleFragment",
-                3: "lastFragment"},
-        ),
-        # TODO to check: PLDMEventLogData
-        XByteField("TransferredDataSize", 0x00),
-        FieldListField(
-            "TransferredEntryData",
-            [],
-            XByteField("", 0x00),
-            count_from=lambda pkt: pkt.TransferredDataSize,
+        ConditionalField(
+            XLEIntField("NextEntryID", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
         ),
         ConditionalField(
-            XByteField("TransferCRC", 0x00), lambda pkt: pkt.SplitEntry == 3
+            ByteEnumField(
+                "SplitEntry",
+                0,
+                {
+                    0: "full",
+                    1: "firstFragment",
+                    2: "middleFragment",
+                    3: "lastFragment"},
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            # TODO to check: PLDMEventLogData
+            XByteField("TransferredDataSize", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            FieldListField(
+                "TransferredEntryData",
+                [],
+                XByteField("", 0x00),
+                count_from=lambda pkt: pkt.TransferredDataSize,
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XByteField("TransferCRC", 0x00), lambda pkt: pkt.SplitEntry == 3 and pkt.CompletionCode == 0
         )
     ]
 
@@ -2133,23 +2275,34 @@ class GetPLDMEventLogPolicyInfo_Response(PLDM_TYPE_2_PAYLOAD):
     name = "Get PLDM Event Log Policy Info Response"
     CommandValue = 0x46
 
+    class Data(Packet):
+        fields_desc = [
+            # BitField("ConfigurableParameterSupport", 0, 8),  # TODO check for bitenumfield
+            BitField("Reserved", 0, 3),
+            BitField("MPercentageConfgurable", 0, 2),
+            BitField("NPercentageConfgurable", 0, 2),
+            BitField("AgePercentageConfgurable", 0, 1),
+            XLEIntField("NMin", 0x00000000),  # special value 0x00000000
+            XLEIntField("NMax", 0x00000000),  # special value 0x00000000
+            XByteField("NPercentageMin", 0x00),  # special value 0x00
+            XByteField("NPercentageMax", 0x00),  # special value 0x00
+            XLEIntField("MMin", 0x00000000),  # special value 0x00000000
+            XLEIntField("MMax", 0x00000000),  # special value 0x00000000
+            XByteField("MPercentageMin", 0x00),  # special value 0x00
+            XByteField("MPercentageMax", 0x00),  # special value 0x00
+            XLEIntField("AgeMin", 0x00000000),  # special value 0x00000000
+            XLEIntField("AgeMax", 0x00000000),  # special value 0x00000000
+        ]
+
+        def extract_padding(self, pld):
+            return ("", pld,)
+
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        # BitField("ConfigurableParameterSupport", 0, 8),  # TODO check for bitenumfield
-        BitField("Reserved", 0, 3),
-        BitField("MPercentageConfgurable", 0, 2),
-        BitField("NPercentageConfgurable", 0, 2),
-        BitField("AgePercentageConfgurable", 0, 1),
-        XLEIntField("NMin", 0x00000000),  # special value 0x00000000
-        XLEIntField("NMax", 0x00000000),  # special value 0x00000000
-        XByteField("NPercentageMin", 0x00),  # special value 0x00
-        XByteField("NPercentageMax", 0x00),  # special value 0x00
-        XLEIntField("MMin", 0x00000000),  # special value 0x00000000
-        XLEIntField("MMax", 0x00000000),  # special value 0x00000000
-        XByteField("MPercentageMin", 0x00),  # special value 0x00
-        XByteField("MPercentageMax", 0x00),  # special value 0x00
-        XLEIntField("AgeMin", 0x00000000),  # special value 0x00000000
-        XLEIntField("AgeMax", 0x00000000),  # special value 0x00000000
+        ConditionalField(
+            PacketField("LogInfo", Data(), Data),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -2210,20 +2363,16 @@ class FindPLDMEventLogEntry_Response(PLDM_TYPE_2_PAYLOAD):
         XByteEnumField(
             "CompletionCode", 0x00, {**PLDM_BASE_CODES, 0x80: "INVALID_SEARCH_TYPE"}
         ),
-        XLEIntField("EntryID", 0x00000000)
+        ConditionalField(
+            XLEIntField("EntryID", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
 #### Register for SCAPY dissection ####
-
-# Simple bind layer used on PLDM Type
 bind_layers(PLDM_HEADER, PLDM_TYPE_2_PAYLOAD, PldmType=0x02)
 
-# Need a custom method to figure out which specific PLDM command it was
-register_pldm_class(SetTID_Request)
-register_pldm_class(SetTID_Response)
-register_pldm_class(GetTID_Request)
-register_pldm_class(GetTID_Response)
 register_pldm_class(GetTerminusUID_Request)
 register_pldm_class(GetTerminusUID_Response)
 register_pldm_class(SetEventReceiver_Request)

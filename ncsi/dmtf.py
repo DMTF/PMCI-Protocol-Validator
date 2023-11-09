@@ -31,30 +31,6 @@ OEM_COMMAND_DECODERS = (
 CurrentIID = 0xFF   # start at MAX, so 1st one actually used is 1
 
 
-# DSP0222 - Table 260
-class NCSI_UUID(Packet):
-    """this is the NC-SI format, per DSP0222"""
-
-    name = "UUID"
-    UUID_NODE_LEN = 6
-
-    fields_desc = [
-        XLEIntField("TimeLow", 0x00000000),
-        XLEShortField("TimeMid", 0x0000),
-        XLEShortField("TimeHighAndVersion", 0x0000),
-        XLEShortField("ClockSeqAndReserved", 0x0000),
-        scapy.layers.l2.DestMACField(
-            "Node"
-        ),  # it may not be a MAC, but is 6 bytes, so this works well
-    ]
-
-    def extract_padding(self, s):
-        return (
-            "",
-            s,
-        )  # this has no padding, but may have something following it (like an array of things, so override behavior)
-
-
 def getNextIID():
     global CurrentIID
 
@@ -169,7 +145,6 @@ def getNcsiClassFromRaw(rawPacket):
         else:
             (IANA,) = struct.unpack("!I", rawPacket[20:24])
 
-
         if IANA not in OEM_COMMAND_DECODERS:
             assert (
                 False
@@ -216,8 +191,7 @@ class NcsiReversePadField(ReversePadField):
 
         pkt.payload_len = len(s)
 
-        return s + struct.pack("%is" % (self.padlen(len(s),pkt)), self._padwith) + sval
-### mrd        return s + struct.pack("%is" % (self.padlen(len(s))), self._padwith) + sval
+        return s + struct.pack("%is" % (self.padlen(len(s), pkt)), self._padwith) + sval
 
 
 # DSP0222 - Table 10
@@ -365,6 +339,8 @@ class NCSI_PAYLOAD(Packet):
 
 # DSP0222 - Table 25
 class ClearInitialState_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Clear Initial State Request"""
+
     name = "Clear Initial State Request"
     CommandValue = 0x00
 
@@ -375,19 +351,22 @@ class ClearInitialState_Request(NCSI_PAYLOAD):
 
 # DSP0222 - Table 26
 class ClearInitialState_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Clear Initial State Response"""
+
     name = "Clear Initial State Response"
     CommandValue = 0x80
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 - Table 27
 class SelectPackage_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Select Package Request"""
+
     name = "Select Package Request"
     CommandValue = 0x01
 
@@ -403,19 +382,22 @@ class SelectPackage_Request(NCSI_PAYLOAD):
 
 # DSP0222 - Table 28
 class SelectPackage_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Select Package Response"""
+
     name = "Select Package Response"
     CommandValue = 0x81
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 - Table 30
 class DeselectPackage_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Deselect Package Request"""
+
     name = "Deselect Package Request"
     CommandValue = 0x02
 
@@ -426,19 +408,22 @@ class DeselectPackage_Request(NCSI_PAYLOAD):
 
 # DSP0222 - Table 31
 class DeselectPackage_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Deselect Package Response"""
+
     name = "Deselect Package Response"
     CommandValue = 0x82
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  32
 class EnableChannel_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Enable Channel Request"""
+
     name = "Enable Channel Request"
     CommandValue = 0x03
 
@@ -449,19 +434,22 @@ class EnableChannel_Request(NCSI_PAYLOAD):
 
 # DSP0222 - Table 33
 class EnableChannel_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Enable Channel Response"""
+
     name = "Enable Channel Response"
     CommandValue = 0x83
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 - Table 34
 class DisableChannel_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Disable Channel Request"""
+
     name = "Disable Channel Request"
     CommandValue = 0x04
 
@@ -475,19 +463,22 @@ class DisableChannel_Request(NCSI_PAYLOAD):
 
 # DSP0222 - Table 35
 class DisableChannel_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Disable Channel Response"""
+
     name = "Disable Channel Response"
     CommandValue = 0x84
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 - Table 37
 class ResetChannel_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Reset Channel Request"""
+
     name = "Reset Channel Request"
     CommandValue = 0x05
 
@@ -500,19 +491,22 @@ class ResetChannel_Request(NCSI_PAYLOAD):
 
 # DSP0222 - Table 37
 class ResetChannel_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Reset Channel Response"""
+
     name = "Reset Channel Response"
     CommandValue = 0x85
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 - Table 38
 class EnableChannelNetworkTx_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Enable Channel Network TX Request"""
+
     name = "Enable Channel Network TX Request"
     CommandValue = 0x06
 
@@ -523,19 +517,22 @@ class EnableChannelNetworkTx_Request(NCSI_PAYLOAD):
 
 # DSP0222 - Table 39
 class EnableChannelNetworkTx_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Enable Channel Network TX Response"""
+
     name = "Enable Channel Network TX Response"
     CommandValue = 0x86
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 - Table 40
 class DisableChannelNetworkTx_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Disable Channel Network TX Request"""
+
     name = "Disable Channel Network TX Request"
     CommandValue = 0x07
 
@@ -546,19 +543,22 @@ class DisableChannelNetworkTx_Request(NCSI_PAYLOAD):
 
 # DSP0222 - Table 41
 class DisableChannelNetworkTx_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Disable Channel Network TX Response"""
+
     name = "Disable Channel Network TX Response"
     CommandValue = 0x87
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 - Table 42
 class AenEnable_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 AEN Enable Request"""
+
     name = "AEN Enable Request"
     CommandValue = 0x08
 
@@ -593,19 +593,22 @@ class AenEnable_Request(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 44
 class AenEnable_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 AEN Enable Response"""
+
     name = "AEN Enable Response"
     CommandValue = 0x88
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 45
 class SetLink_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Set Link Request"""
+
     name = "Set Link Request"
     CommandValue = 0x09
 
@@ -651,12 +654,14 @@ class SetLink_Request(NCSI_PAYLOAD):
         # OEM Link Settings
         XIntField("OEM_Settings", 0x00000000),
 
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 48
 class SetLink_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Set Link Response"""
+
     name = "Set Link Response"
     CommandValue = 0x89
 
@@ -667,13 +672,14 @@ class SetLink_Response(NCSI_PAYLOAD):
             0x0000,
             {**STANDARD_REASON_CODE_VALUES, **LINK_SETTINGS_REASON_CODES},
         ),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 50
 class GetLinkStatus_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get Link Status Request"""
+
     name = "Get Link Status Request"
     CommandValue = 0x0A
 
@@ -684,8 +690,52 @@ class GetLinkStatus_Request(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 51
 class GetLinkStatus_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get Link Status Response"""
+
     name = "Get Link Status Response"
     CommandValue = 0x8A
+
+    class Data(Packet):
+        name = "Get Link Status Data"
+
+        fields_desc = [
+            # Link Status field
+            BitField("ExtendedSpeedAndDuplex", 0, 8),
+            BitField("ModulationScheme", 0, 2),  # for NC-SI 1.2
+            BitField("OemLinkSpeedValid", 0, 1),
+            BitField("SerDesLink", 0, 1),
+            BitField("LinkPartnerAdvertisedFlowControl", 0, 2),
+            BitField("RxFlowControlFlag", 0, 1),
+            BitField("TxFlowControlFlag", 0, 1),  # bit 16
+            BitField("LinkPartnerAdvertisedSpeedAndDuplex10THD", 0, 1),
+            BitField("LinkPartnerAdvertisedSpeedAndDuplex10TFD", 0, 1),
+            BitField("LinkPartnerAdvertisedSpeedAndDuplex100TXHD", 0, 1),
+            BitField("LinkPartnerAdvertisedSpeedAndDuplex100TXFD", 0, 1),
+            BitField("LinkPartnerAdvertisedSpeedAndDuplex100T4", 0, 1),
+            BitField("LinkPartnerAdvertisedSpeedAndDuplex1000THD", 0, 1),
+            BitField("LinkPartnerAdvertisedSpeedAndDuplex1000TFD", 0, 1),
+            BitField("LinkStatusReserved_1", 0, 1),  # bit 8
+            BitField("ParallelDetectionFlag", 0, 1),
+            BitField("AutoNegotiateComplete", 0, 1),
+            BitEnumField("AutoNegotiateFlag", 0, 1, ENABLE_DISABLE),
+            BitField("SpeedAndDuplex", 0, 4),
+            BitField("LinkFlag", 0, 1),
+
+            # Other Indications field
+            BitField("GetLinkStatusOtherReserved_1", 0, 27),
+            BitEnumField("OEMLinkStatusField", 0, 1, ENABLE_DISABLE),
+            BitEnumField("ParallelDetect", 0, 1, ENABLE_DISABLE),
+            BitEnumField("LinkTraining", 0, 1, ENABLE_DISABLE),
+            BitEnumField("EnergyEfficientEthernet", 0, 1, ENABLE_DISABLE),
+            BitField("HostDriverStatusIndication", 0, 1),
+
+            # OEM Link Status
+            XIntField("OemLinkStatus", 0x00000000),
+        ]
+
+        def extract_padding(self, s):
+            return ("", s)
+
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
@@ -697,45 +747,18 @@ class GetLinkStatus_Response(NCSI_PAYLOAD):
                 0x0A06: "Link Command FailedHardware Access Error",
             },
         ),
-
-        # Link Status field
-        BitField("ExtendedSpeedAndDuplex", 0, 8),
-        BitField("ModulationScheme", 0, 2),  # for NC-SI 1.2
-        BitField("OemLinkSpeedValid", 0, 1),
-        BitField("SerDesLink", 0, 1),
-        BitField("LinkPartnerAdvertisedFlowControl", 0, 2),
-        BitField("RxFlowControlFlag", 0, 1),
-        BitField("TxFlowControlFlag", 0, 1),  # bit 16
-        BitField("LinkPartnerAdvertisedSpeedAndDuplex10THD", 0, 1),
-        BitField("LinkPartnerAdvertisedSpeedAndDuplex10TFD", 0, 1),
-        BitField("LinkPartnerAdvertisedSpeedAndDuplex100TXHD", 0, 1),
-        BitField("LinkPartnerAdvertisedSpeedAndDuplex100TXFD", 0, 1),
-        BitField("LinkPartnerAdvertisedSpeedAndDuplex100T4", 0, 1),
-        BitField("LinkPartnerAdvertisedSpeedAndDuplex1000THD", 0, 1),
-        BitField("LinkPartnerAdvertisedSpeedAndDuplex1000TFD", 0, 1),
-        BitField("LinkStatusReserved_1", 0, 1),  # bit 8
-        BitField("ParallelDetectionFlag", 0, 1),
-        BitField("AutoNegotiateComplete", 0, 1),
-        BitEnumField("AutoNegotiateFlag", 0, 1, ENABLE_DISABLE),
-        BitField("SpeedAndDuplex", 0, 4),
-        BitField("LinkFlag", 0, 1),
-
-        # Other Indications field
-        BitField("GetLinkStatusOtherReserved_1", 0, 28),
-        BitEnumField("ParallelDetect", 0, 1, ENABLE_DISABLE),
-        BitEnumField("LinkTraining", 0, 1, ENABLE_DISABLE),
-        BitEnumField("EnergyEfficientEthernet", 0, 1, ENABLE_DISABLE),
-        BitField("HostDriverStatusIndication", 0, 1),
-
-        # OEM Link Status
-        XIntField("OemLinkStatus", 0x00000000),
-
+        ConditionalField(
+            PacketField("LinkStatus", Data(), Data),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
         NcsiReversePadField(XIntField("Checksum", None), 4),
     ]
 
 
 # DSP0222 -  Table 57
 class SetVlanFilter_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Set VLAN Filter Request"""
+
     name = "Set VLAN Filter Request"
     CommandValue = 0x0B
 
@@ -758,6 +781,8 @@ class SetVlanFilter_Request(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 60
 class SetVlanFilter_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Set VLAN Filter Response"""
+
     name = "Set VLAN Filter Response"
     CommandValue = 0x8B
 
@@ -771,13 +796,14 @@ class SetVlanFilter_Response(NCSI_PAYLOAD):
                 0x0B07: "Returned when the VLAN ID is invalid (VLAN ID = 0)",
             },
         ),
-
         NcsiReversePadField(XIntField("Checksum", None), 4),
     ]
 
 
 # DSP0222 -  Table 62
 class EnableVlan_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Enable VLAN Request"""
+
     name = "Enable VLAN Request"
     CommandValue = 0x0C
 
@@ -800,20 +826,23 @@ class EnableVlan_Request(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 64
 class EnableVlan_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Enable VLAN Response"""
+
     name = "Enable VLAN Response"
     CommandValue = 0x8C
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-   ]
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
 
 
 # DSP0222 -  Table 65
 class DisableVlan_Request(NCSI_PAYLOAD):
-    name = "Disable Request"
+    """DSP0222 v1.1.0 DisableVLAN Request"""
+
+    name = "Disable VLAN Request"
     CommandValue = 0x0D
 
     fields_desc = [
@@ -823,110 +852,23 @@ class DisableVlan_Request(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 66
 class DisableVlan_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Disable VLAN Response"""
+
     name = "Disable VLAN Response"
     CommandValue = 0x8D
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 -  Table 256
-class GetMcMacAddress_Request(NCSI_PAYLOAD):
-    name = "Get MC MAC Address Request"
-    CommandValue = 0x58
-
-    fields_desc = [
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 -  Table 257
-class GetMcMacAddress_Response(NCSI_PAYLOAD):
-    name = "Get MC MAC Address Response"
-    CommandValue = 0xD8
-
-    fields_desc = [
-        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
-        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        FieldLenField("AddressCount", None, count_of="Addresses", fmt="B"),
-        X3BytesField("GetMcMacAddress_1", 0),
-        FieldListField(
-            "Addresses",
-            [],
-            MACField("", "ff:ff:ff:ff:ff:ff"),
-            count_from=lambda pkt: pkt.AddressCount,
-        ),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0261 - Table 12
-class MediaDescriptor(Packet):
-    """Repeated data within the GetSupportedMedia_Response"""
-
-    name = "Media Descriptor"
-    fields_desc = [
-        XByteField("EID", 0x00),
-        XShortField("BindingID", 0x00),
-        XShortField("MediumID", 0x00),
-
-        BitField("Status", 0, 1),
-        BitField("MediaDescriptorReserved_1", 0, 6),
-        BitField("PassthroughSupported", 0, 1),
-
-        FieldLenField("PhysicalAddressSize", None, "PhysicalAddress", "B"),
-        StrLenField(
-            "PhysicalAddress", b"", length_from=lambda pkt: pkt.PhysicalAddressSize
-        ),
-    ]
-
-    def extract_padding(self, s):  # all payloads need to do this
-        return "", s
-
-
-# DSP0261 - Table 10
-class GetSupportedMedia_Request(NCSI_PAYLOAD):
-    name = "Get Supported Media Request"
-    CommandValue = 0x54
-
-    fields_desc = [
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0261 - Table 11
-class GetSupportedMedia_Response(NCSI_PAYLOAD):
-    name = "Get Supported Media Response"
-    CommandValue = 0xD4
-
-    fields_desc = [
-        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
-        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        X3BytesField("GetSupportedMediaReserved_1", 0x000000),
-        FieldLenField(
-            "NumberOfSupportedMedias", None, count_of="MediaDescriptors", fmt="B"
-        ),
-        PacketListField(
-            "MediaDescriptors",
-            None,
-            MediaDescriptor,
-            count_from=lambda pkt: pkt.NumberOfSupportedMedias,
-        ),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 17
 class AEN(NCSI_PAYLOAD):
-    name = "AEN"
+    """DSP0222 v1.1.0 Asynchronous Event Notification"""
+
+    name = "Asynchronous Event Notification"
     CommandValue = 0xFF
 
     fields_desc = [
@@ -940,6 +882,8 @@ class AEN(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 67
 class SetMACAddress_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Set MAC Address Request"""
+
     name = "Set MAC Address Request"
     CommandValue = 0x0E
 
@@ -964,12 +908,14 @@ class SetMACAddress_Request(NCSI_PAYLOAD):
         ),
 
         # PAD and Checksum and PAD Fields
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 71
 class SetMACAddress_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Set MAC Address Response"""
+
     name = "Set MAC Address Response"
     CommandValue = 0x8E
 
@@ -983,13 +929,14 @@ class SetMACAddress_Response(NCSI_PAYLOAD):
                 0x0E08: "Returned when the Set MAC Address command is received with the MAC address set to 0",
             },
         ),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 73
 class EnableBroadcastFilter_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Enable Broadcast Filter Request"""
+
     name = "Enable Broadcast Filter Request"
     CommandValue = 0x10
 
@@ -1008,75 +955,96 @@ class EnableBroadcastFilter_Request(NCSI_PAYLOAD):
         BitEnumField("ARPPackets", 0, 1, FORWARD_FILTER_OUT),  # mandatory field
 
         # Insert PAD and Checksum Fields
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 75
 class EnableBroadcastFilter_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Enable Broadcast Filter Response"""
+
     name = "Enable Broadcast Filter Response"
     CommandValue = 0x90
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 87
 class GetVersionID_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get Version ID Request"""
+
     name = "Get Version ID Request"
     CommandValue = 0x15
 
     fields_desc = [
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 88
 class GetVersionID_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get Version ID Response"""
+
     name = "Get Version ID Response"
     CommandValue = 0x95
+
+    class Data(Packet):
+        name = "Get Version ID Data"
+
+        fields_desc = [
+            XByteField("NCSIVersionMajor", 0x00),
+            XByteField("NCSIVersionMinor", 0x00),
+            XByteField("NCSIVersionUpdate", 0x00),
+            XByteField("NCSIVersionAlpha1", 0x00),
+
+            X3BytesField("Reserved", 0x000000),
+            XByteField("NCSIVersionAlpha2", 0x00),
+
+            StrLenField("FirmwareNameString11_08", b"", length_from=lambda unused: 4),
+
+            StrLenField("FirmwareNameString07_04", b"", length_from=lambda unused: 4),
+
+            StrLenField("FirmwareNameString03_00", b"", length_from=lambda unused: 4),
+
+            XByteField("FirmwareVersionMajor", 0x00),
+            XByteField("FirmwareVersionMinor", 0x00),
+            XByteField("FirmwareVersionUpdate", 0x00),
+            XByteField("FirmwareVersionAlpha", 0x00),
+
+            XShortField("PCIDID", 0x0000),
+            XShortField("PCIVID", 0x0000),
+
+            XShortField("PCISSID", 0x0000),
+            XShortField("PCISVID", 0x0000),
+
+            XIntField("ManufacturerID", 0xFFFFFFFF)     # 0xFFFFFFFF if unused
+        ]
+
+        def extract_padding(self, s):
+            return ("", s)
+
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
 
-        XByteField("NCSIVersionMajor", 0x00),
-        XByteField("NCSIVersionMinor", 0x00),
-        XByteField("NCSIVersionUpdate", 0x00),
-        XByteField("NCSIVersionAlpha1", 0x00),
+        ConditionalField(
+            PacketField("VersionInfo", Data(), Data),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
 
-        X3BytesField("Reserved", 0x000000),
-        XByteField("NCSIVersionAlpha2", 0x00),
-
-        StrLenField("FirmwareNameString11_08", b"", length_from=lambda unused: 4),
-
-        StrLenField("FirmwareNameString07_04", b"", length_from=lambda unused: 4),
-
-        StrLenField("FirmwareNameString03_00", b"", length_from=lambda unused: 4),
-
-        XByteField("FirmwareVersionMajor", 0x00),
-        XByteField("FirmwareVersionMinor", 0x00),
-        XByteField("FirmwareVersionUpdate", 0x00),
-        XByteField("FirmwareVersionAlpha", 0x00),
-
-        XShortField("PCIDID", 0x0000),
-        XShortField("PCIVID", 0x0000),
-
-        XShortField("PCISSID", 0x0000),
-        XShortField("PCISVID", 0x0000),
-
-        XIntField("ManufacturerID", 0x00000000),  # value 0xFFFFFFFF if unused
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 89
 class GetCapabilities_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get Capabilities Request"""
+
     name = "Get Capabilities Request"
     CommandValue = 0x16
 
@@ -1087,107 +1055,124 @@ class GetCapabilities_Request(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 90
 class GetCapabilities_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get Capabilities Response"""
+
     name = "Get Capabilities Response"
     CommandValue = 0x96
+
+    class Data(Packet):
+        """Get Capabilities Response Data"""
+
+        name = "Get Capabilities Response Data"
+        fields_desc = [
+
+            # Capabilities Flags
+            BitField("Reserved_1", 0, 23),
+            BitEnumField("DelayedResponseSupport", 0, 1, SUPPORTED_NOT_SUPPORTED),
+            BitEnumField("ThermalShutdownImplementationStatus", 0, 1, SUPPORTED_NOT_SUPPORTED),
+            BitEnumField(
+                "HardwareArbitrationImplementationStatus",
+                0,
+                2,
+                {
+                    0x00: "Unknown",
+                    0x01: "Hardware arbitration capability is not implemented for the package on the given system",
+                    0x10: "Hardware arbitration capability is implemented for the package on the given system",
+                },
+            ),
+            BitEnumField(
+                "AllMulticastAddressesSupport", 0, 1, SUPPORTED_NOT_SUPPORTED
+            ),
+            BitEnumField(
+                "ManagementControllerToNetworkControllerFlowControlSupport",
+                0,
+                1,
+                SUPPORTED_NOT_SUPPORTED,
+            ),
+            BitEnumField(
+                "NetworkControllerToManagementControllerFlowControlSupport",
+                0,
+                1,
+                SUPPORTED_NOT_SUPPORTED,
+            ),
+            BitEnumField("HostNCDriverStatus", 0, 1, SUPPORTED_NOT_SUPPORTED),
+            BitEnumField("HardwareArbitrationCapability", 0, 1, SUPPORTED_NOT_SUPPORTED),
+
+            # Broadcast Packet Filter Capabilities
+            BitField("Reserved_2", 0, 28),
+            BitEnumField(
+                "NetBIOSPackets", 0, 1, FORWARD_FILTER_OUT
+            ),  # optional field (0 if unsupported)
+            BitEnumField(
+                "DHCPServerPackets", 0, 1, FORWARD_FILTER_OUT
+            ),  # optional field (0 if unsupported)
+            BitEnumField(
+                "DHCPClientPackets", 0, 1, FORWARD_FILTER_OUT
+            ),  # optional field (0 if unsupported)
+            BitEnumField("ARPPackets", 0, 1, FORWARD_FILTER_OUT),  # mandatory field
+
+            # Multicast Packet Filter Capabilities
+            BitField("Reserved_3", 0, 26),
+            BitEnumField(
+                "IPv6NeighborSolicitation", 0, 1, FORWARD_FILTER_OUT
+            ),  # optional field
+            BitEnumField("IPv6MLD", 0, 1, FORWARD_FILTER_OUT),  # optional field
+            BitEnumField(
+                "DHCPv6MulticastsFromServerToClientsListeningOnWellknownUDPPorts",
+                0,
+                1,
+                FORWARD_FILTER_OUT,
+            ),
+            # optional field
+            BitEnumField(
+                "DHCPv6RelayAndServerMulticast", 0, 1, FORWARD_FILTER_OUT
+            ),  # optional field
+            BitEnumField(
+                "IPv6RouterAdvertisement", 0, 1, FORWARD_FILTER_OUT
+            ),  # optional field
+            BitEnumField(
+                "IPv6NeighborAdvertisement", 0, 1, FORWARD_FILTER_OUT
+            ),  # optional field
+            XIntField("BufferingCapability", 0x00000000),
+
+            # AEN Control Support
+            BitField("OEMSpecificAENControl", 0, 16),
+            BitField("Reserved_4", 0, 11),
+            BitEnumField("TransceiverEventAENControl", 0, 1, ENABLE_DISABLE),
+            BitEnumField("DelayedResponseReadyAENControl", 0, 1, ENABLE_DISABLE),
+            BitEnumField("HostNCDriverStatusChangeAENControl", 0, 1, ENABLE_DISABLE),
+            BitEnumField("ConfigurationRequiredAENControl", 0, 1, ENABLE_DISABLE),
+            BitEnumField("LinkStatusChangeAENControl", 0, 1, ENABLE_DISABLE),
+            XByteField("VLANFilterCount", 0x00),
+            XByteField("MixedFilterCount", 0x00),
+            XByteField("MulticastFilterCount", 0x00),
+            XByteField("UnicastFilterCount", 0x00),
+            XShortField("Reserved_5", 0x0000),
+            BitField("Reserved_6", 0, 5),
+            BitField("AnyVLAN_NonVLAN", 0, 1),
+            BitField("VLAN_NonVLAN", 0, 1),
+            BitField("VLANOnly", 1, 1),
+            XByteField("ChannelCount", 0x00)
+        ]
+
+        def extract_padding(self, s):
+            return ("", s)
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        # Capabilities Flags
-        BitField("Reserved_1", 0, 23),
-        BitEnumField("DelayedResponseSupport", 0, 1, SUPPORTED_NOT_SUPPORTED),
-        BitEnumField("ThermalShutdownImplementationStatus", 0, 1, SUPPORTED_NOT_SUPPORTED),
-        BitEnumField(
-            "HardwareArbitrationImplementationStatus",
-            0,
-            2,
-            {
-                0x00: "Unknown",
-                0x01: "Hardware arbitration capability is not implemented for the package on the given system",
-                0x10: "Hardware arbitration capability is implemented for the package on the given system",
-            },
+        ConditionalField(
+            PacketField("Capabilities", Data(), Data),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
-        BitEnumField(
-            "AllMulticastAddressesSupport", 0, 1, SUPPORTED_NOT_SUPPORTED
-        ),
-        BitEnumField(
-            "ManagementControllerToNetworkControllerFlowControlSupport",
-            0,
-            1,
-            SUPPORTED_NOT_SUPPORTED,
-        ),
-        BitEnumField(
-            "NetworkControllerToManagementControllerFlowControlSupport",
-            0,
-            1,
-            SUPPORTED_NOT_SUPPORTED,
-        ),
-        BitEnumField("HostNCDriverStatus", 0, 1, SUPPORTED_NOT_SUPPORTED),
-        BitEnumField("HardwareArbitrationCapability", 0, 1, SUPPORTED_NOT_SUPPORTED),
-
-        # Broadcast Packet Filter Capabilities
-        BitField("Reserved_2", 0, 28),
-        BitEnumField(
-            "NetBIOSPackets", 0, 1, FORWARD_FILTER_OUT
-        ),  # optional field (0 if unsupported)
-        BitEnumField(
-            "DHCPServerPackets", 0, 1, FORWARD_FILTER_OUT
-        ),  # optional field (0 if unsupported)
-        BitEnumField(
-            "DHCPClientPackets", 0, 1, FORWARD_FILTER_OUT
-        ),  # optional field (0 if unsupported)
-        BitEnumField("ARPPackets", 0, 1, FORWARD_FILTER_OUT),  # mandatory field
-
-        # Multicast Packet Filter Capabilities
-        BitField("Reserved_3", 0, 26),
-        BitEnumField(
-            "IPv6NeighborSolicitation", 0, 1, FORWARD_FILTER_OUT
-        ),  # optional field
-        BitEnumField("IPv6MLD", 0, 1, FORWARD_FILTER_OUT),  # optional field
-        BitEnumField(
-            "DHCPv6MulticastsFromServerToClientsListeningOnWellknownUDPPorts",
-            0,
-            1,
-            FORWARD_FILTER_OUT,
-        ),
-        # optional field
-        BitEnumField(
-            "DHCPv6RelayAndServerMulticast", 0, 1, FORWARD_FILTER_OUT
-        ),  # optional field
-        BitEnumField(
-            "IPv6RouterAdvertisement", 0, 1, FORWARD_FILTER_OUT
-        ),  # optional field
-        BitEnumField(
-            "IPv6NeighborAdvertisement", 0, 1, FORWARD_FILTER_OUT
-        ),  # optional field
-        XIntField("BufferingCapability", 0x00000000),
-
-        # AEN Control Support
-        BitField("OEMSpecificAENControl", 0, 16),
-        BitField("Reserved_4", 0, 11),
-        BitEnumField("TransceiverEventAENControl", 0, 1, ENABLE_DISABLE),
-        BitEnumField("DelayedResponseReadyAENControl", 0, 1, ENABLE_DISABLE),
-        BitEnumField("HostNCDriverStatusChangeAENControl", 0, 1, ENABLE_DISABLE),
-        BitEnumField("ConfigurationRequiredAENControl", 0, 1, ENABLE_DISABLE),
-        BitEnumField("LinkStatusChangeAENControl", 0, 1, ENABLE_DISABLE),
-        XByteField("VLANFilterCount", 0x00),
-        XByteField("MixedFilterCount", 0x00),
-        XByteField("MulticastFilterCount", 0x00),
-        XByteField("UnicastFilterCount", 0x00),
-        XShortField("Reserved_5", 0x0000),
-        BitField("Reserved_6", 0, 5),
-        BitField("AnyVLAN_NonVLAN", 0, 1),
-        BitField("VLAN_NonVLAN", 0, 1),
-        BitField("VLANOnly", 1, 1),
-        XByteField("ChannelCount", 0x00),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 93
 class GetParameters_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get Parameters Request"""
+
     name = "Get Parameters Request"
     CommandValue = 0x17
 
@@ -1197,98 +1182,116 @@ class GetParameters_Request(NCSI_PAYLOAD):
 
 
 class VLANTags(Packet):
+    """VLAN Tags"""
+
     name = "VLAN Tags"
-    fields_desc = [XLEShortField("VlanTag", 0x0000)]
+
+    fields_desc = [
+        XShortField("VlanTag", 0x0000)
+    ]
 
     def extract_padding(self, s):
-        return "", s    # this has no padding, but may have something following it
-                        # (like an array of things, so override behavior)
+        return "", s
+
 
 # DSP0222 -  Table 94
 class GetParameters_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get Parameters Response"""
+
     name = "Get Parameters Response"
     CommandValue = 0x97
+
+    class Data(Packet):
+        fields_desc = [
+            XByteField("MACAddressCount", 0x00),
+            XShortField("Reserved_1", 0x0000),
+            BitField("MACAddressFlags", 0, 8),  # Table 91 DSP0222
+
+            XByteField("VLANTagCount", 0x00),
+            XByteField("Reserved_2", 0x00),
+            BitField("VLANTagFlags", 0, 16),    # Table 92 DSP0222
+
+            IntEnumField("LinkSettings", 0x0000, LINK_SETTINGS_REASON_CODES),
+
+            XIntField("BroadcastPacketFilterSettings", 0x00000000),
+
+            BitField("Reserved_3", 0, 28),
+            BitEnumField("GlobalMulticastPacketFilterStatus", 0, 1, ENABLE_DISABLE),
+            BitEnumField("ChannelNetworkTXEnabled", 0, 1, ENABLE_DISABLE),
+            BitEnumField("ChannelEnabled", 0, 1, ENABLE_DISABLE),
+            BitEnumField("BroadcastPacketFilterStatus", 0, 1, ENABLE_DISABLE),
+            XByteEnumField(
+                "Mode",
+                0x00,
+                {
+                    0x00: "Reserved",
+                    0x01: "VlanOnly",
+                    0x02: "VlanAndNonVLAN",
+                    0x03: "AnyVlanAndNonVlan",
+                },
+            ),
+            BitEnumField(
+                "FlowControlEnable",
+                0,
+                8,
+                {
+                    0: "Disables NC-SI flow control",
+                    1: "Enables Network Controller to Management Controller flow control frames",
+                    2: "Enables Management Controller to Network Controller flow control frames",
+                    3: "Enables bi-directional flow control frames",
+                },
+            ),
+            XShortField("Reserved_4", 0x0000),
+
+            # DSP0222_1.2.0 Format AEN control
+            # BitField("OEMSpecificAENControl", 0, 16),
+            # BitField("Reserved_5", 0, 11),
+            # BitEnumField("TransceiverEventAENControl", 0, 1, ENABLE_DISABLE),
+            # BitEnumField("DelayedResponseReadyAENControl", 0, 1, ENABLE_DISABLE),
+            # BitEnumField("HostNCDriverStatusChangeAENControl", 0, 1, ENABLE_DISABLE),
+            # BitEnumField("ConfigurationRequiredAENControl", 0, 1, ENABLE_DISABLE),
+            # BitEnumField("LinkStatusChangeAENControl", 0, 1, ENABLE_DISABLE),
+
+            # DSP0222_1.1.0 Format AEN control
+            BitField("OEMSpecificAENControl", 0, 16),
+            BitField("Reserved_5", 0, 13),
+            BitEnumField("HostNCDriverStatusChangeAENControl", 0, 1, ENABLE_DISABLE),
+            BitEnumField("ConfigurationRequiredAENControl", 0, 1, ENABLE_DISABLE),
+            BitEnumField("LinkStatusChangeAENControl", 0, 1, ENABLE_DISABLE),
+
+            XByteField("MACAddress1_5", 0x00),
+            XByteField("MACAddress1_4", 0x00),
+            XByteField("MACAddress1_3", 0x00),
+            XByteField("MACAddress1_2", 0x00),
+            XByteField("MACAddress1_1", 0x00),
+            XByteField("MACAddress1_0", 0x00),
+
+            XByteField("MACAddress2_5", 0x00),
+            XByteField("MACAddress2_4", 0x00),
+            XByteField("MACAddress2_3", 0x00),
+            XByteField("MACAddress2_2", 0x00),
+            XByteField("MACAddress2_1", 0x00),
+            XByteField("MACAddress2_0", 0x00),
+
+            PacketListField(
+                "VlanTagsFields",
+                VLANTags(),
+                VLANTags,
+                count_from=lambda pkt: pkt.VLANTagCount,
+            )
+        ]
+
+        def extract_padding(self, s):
+            return ("", s)
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
 
-        XByteField("MACAddressCount", 0x00),
-        XShortField("Reserved_1", 0x0000),
-        BitField("MACAddressFlags", 0, 8),  # Table 91 DSP0222
-
-        XByteField("VLANTagCount", 0x00),
-        XByteField("Reserved_2", 0x00),
-        BitField("VLANTagFlags", 0, 16),    # Table 92 DSP0222
-
-        IntEnumField("LinkSettings", 0x0000, LINK_SETTINGS_REASON_CODES),
-
-        XIntField("BroadcastPacketFilterSettings", 0x00000000),
-
-        BitField("Reserved_3", 0, 28),
-        BitEnumField("GlobalMulticastPacketFilterStatus", 0, 1, ENABLE_DISABLE),
-        BitEnumField("ChannelNetworkTXEnabled", 0, 1, ENABLE_DISABLE),
-        BitEnumField("ChannelEnabled", 0, 1, ENABLE_DISABLE),
-        BitEnumField("BroadcastPacketFilterStatus", 0, 1, ENABLE_DISABLE),
-        XByteEnumField(
-            "Mode",
-            0x00,
-            {
-                0x00: "Reserved",
-                0x01: "VlanOnly",
-                0x02: "VlanAndNonVLAN",
-                0x03: "AnyVlanAndNonVlan",
-            },
+        ConditionalField(
+            PacketField("Parameters", Data(), Data),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
-        BitEnumField(
-            "FlowControlEnable",
-            0,
-            8,
-            {
-                0: "Disables NC-SI flow control",
-                1: "Enables Network Controller to Management Controller flow control frames",
-                2: "Enables Management Controller to Network Controller flow control frames",
-                3: "Enables bi-directional flow control frames",
-            },
-        ),
-        XShortField("Reserved_4", 0x0000),
-
-        # DSP0222_1.2.0 Format AEN control
-        # BitField("OEMSpecificAENControl", 0, 16),
-        # BitField("Reserved_5", 0, 11),
-        # BitEnumField("TransceiverEventAENControl", 0, 1, ENABLE_DISABLE),
-        # BitEnumField("DelayedResponseReadyAENControl", 0, 1, ENABLE_DISABLE),
-        # BitEnumField("HostNCDriverStatusChangeAENControl", 0, 1, ENABLE_DISABLE),
-        # BitEnumField("ConfigurationRequiredAENControl", 0, 1, ENABLE_DISABLE),
-        # BitEnumField("LinkStatusChangeAENControl", 0, 1, ENABLE_DISABLE),
-
-        # DSP0222_1.1.0 Format AEN control
-        BitField("OEMSpecificAENControl", 0, 16),
-        BitField("Reserved_5", 0, 13),
-        BitEnumField("HostNCDriverStatusChangeAENControl", 0, 1, ENABLE_DISABLE),
-        BitEnumField("ConfigurationRequiredAENControl", 0, 1, ENABLE_DISABLE),
-        BitEnumField("LinkStatusChangeAENControl", 0, 1, ENABLE_DISABLE),
-
-        XByteField("MACAddress1_5", 0x00),
-        XByteField("MACAddress1_4", 0x00),
-        XByteField("MACAddress1_3", 0x00),
-        XByteField("MACAddress1_2", 0x00),
-        XByteField("MACAddress1_1", 0x00),
-        XByteField("MACAddress1_0", 0x00),
-
-        XByteField("MACAddress2_5", 0x00),
-        XByteField("MACAddress2_4", 0x00),
-        XByteField("MACAddress2_3", 0x00),
-        XByteField("MACAddress2_2", 0x00),
-        XByteField("MACAddress2_1", 0x00),
-        XByteField("MACAddress2_0", 0x00),
-
-        PacketListField(
-            "VlanTagsFields",
-            VLANTags(),
-            VLANTags,
-            count_from=lambda pkt: pkt.VLANTagCount,
-        ),  # TODO check
 
         NcsiReversePadField(XIntField("Checksum", None), 4),
     ]
@@ -1296,6 +1299,8 @@ class GetParameters_Response(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 99
 class GetControllerPacketStatistics_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get Controller Packet Statistics Request"""
+
     name = "Get Controller Packet Statistics Request"
     CommandValue = 0x18
 
@@ -1306,53 +1311,66 @@ class GetControllerPacketStatistics_Request(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 100
 class GetControllerPacketStatistics_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get Controller Packet Statistics Response"""
+
     name = "Get Controller Packet Statistics Response"
     CommandValue = 0x98
+
+    class Data(Packet):
+        fields_desc = [
+            XLongField("CountersClearedFromLastRead", 0x0000000000000000),
+            XLongField("TotalBytesReceived", 0x0000000000000000),
+            XLongField("TotalBytesTransmitted", 0x0000000000000000),
+            XLongField("TotalUnicastPacketsReceived", 0x0000000000000000),
+            XLongField("TotalMulticastPacketsReceived", 0x0000000000000000),
+            XLongField("TotalBroadcastPacketsReceived", 0x0000000000000000),
+            XLongField("TotalUnicastPacketsTransmitted", 0x0000000000000000),
+            XLongField("TotalMulticastPacketsTransmitted", 0x0000000000000000),
+            XLongField("TotalBroadcastPacketsTransmitted", 0x0000000000000000),
+            XIntField("FCSReceiveErrors", 0x00000000),
+            XIntField("AlignmentErrors", 0x00000000),
+            XIntField("FalseCarrierDetections", 0x00000000),
+            XIntField("RuntPacketsReceived", 0x00000000),
+            XIntField("JabberPacketsReceived", 0x00000000),
+            XIntField("PauseXONFramesReceived", 0x00000000),
+            XIntField("PauseXOFFFramesReceived", 0x00000000),
+            XIntField("PauseXONFramesTransmitted", 0x00000000),
+            XIntField("PauseXOFFFramesTransmitted", 0x00000000),
+            XIntField("SingleCollisionTransmitFrames", 0x00000000),
+            XIntField("MultipleCollisionTransmitFrames", 0x00000000),
+            XIntField("LateCollisionFrames", 0x00000000),
+            XIntField("ExcessiveCollisionFrames", 0x00000000),
+            XIntField("ControlFramesReceived", 0x00000000),
+            XIntField("_64_ByteFramesReceived", 0x00000000),
+            XIntField("_65_127ByteFramesReceived", 0x00000000),
+            XIntField("_128_255ByteFramesReceived", 0x00000000),
+            XIntField("_256_511ByteFramesReceived", 0x00000000),
+            XIntField("_512_1023ByteFramesReceived", 0x00000000),
+            XIntField("_1024_1522ByteFramesReceived", 0x00000000),
+            XIntField("_1523_9022ByteFramesReceived", 0x00000000),
+            XIntField("_64_ByteFramesTransmitted", 0x00000000),
+            XIntField("_65_127ByteFramesTransmitted", 0x00000000),
+            XIntField("_128_255ByteFramesTransmitted", 0x00000000),
+            XIntField("_256_511ByteFramesTransmitted", 0x00000000),
+            XIntField("_512_1023ByteFramesTransmitted", 0x00000000),
+            XIntField("_1024_1522ByteFramesTransmitted", 0x00000000),
+            XIntField("_1523_9022ByteFramesTransmitted", 0x00000000),
+            XLongField("ValidBytesReceived", 0x0000000000000000),
+            XIntField("ErrorRuntPacketsReceived", 0x00000000),
+            XIntField("ErrorJabberPacketsReceived", 0x00000000),
+        ]
+
+        def extract_padding(self, s):
+            return ("", s)
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
 
-        XLongField("CountersClearedFromLastRead", 0x0000000000000000),
-        XLongField("TotalBytesReceived", 0x0000000000000000),
-        XLongField("TotalBytesTransmitted", 0x0000000000000000),
-        XLongField("TotalUnicastPacketsReceived", 0x0000000000000000),
-        XLongField("TotalMulticastPacketsReceived", 0x0000000000000000),
-        XLongField("TotalBroadcastPacketsReceived", 0x0000000000000000),
-        XLongField("TotalUnicastPacketsTransmitted", 0x0000000000000000),
-        XLongField("TotalMulticastPacketsTransmitted", 0x0000000000000000),
-        XLongField("TotalBroadcastPacketsTransmitted", 0x0000000000000000),
-        XIntField("FCSReceiveErrors", 0x00000000),
-        XIntField("AlignmentErrors", 0x00000000),
-        XIntField("FalseCarrierDetections", 0x00000000),
-        XIntField("RuntPacketsReceived", 0x00000000),
-        XIntField("JabberPacketsReceived", 0x00000000),
-        XIntField("PauseXONFramesReceived", 0x00000000),
-        XIntField("PauseXOFFFramesReceived", 0x00000000),
-        XIntField("PauseXONFramesTransmitted", 0x00000000),
-        XIntField("PauseXOFFFramesTransmitted", 0x00000000),
-        XIntField("SingleCollisionTransmitFrames", 0x00000000),
-        XIntField("MultipleCollisionTransmitFrames", 0x00000000),
-        XIntField("LateCollisionFrames", 0x00000000),
-        XIntField("ExcessiveCollisionFrames", 0x00000000),
-        XIntField("ControlFramesReceived", 0x00000000),
-        XIntField("_64_ByteFramesReceived", 0x00000000),
-        XIntField("_65_127ByteFramesReceived", 0x00000000),
-        XIntField("_128_255ByteFramesReceived", 0x00000000),
-        XIntField("_256_511ByteFramesReceived", 0x00000000),
-        XIntField("_512_1023ByteFramesReceived", 0x00000000),
-        XIntField("_1024_1522ByteFramesReceived", 0x00000000),
-        XIntField("_1523_9022ByteFramesReceived", 0x00000000),
-        XIntField("_64_ByteFramesTransmitted", 0x00000000),
-        XIntField("_65_127ByteFramesTransmitted", 0x00000000),
-        XIntField("_128_255ByteFramesTransmitted", 0x00000000),
-        XIntField("_256_511ByteFramesTransmitted", 0x00000000),
-        XIntField("_512_1023ByteFramesTransmitted", 0x00000000),
-        XIntField("_1024_1522ByteFramesTransmitted", 0x00000000),
-        XIntField("_1523_9022ByteFramesTransmitted", 0x00000000),
-        XLongField("ValidBytesReceived", 0x0000000000000000),
-        XIntField("ErrorRuntPacketsReceived", 0x00000000),
-        XIntField("ErrorJabberPacketsReceived", 0x00000000),
+        ConditionalField(
+            PacketField("Statistics", Data(), Data),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
 
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
@@ -1360,6 +1378,8 @@ class GetControllerPacketStatistics_Response(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 103
 class GetNCSIStatistics_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get NC-SI Statistics Request"""
+
     name = "Get NC-SI Statistics Request"
     CommandValue = 0x19
 
@@ -1370,120 +1390,40 @@ class GetNCSIStatistics_Request(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 104
 class GetNCSIStatistics_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get NC-SI Statistics Response"""
+
     name = "Get NC-SI Statistics Response"
     CommandValue = 0x99
 
-    fields_desc = [
-        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
-        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
+    class Data(Packet):
+        fields_desc = [
+            XIntField("NCSICommandsReceived", 0x00000000),
+            XIntField("NCSIControlPacketsDropped", 0x00000000),
+            XIntField("NCSICommandTypeErrors", 0x00000000),
+            XIntField("NCSICommandChecksumErrors", 0x00000000),
+            XIntField("NCSIReceivePackets", 0x00000000),
+            XIntField("NCSITransmitPackets", 0x00000000),
+            XIntField("AENsSent", 0x00000000)
+        ]
 
-        XIntField("NCSICommandsReceived", 0x00000000),
-        XIntField("NCSIControlPacketsDropped", 0x00000000),
-        XIntField("NCSICommandTypeErrors", 0x00000000),
-        XIntField("NCSICommandChecksumErrors", 0x00000000),
-        XIntField("NCSIReceivePackets", 0x00000000),
-        XIntField("NCSITransmitPackets", 0x00000000),
-        XIntField("AENsSent", 0x00000000),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 -  Table 243
-class OEMCommand_Request(NCSI_PAYLOAD):
-    name = "OEM Command Request"
-    CommandValue = 0x50
-
-    fields_desc = [
-        XIntField("ManufacturerID", 0x00000000), # https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
-        # Vendor-Data[]
-    ]
-
-
-# DSP0222 -  Table 244
-class OEMCommand_Response(NCSI_PAYLOAD):  # TODO to check
-    name = "OEM Command Response"
-    CommandValue = 0xD0
+        def extract_padding(self, s):
+            return ("", s)
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        XIntField("ManufacturerID", 0x00000000), # https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
-        # Return Data[] (optional)
-    ]
-
-
-# DSP0222 -  Table 250
-class SendNCPLDMReply_Request(NCSI_PAYLOAD):  # TODO to check
-    name = "Send NC PLDM Reply Request"
-    CommandValue = 0x57
-
-    fields_desc = [
-        # PLDM Message Common Fields
-        X3BytesField("MessageCommonFields", 0x000000),
-        XByteField("PLDMCompletionCode", 0x00),
-
-        # PLDM Message payload + Payload Pad
-        ### TODO Implement
-
-        NcsiReversePadField(XIntField("Checksum", None), 4)
-    ]
-
-
-# DSP0222 -  Table 251
-class SendNCPLDMReply_Response(NCSI_PAYLOAD):  # TODO to check
-    name = "Send NC PLDM Reply Response"
-    CommandValue = 0xD7
-
-    fields_desc = [
-        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
-        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        X3BytesField("Reserved", 0x000000),
-        BitEnumField(
-            "Flags",
-            0,
-            8,
-            {
-                0: "No additional pending PLDM command from NC to MC",
-                1: "The NC has additional pending PLDM command to the MC",
-            },
+        ConditionalField(
+            PacketField("Statistics", Data(), Data),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 -  Table 253
-class TransportSpecificAENEnable_Request(NCSI_PAYLOAD):
-    name = "Transport Specific AEN Enable Request"
-    CommandValue = 0x55
-
-    fields_desc = [
-        XShortField("Reserved_1", 0x0000),
-
-        BitField("Reserved_2", 0, 13),
-        BitEnumField("PendingSPDMRequestAEN", 0, 1, ENABLE_DISABLE),
-        BitEnumField("PendingPLDMRequestAEN", 0, 1, ENABLE_DISABLE),
-        BitEnumField("MediumChangeAENControl", 0, 1, ENABLE_DISABLE),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 -  Table 254
-class TransportSpecificAENEnable_Response(NCSI_PAYLOAD):
-    name = "Transport Specific AEN Enable Response"
-    CommandValue = 0xD5
-
-    fields_desc = [
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 276
 class PendingPLDMRequestAEN_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Pending PLDM Request AEN Request"""
+
     name = "Pending PLDM Request AEN Request"
     CommandValue = 0xFF
 
@@ -1495,33 +1435,10 @@ class PendingPLDMRequestAEN_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 258
-class GetPackageUUID_Request(NCSI_PAYLOAD):  # TODO to check
-    name = "Get Package UUID Request"
-    CommandValue = 0x52
-
-    fields_desc = [
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 -  Table 259
-class GetPackageUUID_Response(NCSI_PAYLOAD):  # TODO to check
-    name = "Get Package UUID Response"
-    CommandValue = 0xD2
-
-    fields_desc = [
-        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
-        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        PacketField("UUID", NCSI_UUID(), NCSI_UUID),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
 # DSP0222 -  Table 76
 class DisableBroadcastFilter_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Disable Broadcast Filter Request"""
+
     name = "Disable Broadcast Filter Request"
     CommandValue = 0x11
 
@@ -1532,19 +1449,22 @@ class DisableBroadcastFilter_Request(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 77
 class DisableBroadcastFilter_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Disable Broadcast Filter Response"""
+
     name = "Disable Broadcast Filter Response"
     CommandValue = 0x91
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 78
 class EnableGlobalMulticastFilter_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Enable Global Multicast Filter Request"""
+
     name = "Enable Global Multicast Filter Request"
     CommandValue = 0x12
 
@@ -1571,19 +1491,22 @@ class EnableGlobalMulticastFilter_Request(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 80
 class EnableGlobalMulticastFilter_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Enable Global Multicast Filter Response"""
+
     name = "Enable Global Multicast Filter Response"
     CommandValue = 0x92
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 81
 class DisableGlobalMulticastFilter_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Disable Global Multicast Filter Request"""
+
     name = "Disable Global Multicast Filter Request"
     CommandValue = 0x13
 
@@ -1594,19 +1517,22 @@ class DisableGlobalMulticastFilter_Request(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 82
 class DisableGlobalMulticastFilter_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Disable Global Multicast Filter Response"""
+
     name = "Disable Global Multicast Filter Response"
     CommandValue = 0x93
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 83
 class SetNCSIFlowControl_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Set NC-SI Flow Control Request"""
+
     name = "Set NC-SI Flow Control Request"
     CommandValue = 0x14
 
@@ -1617,18 +1543,20 @@ class SetNCSIFlowControl_Request(NCSI_PAYLOAD):
             0x00,
             {
                 0x00: "Disables NC-SI flow control",
-                0x01: "Enables Network Controller to Management Controller flow control frames",  # This field is optional
-                0x02: "Enables Management Controller to Network Controller flow control frames",  # This field is optional
+                0x01: "Enables Network Controller to Management Controller flow control frames",
+                0x02: "Enables Management Controller to Network Controller flow control frames",
                 0x03: "Enables bi-directional flow control frames",
             },
         ),
 
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 85
 class SetNCSIFlowControl_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Set NC-SI Flow Control Response"""
+
     name = "Set NC-SI Flow Control Response"
     CommandValue = 0x94
 
@@ -1642,28 +1570,31 @@ class SetNCSIFlowControl_Response(NCSI_PAYLOAD):
                 0x1409: "Independent transmit and receive enable/disable control is not supported",
             },
         ),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 106
 class GetNCSIPassthroughStatistics_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get NC-SI Pass-through Statistics Request"""
+
     name = "Get NC-SI Pass-through Statistics Request"
     CommandValue = 0x1A
 
     fields_desc = [
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 -  Table 107
 class GetNCSIPassthroughStatistics_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get NC-SI Pass-through Statistics Response"""
+
     name = "Get NC-SI Pass-through Statistics Response"
     CommandValue = 0x9A
 
     class NCSIPassthroughStatistics(Packet):
-        name = "NS-SI Pass-through Statisitcs"
+        name = "NS-SI Pass-through Statistics"
 
         fields_desc = [
                 XLongField("TotalPassthroughTXPacketsReceived", 0x0000000000000000),
@@ -1677,8 +1608,7 @@ class GetNCSIPassthroughStatistics_Response(NCSI_PAYLOAD):
                 XIntField("PassthroughRXPacketUndersizedErrors", 0x00000000),
                 XIntField("PassthroughRXPacketOversizedErrors", 0x00000000),
 
-                NcsiReversePadField(XIntField("Checksum", None), 4),
-
+                NcsiReversePadField(XIntField("Checksum", None), 4)
         ]
 
     fields_desc = [
@@ -1686,16 +1616,21 @@ class GetNCSIPassthroughStatistics_Response(NCSI_PAYLOAD):
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
 
         ConditionalField(
-            PacketField("Stats",NCSIPassthroughStatistics(),NCSIPassthroughStatistics),
-            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000),
+            PacketField("Stats", NCSIPassthroughStatistics(), NCSIPassthroughStatistics),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+
         ConditionalField(
             NcsiReversePadField(XIntField("Checksum", None), 4),
-            lambda pkt: pkt.ResponseCode != 0x0000 or pkt.ReasonCode != 0x0000),
+            lambda pkt: pkt.ResponseCode != 0x0000 or pkt.ReasonCode != 0x0000
+        )
     ]
 
 
 # DSP0222 -  Table 108
 class GetPackageStatus_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Get Package Status Request"""
+
     name = "Get Package Status Request"
     CommandValue = 0x1B
 
@@ -1706,21 +1641,33 @@ class GetPackageStatus_Request(NCSI_PAYLOAD):
 
 # DSP0222 -  Table 110
 class GetPackageStatus_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Get Package Status Response"""
+
     name = "Get Package Status Response"
     CommandValue = 0x9B
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        BitField("Reserved", 0, 31),
-        BitEnumField("HardwareArbitrationStatus", 0, 1, SUPPORTED_NOT_SUPPORTED),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
+        ConditionalField(
+            BitField("Reserved", 0, 30),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            BitEnumField("DelayedResponseStatus", 0, 1, ENABLE_DISABLE),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            BitEnumField("HardwareArbitrationStatus", 0, 1, SUPPORTED_NOT_SUPPORTED),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 class UnsupportedNcsi_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Test Unsupported NCSI Command Request"""
+
     name = "Test Unsupported NCSI Command Request"
     CommandValue = 0x72
 
@@ -1730,248 +1677,15 @@ class UnsupportedNcsi_Request(NCSI_PAYLOAD):
 
 
 class UnsupportedNcsi_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.1.0 Test Unsupported NCSI Command Response"""
+
     name = "Test Unsupported NCSI Command Response"
     CommandValue = 0xf2
 
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 - Table 212
-class GetAsicTemperature_Request(NCSI_PAYLOAD):
-    """Get ASIC Temperature Request"""
-
-    name = "Get ASIC Temperature Request"
-    CommandValue = 0x48
-
-    fields_desc = [
-        XIntField("Reserved", 0x00000000),
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 - Table 213
-class GetAsicTemperature_Response(NCSI_PAYLOAD):
-    """Get ASIC Temperature Response"""
-
-    name = "Get ASIC Temperature Response"
-    CommandValue = GetAsicTemperature_Request.CommandValue | 0x80
-
-    fields_desc = [
-        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
-        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-        XShortField("MaximumTemperature", 0x00),
-        XShortField("CurrentTemperature", 0x00),
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 - Table 214
-class GetAmbientTemperature_Request(NCSI_PAYLOAD):
-    """Get Ambient Temperature Request"""
-
-    name = "Get Ambient Temperature Request"
-    CommandValue = 0x49
-
-    fields_desc = [
-        XIntField("Reserved", 0x00000000),
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 - Table 215
-class GetAmbientTemperature_Response(NCSI_PAYLOAD):
-    """Get Ambient Temperature Response"""
-
-    name = "Get ASIC Temperature Response"
-    CommandValue = GetAmbientTemperature_Request.CommandValue | 0x80
-
-    fields_desc = [
-        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
-        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        XByteField("TemperatureValue_3", 0x00),
-        XByteField("TemperatureValue_2", 0x00),
-        XByteField("TemperatureValue_1", 0x00),
-        ByteField("NumberOfSensors", 0x00),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 - Table 216
-class GetTransceiverTemperature_Request(NCSI_PAYLOAD):
-    """Get Transceiver Temperature Request"""
-
-    name = "Get Transceiver Temperature Request"
-    CommandValue = 0x4A
-
-    fields_desc = [
-        XIntField("Reserved", 0x00000000),
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 - Table 217
-class GetTransceiverTemperature_Response(NCSI_PAYLOAD):
-    """Get Transceiver Temperature Response"""
-
-    name = "Get Transceiver Temperature Response"
-    CommandValue = GetTransceiverTemperature_Request.CommandValue | 0x80
-
-    fields_desc = [
-        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
-        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        XShortField("TempHighAlarmThreshold", 0x0000),
-        XShortField("TempHighWarningThreshold", 0x0000),
-        XShortField("TemperatureValue", 0x0000),
-        XShortField("Reserved", 0x0000),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 - Table 129
-class GetChannelConfiguration_Request(NCSI_PAYLOAD):
-    """Get Channel Configuration Request"""
-
-    name = "Get Channel Configuration Request"
-    CommandValue = 0x29
-
-    fields_desc = [
         NcsiReversePadField(XIntField("Checksum", None), 4)
-    ]
-
-
-class GetChannelConfigurationEntry(Packet):
-    """Get Channel Configuration Entry"""
-
-    name = "Get Channel Configuration Entry"
-    fields_desc = [
-        ByteField("Max_TX_BW", 0),
-        ByteField("Min_TX_BW", 0)
-    ]
-
-
-# DSP0222 - Table 130
-class GetChannelConfiguration_Response(NCSI_PAYLOAD):
-    """Get Channel Configuration Response"""
-
-    name = "Get Channel Configuration Response"
-    CommandValue = GetChannelConfiguration_Request.CommandValue | 0x80
-
-    fields_desc = [
-        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
-        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-        ByteEnumField("FabricType",
-                      0,
-                      {
-                          1 : "Ethernet operation is enabled",
-                          2 : "Fibre Channel operation is enabled",
-                          3 : "InfiniBand operation is enabled",
-                      },
-        ),
-        BitEnumField("SharedInterface",
-                     0,
-                     1,
-                     {
-                         0 : "The media does not have a backplane interface",
-                         1 : "The media has a backplane interface",
-                     },
-        ),
-        BitField("Reserved_0", 0, 4),
-        BitEnumField("SFF_Cage",
-                     0,
-                     1,
-                     {
-                         0 : "The media does not have an SFF-style interface",
-                         1 : "The media has an SFF-style interface",
-                     },
-        ),
-        BitEnumField("Base_T",
-                     0,
-                     1,
-                     {
-                         0 : "The media does not have an SFF-style interface",
-                         1 : "The media has a Base-T (RJ-45 style) interface",
-                     },
-        ),
-        BitEnumField("Backplane",
-                     0,
-                     1,
-                     {
-                         0 : "The media does not have a backplane interface",
-                         1 : "The media has a backplane interface",
-                     },
-        ),
-        XShortField("MaxMTU", 0x0000),
-        X3BytesField("Reserved_1", 0x000000),
-        FieldLenField("NumEnabledPartitions", None, count_of="Data", fmt="B"),
-        PacketListField(
-            "Data",
-            None,
-            GetChannelConfigurationEntry,
-            count_from=lambda pkt: pkt.NumEnabledPartitions
-        ),
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 - Table 187
-class GetModuleManagementData_Request(NCSI_PAYLOAD):
-    """Get Module Management Data Request"""
-
-    name = "Get Module Management Data Request"
-    CommandValue = 0x32
-
-    fields_desc = [
-        ByteField("RequestedBank", 0),
-        ByteField("RequestedPage", 0),
-        ByteField("Reserved_0", 0),
-
-        # Flags Field
-        BitField("Reserved_1", 0, 7),
-        BitEnumField("PageUpperFlag",
-                     0,
-                     1,
-                     {
-                         0 : "Requesting lower page data",
-                         1 : "Requesting upper page data",
-                     },
-        ),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
-    ]
-
-
-# DSP0222 - Table 188
-class GetModuleManagementData_Response(NCSI_PAYLOAD):
-    """Get Module Management Data Response"""
-
-    name = "Get Module Management Data Response"
-    CommandValue = GetModuleManagementData_Request.CommandValue | 0x80
-
-    fields_desc = [
-        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
-        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        ByteField("MaxBank", 0),
-        ByteField("MaxPage", 0),
-        ByteField("BankNumber", 0),
-        ByteField("PageNumber", 0),
-
-        FieldListField(
-            "Data",
-            [],
-            XByteField("", 0x00),
-            count_from=lambda pkt: 128
-        ),
-
-        NcsiReversePadField(XIntField("Checksum", None), 4),
     ]
 
 
@@ -2004,14 +1718,18 @@ register_ncsi_class(EnableVlan_Request)
 register_ncsi_class(EnableVlan_Response)
 register_ncsi_class(DisableVlan_Request)
 register_ncsi_class(DisableVlan_Response)
-register_ncsi_class(GetSupportedMedia_Request)
-register_ncsi_class(GetSupportedMedia_Response)
-register_ncsi_class(GetMcMacAddress_Request)
-register_ncsi_class(GetMcMacAddress_Response)
 register_ncsi_class(SetMACAddress_Request)
 register_ncsi_class(SetMACAddress_Response)
 register_ncsi_class(EnableBroadcastFilter_Request)
 register_ncsi_class(EnableBroadcastFilter_Response)
+register_ncsi_class(DisableBroadcastFilter_Request)
+register_ncsi_class(DisableBroadcastFilter_Response)
+register_ncsi_class(EnableGlobalMulticastFilter_Request)
+register_ncsi_class(EnableGlobalMulticastFilter_Response)
+register_ncsi_class(DisableGlobalMulticastFilter_Request)
+register_ncsi_class(DisableGlobalMulticastFilter_Response)
+register_ncsi_class(SetNCSIFlowControl_Request)
+register_ncsi_class(SetNCSIFlowControl_Response)
 register_ncsi_class(GetVersionID_Request)
 register_ncsi_class(GetVersionID_Response)
 register_ncsi_class(GetCapabilities_Request)
@@ -2022,39 +1740,10 @@ register_ncsi_class(GetControllerPacketStatistics_Request)
 register_ncsi_class(GetControllerPacketStatistics_Response)
 register_ncsi_class(GetNCSIStatistics_Request)
 register_ncsi_class(GetNCSIStatistics_Response)
-# register_ncsi_class(OEMCommand_Request)
-register_ncsi_class(OEMCommand_Response)
-register_ncsi_class(SendNCPLDMReply_Request)
-register_ncsi_class(SendNCPLDMReply_Response)
-# register_ncsi_class(TransportSpecificAENEnable_Request)
-# register_ncsi_class(TransportSpecificAENEnable_Response)
-# register_ncsi_class(PendingPLDMRequestAEN_Request)
-register_ncsi_class(GetPackageUUID_Request)
-register_ncsi_class(GetPackageUUID_Response)
-register_ncsi_class(DisableBroadcastFilter_Request)
-register_ncsi_class(DisableBroadcastFilter_Response)
-register_ncsi_class(EnableGlobalMulticastFilter_Request)
-register_ncsi_class(EnableGlobalMulticastFilter_Response)
-register_ncsi_class(DisableGlobalMulticastFilter_Request)
-register_ncsi_class(DisableGlobalMulticastFilter_Response)
-register_ncsi_class(SetNCSIFlowControl_Request)
-register_ncsi_class(SetNCSIFlowControl_Response)
 register_ncsi_class(GetNCSIPassthroughStatistics_Request)
 register_ncsi_class(GetNCSIPassthroughStatistics_Response)
 register_ncsi_class(GetPackageStatus_Request)
 register_ncsi_class(GetPackageStatus_Response)
-
-register_ncsi_class(GetAsicTemperature_Request)
-register_ncsi_class(GetAsicTemperature_Response)
-register_ncsi_class(GetAmbientTemperature_Request)
-register_ncsi_class(GetAmbientTemperature_Response)
-register_ncsi_class(GetTransceiverTemperature_Request)
-register_ncsi_class(GetTransceiverTemperature_Response)
-register_ncsi_class(GetChannelConfiguration_Request)
-register_ncsi_class(GetChannelConfiguration_Response)
-register_ncsi_class(GetModuleManagementData_Request)
-register_ncsi_class(GetModuleManagementData_Response)
-
 register_ncsi_class(UnsupportedNcsi_Request)
 register_ncsi_class(UnsupportedNcsi_Response)
 register_ncsi_class(AEN)

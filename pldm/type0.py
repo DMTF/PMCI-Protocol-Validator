@@ -36,7 +36,7 @@ class SetTID_Request(PLDM_TYPE_0_PAYLOAD):
     CommandValue = 0x01
 
     fields_desc = [
-        XByteField("TID", 0x01),
+        XByteField("TID", 0x01)
     ]
 
 
@@ -60,7 +60,10 @@ class GetTID_Response(PLDM_TYPE_0_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        ByteField("TID", 0x00),
+        ConditionalField(
+            ByteField("TID", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -78,7 +81,7 @@ class GetPldmVersion_Request(PLDM_TYPE_0_PAYLOAD):
                 0x01: "GetFirstPart",
             },
         ),
-        XByteField("PldmType", 0x00),
+        XByteField("PldmType", 0x00)
     ]
 
 
@@ -97,18 +100,30 @@ class GetPldmVersion_Response(PLDM_TYPE_0_PAYLOAD):
                 0x83: "INVALID_PLDM_TYPE_IN_REQUEST_DATA",
             },
         ),
-        XLEIntField("NextDataTransferHandle", 0x00),
-        ByteEnumField("TransferFlag", 0x01, TransferFlags),
+        ConditionalField(
+            XLEIntField("NextDataTransferHandle", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            ByteEnumField("TransferFlag", 0x01, TransferFlags),
+             lambda pkt: pkt.CompletionCode == 0
+        ),
         # there will be a number of 32 bit version fields, the number can be
         # calculated by subtracting from the total length, the fields before
         # this, the checksum and then divide by 4.
-        FieldListField(
-            "Version",
-            None,
-            XLEIntField("", 0x00000000),
-            count_from=lambda pkt: pkt.NumVersions,
+        ConditionalField(
+            FieldListField(
+                "Version",
+                None,
+                XLEIntField("", 0x00000000),
+                count_from=lambda pkt: pkt.NumVersions,
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        XLEIntField("PLDMVersionDataIntegrityChecksum", None),
+        ConditionalField(
+            XLEIntField("PLDMVersionDataIntegrityChecksum", None),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
     __slots__ = ["NumVersions"]
@@ -154,14 +169,39 @@ class GetPldmTypes_Response(PLDM_TYPE_0_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        BitEnumField("Type7", 0, 1, {0: "Not supported", 1: "Supported"}),
-        BitEnumField("Type6", 0, 1, {0: "Not supported", 1: "Supported"}),
-        BitEnumField("Type5", 0, 1, {0: "Not supported", 1: "Supported"}),
-        BitEnumField("Type4", 0, 1, {0: "Not supported", 1: "Supported"}),
-        BitEnumField("Type3", 0, 1, {0: "Not supported", 1: "Supported"}),
-        BitEnumField("Type2", 0, 1, {0: "Not supported", 1: "Supported"}),
-        BitEnumField("Type1", 0, 1, {0: "Not supported", 1: "Supported"}),
-        BitEnumField("Type0", 0, 1, {0: "Not supported", 1: "Supported"}),
+
+        ConditionalField(
+            BitEnumField("Type7", 0, 1, {0: "Not supported", 1: "Supported"}),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            BitEnumField("Type6", 0, 1, {0: "Not supported", 1: "Supported"}),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            BitEnumField("Type5", 0, 1, {0: "Not supported", 1: "Supported"}),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            BitEnumField("Type4", 0, 1, {0: "Not supported", 1: "Supported"}),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            BitEnumField("Type3", 0, 1, {0: "Not supported", 1: "Supported"}),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            BitEnumField("Type2", 0, 1, {0: "Not supported", 1: "Supported"}),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            BitEnumField("Type1", 0, 1, {0: "Not supported", 1: "Supported"}),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            BitEnumField("Type0", 0, 1, {0: "Not supported", 1: "Supported"}),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -202,7 +242,7 @@ class GetPldmCommands_Response(PLDM_TYPE_0_PAYLOAD):
                 0x83: "INVALID_PLDM_TYPE_IN_REQUEST_DATA",
                 0x84: "INVALID_PLDM_VERSION_IN_REQUEST_DATA",
             },
-        ),
+        )
     ]
 
     # 256 bitfields for 256 commands in 32 bytes
@@ -233,7 +273,7 @@ class SelectPLDMVersion_Request(PLDM_TYPE_0_PAYLOAD):
                 # 0x7 - 0x3E - Reserved
             },
         ),
-        XLEIntField("Version", 0x00000000),
+        XLEIntField("Version", 0x00000000)
     ]
 
 
@@ -307,7 +347,7 @@ class NegotiateTransferParameters_Request(PLDM_TYPE_0_PAYLOAD):
             0,
             1,
             {0: "Not supported", 1: "Supported"},
-        ),
+        )
     ]
 
 
@@ -317,55 +357,83 @@ class NegotiateTransferParameters_Response(PLDM_TYPE_0_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        XLEShortField("ResponderPartSize", 0x0000),
-        BitEnumField(
-            "ResponderProtocolType7_Supported",
-            0,
-            1,
-            {0: "Not supported", 1: "Supported"},
+        ConditionalField(
+            XLEShortField("ResponderPartSize", 0x0000),
+
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        BitEnumField(
-            "ResponderProtocolType6_Supported",
-            0,
-            1,
-            {0: "Not supported", 1: "Supported"},
+        ConditionalField(
+            BitEnumField(
+                "ResponderProtocolType7_Supported",
+                0,
+                1,
+                {0: "Not supported", 1: "Supported"},
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        BitEnumField(
-            "ResponderProtocolType5_Supported",
-            0,
-            1,
-            {0: "Not supported", 1: "Supported"},
+        ConditionalField(
+            BitEnumField(
+                "ResponderProtocolType6_Supported",
+                0,
+                1,
+                {0: "Not supported", 1: "Supported"},
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        BitEnumField(
-            "ResponderProtocolType4_Supported",
-            0,
-            1,
-            {0: "Not supported", 1: "Supported"},
+        ConditionalField(
+            BitEnumField(
+                "ResponderProtocolType5_Supported",
+                0,
+                1,
+                {0: "Not supported", 1: "Supported"},
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        BitEnumField(
-            "ResponderProtocolType3_Supported",
-            0,
-            1,
-            {0: "Not supported", 1: "Supported"},
+        ConditionalField(
+            BitEnumField(
+                "ResponderProtocolType4_Supported",
+                0,
+                1,
+                {0: "Not supported", 1: "Supported"},
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        BitEnumField(
-            "ResponderProtocolType2_Supported",
-            0,
-            1,
-            {0: "Not supported", 1: "Supported"},
+        ConditionalField(
+            BitEnumField(
+                "ResponderProtocolType3_Supported",
+                0,
+                1,
+                {0: "Not supported", 1: "Supported"},
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        BitEnumField(
-            "ResponderProtocolType1_Supported",
-            0,
-            1,
-            {0: "Not supported", 1: "Supported"},
+        ConditionalField(
+            BitEnumField(
+                "ResponderProtocolType2_Supported",
+                0,
+                1,
+                {0: "Not supported", 1: "Supported"},
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        BitEnumField(
-            "ResponderProtocolType0_Supported",
-            0,
-            1,
-            {0: "Not supported", 1: "Supported"},
+        ConditionalField(
+            BitEnumField(
+                "ResponderProtocolType1_Supported",
+                0,
+                1,
+                {0: "Not supported", 1: "Supported"},
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
+        ConditionalField(
+            BitEnumField(
+                "ResponderProtocolType0_Supported",
+                0,
+                1,
+                {0: "Not supported", 1: "Supported"},
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -416,17 +484,20 @@ class MultipartSend_Response(PLDM_TYPE_0_PAYLOAD):
             0x00,
             {**PLDM_BASE_CODES, 0x83: "INVALID_PLDM_TYPE_IN_REQUEST_DATA"},
         ),
-        XByteEnumField(
-            "NextTransferOperation",
-            0x00,
-            {
-                0x00: "XFER_FIRST_PART",
-                0x01: "XFER_NEXT_PART",
-                0x02: "XFER_ABORT",
-                0x04: "XFER_COMPLETE",
-                0x05: "XFER_CURRENT_PART",
-            },
-        ),
+        ConditionalField(
+            XByteEnumField(
+                "NextTransferOperation",
+                0x00,
+                {
+                    0x00: "XFER_FIRST_PART",
+                    0x01: "XFER_NEXT_PART",
+                    0x02: "XFER_ABORT",
+                    0x04: "XFER_COMPLETE",
+                    0x05: "XFER_CURRENT_PART",
+                },
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -478,16 +549,32 @@ class MultipartReceive_Response(PLDM_TYPE_0_PAYLOAD):
             0x00,
             {**PLDM_BASE_CODES, 0x83: "INVALID_PLDM_TYPE_IN_REQUEST_DATA"},
         ),
-        ByteEnumField("TransferFlag", 0x01, TransferFlags),
-        XLEIntField("NextDataTransferHandle", 0x00000000),
-        XLEIntField("DataLengthBytes", 0x00000000),
-        FieldListField(
-            "Data",
-            [],
-            XByteField("", 0x00),
-            count_from=lambda pkt: pkt.DataLengthBytes
+        ConditionalField(
+            ByteEnumField("TransferFlag", 0x01, TransferFlags),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        XLEIntField("DataIntegrityChecksum", 0x00000000),
+        ConditionalField(
+            XLEIntField("NextDataTransferHandle", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XLEIntField("DataLengthBytes", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            FieldListField(
+                "Data",
+                [],
+                XByteField("", 0x00),
+                count_from=lambda pkt: pkt.DataLengthBytes
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+
+            XLEIntField("DataIntegrityChecksum", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -495,7 +582,7 @@ class MultipartReceive_Response(PLDM_TYPE_0_PAYLOAD):
 bind_layers(PLDM_HEADER, PLDM_TYPE_0_PAYLOAD, PldmType=0x00)
 
 
-### Determine Commands/Packets based on Payload Type, Rq/Rs & Command Type
+### Determine Commands/Packets based on Payload Type, Rq/Rs & Command Type ###
 register_pldm_class(SetTID_Request)
 register_pldm_class(SetTID_Response)
 register_pldm_class(GetTID_Request)

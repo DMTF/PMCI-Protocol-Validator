@@ -23,11 +23,10 @@ from pldm.dmtf import (
 
 DSP0218_COMPLIANCE_VERSION = int.from_bytes([1, 1, 2, 0], 'big')
 
-
 class PLDM_TYPE_6_PAYLOAD(PLDM_PAYLOAD):
     """base class for all PLDM Type 6 Message Payloads"""
 
-    name = "Redfish over PLDM "
+    name = "Redfish over PLDM"
     PldmPayloadType = 0x06
 
 
@@ -40,7 +39,6 @@ schemaClass = {
     4: "ERROR",
     5: "REGISTRY",
 }
-
 
 COMPLETION_CODES = {
     **PLDM_BASE_CODES,
@@ -93,7 +91,7 @@ class BejTupleF(Packet):
     ]
 
     def extract_padding(self, s):
-        return( "", s)
+        return ("", s)
 
 
 class nnint_encoding(Packet):
@@ -108,11 +106,11 @@ class nnint_encoding(Packet):
             [],
             XByteField("", 0x00),
             count_from=lambda pkt: pkt.Length
-        ),
+        )
     ]
 
     def extract_padding(self, s):
-        return("", s)
+        return ("", s)
 
 
 class bejLocator(Packet):
@@ -120,11 +118,11 @@ class bejLocator(Packet):
 
     name = "bejLocator"
     fields_desc = [
-        PacketField("Format", nnint_encoding(), nnint_encoding),
+        PacketField("Format", nnint_encoding(), nnint_encoding)
     ]
 
     def extract_padding(self, s):
-        return("", s)
+        return ("", s)
 
 
 class bejEncoding(Packet):
@@ -139,7 +137,7 @@ class bejEncoding(Packet):
     ]
 
     def extract_padding(self, s):
-        return("", s)
+        return ("", s)
 
 
 """
@@ -168,7 +166,7 @@ class DictionaryEntry(Packet):
         LEShortField("NameOffset", None),
         StrLenField(
             "Name", "", length_from=lambda pkt: pkt.NameLengthStr
-        ),  # Variable len Name
+        )   # Variable len Name
     ]
 
     __slots__ = ["NameStr", "DictData"]
@@ -228,31 +226,42 @@ class NegotiateRedfishParameters_Response(PLDM_TYPE_6_PAYLOAD):
     name = "Negotiate Redfish Parameters Response"
     CommandValue = 0x01
 
+    class Data(Packet):
+        fields_desc = [
+            ByteField("DeviceConcurrencySupport", 0x00),
+
+            # DeviceCapabilitiesFlags
+            BitField("NegotiateRedfishParametersReserved_0", 0, 5),
+            BitField("bej1_1_supported", 0, 1),
+            BitField("expand_supported", 0, 1),
+            BitField("atomic_resource_read", 0, 1),
+
+            # DeviceFeatureSupport
+            # byte 0
+            BitField("events_supported", 0, 1),
+            BitField("action_supported", 0, 1),
+            BitField("replace_supported", 0, 1),
+            BitField("update_supported", 0, 1),
+            BitField("delete_supported", 0, 1),
+            BitField("create_supported", 0, 1),
+            BitField("read_supported", 0, 1),
+            BitField("head_supported", 0, 1),
+
+            # byte 1
+            BitField("NegotiateRedfishParametersReserved_1", 0, 8),
+            XLEIntField("DeviceConfigurationSignature", 0x00000000),
+            PacketField("DeviceProviderName", VAR_STRING(), VAR_STRING)
+        ]
+
+        def extract_padding(self, pld):  # all payloads need to do this
+            return ("", pld,)
+
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        ByteField("DeviceConcurrencySupport", 0x00),
-
-        # DeviceCapabilitiesFlags
-        BitField("NegotiateRedfishParametersReserved_0", 0, 5),
-        BitField("bej1_1_supported", 0, 1),
-        BitField("expand_supported", 0, 1),
-        BitField("atomic_resource_read", 0, 1),
-
-        # DeviceFeatureSupport
-        # byte 0
-        BitField("events_supported", 0, 1),
-        BitField("action_supported", 0, 1),
-        BitField("replace_supported", 0, 1),
-        BitField("update_supported", 0, 1),
-        BitField("delete_supported", 0, 1),
-        BitField("create_supported", 0, 1),
-        BitField("read_supported", 0, 1),
-        BitField("head_supported", 0, 1),
-
-        # byte 1
-        BitField("NegotiateRedfishParametersReserved_1", 0, 8),
-        XLEIntField("DeviceConfigurationSignature", 0x00000000),
-        PacketField("DeviceProviderName", VAR_STRING(), VAR_STRING),
+        ConditionalField(
+            PacketField("Parameters", Data(), Data),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -271,7 +280,10 @@ class NegotiateMediumParameters_Response(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        LEIntField("DeviceMaximumTransferChunkSizeBytes", 0x00)
+        ConditionalField(
+            LEIntField("DeviceMaximumTransferChunkSizeBytes", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -291,8 +303,14 @@ class GetSchemaDictionary_Response(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        XByteField("DictionaryFormat", 0x00),
-        XLEIntField("TransferHandle", 0x00000000)
+        ConditionalField(
+            XByteField("DictionaryFormat", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+        XLEIntField("TransferHandle", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -313,12 +331,18 @@ class GetSchemaURI_Response(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        FieldLenField("StringFragmentCount", None, fmt="B", count_of="SchemaURIs"),
-        PacketListField(
-            "SchemaURIs",
-            None,
-            VAR_STRING,
-            count_from=lambda pkt: pkt.StringFragmentCount,
+        ConditionalField(
+            FieldLenField("StringFragmentCount", None, fmt="B", count_of="SchemaURIs"),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            PacketListField(
+                "SchemaURIs",
+                None,
+                VAR_STRING,
+                count_from=lambda pkt: pkt.StringFragmentCount,
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         )
     ]
 
@@ -338,7 +362,10 @@ class GetResourceETag_Response(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        PacketField("ETag", VAR_STRING(), VAR_STRING)
+        ConditionalField(
+        PacketField("ETag", VAR_STRING(), VAR_STRING),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -358,7 +385,10 @@ class GetOEMCount_Response(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        XByteField("OEMCount", 0x00)
+        ConditionalField(
+        XByteField("OEMCount", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -379,7 +409,10 @@ class GetOEMName_Response(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        PacketField("OEMName", VAR_STRING(), VAR_STRING)
+        ConditionalField(
+        PacketField("OEMName", VAR_STRING(), VAR_STRING),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -394,7 +427,10 @@ class GetRegistryCount_Response(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        XByteField("RegistryCount", 0x00)
+        ConditionalField(
+        XByteField("RegistryCount", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -413,16 +449,30 @@ class GetRegistryDetails_Response(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        PacketField("RegistryPrefix", VAR_STRING(), VAR_STRING),
-        PacketField("RegistryURI", VAR_STRING(), VAR_STRING),
-        # TODO: to check
-        XByteField("RegistryLanguage", 0x00),
-        XByteField("VersionCount", 0x00),
-        FieldListField(
-            "RecordData",
-            [],
-            XLEIntField("", 0x00000000),
-            count_from=lambda pkt: pkt.VersionCount,
+        ConditionalField(
+            PacketField("RegistryPrefix", VAR_STRING(), VAR_STRING),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            PacketField("RegistryURI", VAR_STRING(), VAR_STRING),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XByteField("RegistryLanguage", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XByteField("VersionCount", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            FieldListField(
+                "RecordData",
+                [],
+                XLEIntField("", 0x00000000),
+                count_from=lambda pkt: pkt.VersionCount,
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         )
     ]
 
@@ -461,8 +511,14 @@ class GetMessageRegistry_Response(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        XByteField("SchemaFormat", 0x00),
-        XLEIntField("TransferHandle", 0x00000000)
+        ConditionalField(
+            XByteField("SchemaFormat", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XLEIntField("TransferHandle", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -483,8 +539,14 @@ class GetSchemaFile_Response(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        XByteField("SchemaFormat", 0x00),
-        XLEIntField("TransferHandle", 0x00000000)
+        ConditionalField(
+            XByteField("SchemaFormat", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XLEIntField("TransferHandle", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -523,43 +585,54 @@ class RDEOperationInit_Response(PLDM_TYPE_6_PAYLOAD):
     name = "RDE Operation Init Response"
     CommandValue = 0x10
 
+    class Data(Packet):
+        fields_desc = [
+            ByteEnumField("OperationStatus", 0, OPERATION_STATUS),
+            ByteField("CompletionPercentage", 0),
+            XLEIntField("CompletionTimeSeconds", 0x00000000),
+
+            # OperationExecutionFlags
+            BitField("Reserved_1", 0, 4),
+            BitField("CacheAllowed", 0, 1),
+            BitField("HaveResultPayload", 0, 1),
+            BitField("HaveCustomResponseParameters", 0, 1),
+            BitField("TaskSpawned", 0, 1),
+            XLEIntField("ResultTransferHandle", 0x00000000),
+
+            # PermissionFlags
+            BitField("Reserved", 0, 2),
+            BitField("HeadAccess", 0, 1),
+            BitField("DeleteAccess", 0, 1),
+            BitField("CreateAccess", 0, 1),
+            BitField("ReplaceAccess", 0, 1),
+            BitField("UpdateAccess", 0, 1),
+            BitField("ReadAccess", 0, 1),
+            XLEIntField("ResponsePayloadLength", 0x00000000),
+            PacketField("ETag", VAR_STRING(), VAR_STRING),
+            MultipleTypeField(
+                [
+                    (
+                        XByteField("ResponsePayload", 0x00),
+                        lambda pkt: pkt.ResponsePayloadLength == 0,
+                    ),
+                    # null if ResponsePayloadLength == 0
+                    (
+                        PacketField("ResponsePayload", bejEncoding(), bejEncoding),
+                        lambda pkt: pkt.ResponsePayloadLength > 0,
+                    ),
+                ],
+                XByteField("ResponsePayload", 0x00)
+            )
+        ]
+
+        def extract_padding(self, pld):  # all payloads need to do this
+            return ("", pld,)
+
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        ByteEnumField("OperationStatus", 0, OPERATION_STATUS),
-        ByteField("CompletionPercentage", 0),
-        XLEIntField("CompletionTimeSeconds", 0x00000000),
-
-        # OperationExecutionFlags
-        BitField("Reserved_1", 0, 4),
-        BitField("CacheAllowed", 0, 1),
-        BitField("HaveResultPayload", 0, 1),
-        BitField("HaveCustomResponseParameters", 0, 1),
-        BitField("TaskSpawned", 0, 1),
-        XLEIntField("ResultTransferHandle", 0x00000000),
-
-        # PermissionFlags
-        BitField("Reserved", 0, 2),
-        BitField("HeadAccess", 0, 1),
-        BitField("DeleteAccess", 0, 1),
-        BitField("CreateAccess", 0, 1),
-        BitField("ReplaceAccess", 0, 1),
-        BitField("UpdateAccess", 0, 1),
-        BitField("ReadAccess", 0, 1),
-        XLEIntField("ResponsePayloadLength", 0x00000000),
-        PacketField("ETag", VAR_STRING(), VAR_STRING),
-        MultipleTypeField(
-            [
-                (
-                    XByteField("ResponsePayload", 0x00),
-                    lambda pkt: pkt.ResponsePayloadLength == 0,
-                ),
-                # null if ResponsePayloadLength == 0
-                (
-                    PacketField("ResponsePayload", bejEncoding(), bejEncoding),
-                    lambda pkt: pkt.ResponsePayloadLength > 0,
-                ),
-            ],
-            XByteField("ResponsePayload", 0x00),
+        ConditionalField(
+            PacketField("Parameters", Data(), Data),
+            lambda pkt: pkt.CompletionCode == 0
         )
     ]
 
@@ -626,43 +699,54 @@ class SupplyCustomRequestParameters_Response(PLDM_TYPE_6_PAYLOAD):
     name = "Supply Custom Parameters Response"
     CommandValue = 0x11
 
+    class Data(Packet):
+        fields_desc = [
+            ByteEnumField("OperationStatus", 0, OPERATION_STATUS),
+            ByteField("CompletionPercentage", 0),
+            XLEIntField("CompletionTimeSeconds", 0x00000000),
+
+            # OperationExecutionFlags
+            BitField("Reserved_1", 0, 4),
+            BitField("CacheAllowed", 0, 1),
+            BitField("HaveResultPayload", 0, 1),
+            BitField("HaveCustomResponseParameters", 0, 1),
+            BitField("TaskSpawned", 0, 1),
+            XLEIntField("ResultTransferHandle", 0x00000000),
+
+            # PermissionFlags
+            BitField("Reserved", 0, 2),
+            BitField("HeadAccess", 0, 1),
+            BitField("DeleteAccess", 0, 1),
+            BitField("CreateAccess", 0, 1),
+            BitField("ReplaceAccess", 0, 1),
+            BitField("UpdateAccess", 0, 1),
+            BitField("ReadAccess", 0, 1),
+            XLEIntField("ResponsePayloadLength", 0x00000000),
+            PacketField("ETag", VAR_STRING(), VAR_STRING),
+            MultipleTypeField(
+                [
+                    (
+                        XByteField("ResponsePayload", 0x00),
+                        lambda pkt: pkt.ResponsePayloadLength == 0,
+                    ),
+                    # null if ResponsePayloadLength == 0
+                    (
+                        PacketField("ResponsePayload", bejEncoding(), bejEncoding),
+                        lambda pkt: pkt.ResponsePayloadLength > 0,
+                    ),
+                ],
+                XByteField("ResponsePayload", 0x00)
+            )
+        ]
+
+        def extract_padding(self, pld):  # all payloads need to do this
+            return ("", pld,)
+
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        ByteEnumField("OperationStatus", 0, OPERATION_STATUS),
-        ByteField("CompletionPercentage", 0),
-        XLEIntField("CompletionTimeSeconds", 0x00000000),
-
-        # OperationExecutionFlags
-        BitField("Reserved_1", 0, 4),
-        BitField("CacheAllowed", 0, 1),
-        BitField("HaveResultPayload", 0, 1),
-        BitField("HaveCustomResponseParameters", 0, 1),
-        BitField("TaskSpawned", 0, 1),
-        XLEIntField("ResultTransferHandle", 0x00000000),
-
-        # PermissionFlags
-        BitField("Reserved", 0, 2),
-        BitField("HeadAccess", 0, 1),
-        BitField("DeleteAccess", 0, 1),
-        BitField("CreateAccess", 0, 1),
-        BitField("ReplaceAccess", 0, 1),
-        BitField("UpdateAccess", 0, 1),
-        BitField("ReadAccess", 0, 1),
-        XLEIntField("ResponsePayloadLength", 0x00000000),
-        PacketField("ETag", VAR_STRING(), VAR_STRING),
-        MultipleTypeField(
-            [
-                (
-                    XByteField("ResponsePayload", 0x00),
-                    lambda pkt: pkt.ResponsePayloadLength == 0,
-                ),
-                # null if ResponsePayloadLength == 0
-                (
-                    PacketField("ResponsePayload", bejEncoding(), bejEncoding),
-                    lambda pkt: pkt.ResponsePayloadLength > 0,
-                ),
-            ],
-            XByteField("ResponsePayload", 0x00),
+        ConditionalField(
+            PacketField("Parameters", Data(), Data),
+            lambda pkt: pkt.CompletionCode == 0
         )
     ]
 
@@ -673,7 +757,7 @@ class RetrieveCustomResponseParameters_Request(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XLEIntField("ResourceID", 0x00000000),
-        XLEShortField("OperationID", 0x0000),
+        XLEShortField("OperationID", 0x0000)
     ]
 
 
@@ -683,15 +767,27 @@ class RetrieveCustomResponseParameters_Response(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        XLEIntField("DeferralTimeframe", 0x00000000),
-        XLEIntField("NewResourceID", 0x00000000),
-        XByteField("ResponseHeaderCount", 0x00),
-        PacketListField(
-            "Headers",
-            SupplyCustomParameters(),
-            SupplyCustomParameters,
-            count_from=lambda pkt: pkt.ResponseHeaderCount,
+        ConditionalField(
+            XLEIntField("DeferralTimeframe", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
         ),
+        ConditionalField(
+            XLEIntField("NewResourceID", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XByteField("ResponseHeaderCount", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            PacketListField(
+                "Headers",
+                SupplyCustomParameters(),
+                SupplyCustomParameters,
+                count_from=lambda pkt: pkt.ResponseHeaderCount,
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -728,46 +824,56 @@ class RDEOperationStatus_Response(PLDM_TYPE_6_PAYLOAD):
     name = "RDE Operation Status Response"
     CommandValue = 0x14
 
+    class Data(Packet):
+        fields_desc = [
+            ByteEnumField("OperationStatus", 0, OPERATION_STATUS),
+            ByteField("CompletionPercentage", 0),
+            XLEIntField("CompletionTimeSeconds", 0x00000000),
+
+            # OperationExecutionFlags
+            BitField("Reserved_1", 0, 4),
+            BitField("CacheAllowed", 0, 1),
+            BitField("HaveResultPayload", 0, 1),
+            BitField("HaveCustomResponseParameters", 0, 1),
+            BitField("TaskSpawned", 0, 1),
+            XLEIntField("ResultTransferHandle", 0x00000000),
+
+            # PermissionFlags
+            BitField("Reserved", 0, 2),
+            BitField("HeadAccess", 0, 1),
+            BitField("DeleteAccess", 0, 1),
+            BitField("CreateAccess", 0, 1),
+            BitField("ReplaceAccess", 0, 1),
+            BitField("UpdateAccess", 0, 1),
+            BitField("ReadAccess", 0, 1),
+            XLEIntField("ResponsePayloadLength", 0x00000000),
+            PacketField("ETag", VAR_STRING(), VAR_STRING),
+            MultipleTypeField(
+                [
+                    (
+                        XByteField("ResponsePayload", 0x00),
+                        lambda pkt: pkt.ResponsePayloadLength == 0,
+                    ),
+                    # null if ResponsePayloadLength == 0
+                    (
+                        PacketField("ResponsePayload", bejEncoding(), bejEncoding),
+                        lambda pkt: pkt.ResponsePayloadLength > 0,
+                    ),
+                ],
+                XByteField("ResponsePayload", 0x00)   # Default field
+            )
+        ]
+
+        def extract_padding(self, pld):  # all payloads need to do this
+            return ("", pld,)
+
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        ByteEnumField("OperationStatus", 0, OPERATION_STATUS),
-        ByteField("CompletionPercentage", 0),
-        XLEIntField("CompletionTimeSeconds", 0x00000000),
-
-        # OperationExecutionFlags
-        BitField("Reserved_1", 0, 4),
-        BitField("CacheAllowed", 0, 1),
-        BitField("HaveResultPayload", 0, 1),
-        BitField("HaveCustomResponseParameters", 0, 1),
-        BitField("TaskSpawned", 0, 1),
-        XLEIntField("ResultTransferHandle", 0x00000000),
-
-        # PermissionFlags
-        BitField("Reserved", 0, 2),
-        BitField("HeadAccess", 0, 1),
-        BitField("DeleteAccess", 0, 1),
-        BitField("CreateAccess", 0, 1),
-        BitField("ReplaceAccess", 0, 1),
-        BitField("UpdateAccess", 0, 1),
-        BitField("ReadAccess", 0, 1),
-        XLEIntField("ResponsePayloadLength", 0x00000000),
-        PacketField("ETag", VAR_STRING(), VAR_STRING),
-        MultipleTypeField(
-            [
-                (
-                    XByteField("ResponsePayload", 0x00),
-                    lambda pkt: pkt.ResponsePayloadLength == 0,
-                ),
-                # null if ResponsePayloadLength == 0
-                (
-                    PacketField("ResponsePayload", bejEncoding(), bejEncoding),
-                    lambda pkt: pkt.ResponsePayloadLength > 0,
-                ),
-            ],
-            XByteField("ResponsePayload", 0x00),  # Default field
+        ConditionalField(
+            PacketField("Status", Data(), Data),
+            lambda pkt: pkt.CompletionCode == 0
         )
     ]
-
 
 class RDEOperationKill_Request(PLDM_TYPE_6_PAYLOAD):
     name = "RDE Operation Kill Request"
@@ -816,8 +922,10 @@ class RDEOperationEnumerate_Response(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        XLEShortField("OperationCount", 0x0000),
-        # TODO: to check
+        ConditionalField(
+            XLEShortField("OperationCount", 0x0000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
         ConditionalField(
             PacketListField(
                 "Resources",
@@ -825,7 +933,7 @@ class RDEOperationEnumerate_Response(PLDM_TYPE_6_PAYLOAD):
                 RDEOperationEnumerateFields,
                 count_from=lambda pkt: pkt.OperationCount,
             ),
-            lambda pkt: pkt.OperationCount != 0x0000,
+            lambda pkt: pkt.OperationCount != 0x0000 and pkt.CompletionCode == 0
         )
     ]
 
@@ -859,7 +967,7 @@ class MultipartSend_Request(PLDM_TYPE_6_PAYLOAD):
             lambda pkt: pkt.TransferFlag == 0x04 or pkt.TransferFlag == 0x05,
         ),
 
-        # NOTE: if building this packet via Scapy, you must calculate and insert
+        # NOTE: if building a packet via Scapy, you must calculate and insert
         # the checksum yourself in the last packet - otherwise this framework
         # would have to keep track of all the the previous data packets created
         # up til the final one.
@@ -872,7 +980,10 @@ class MultipartSend_Response(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        ByteEnumField("TransferOperation", 0, TransferOperation)
+        ConditionalField(
+            ByteEnumField("TransferOperation", 0, TransferOperation),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -893,21 +1004,34 @@ class MultipartReceive_Response(PLDM_TYPE_6_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, COMPLETION_CODES),
-        ByteEnumField(
-            "TransferFlag", 0, {0: "Start", 1: "Middle", 2: "End", 3: "StartAndEnd"}
+        ConditionalField(
+            ByteEnumField(
+                "TransferFlag", 0, {0: "Start", 1: "Middle", 2: "End", 3: "StartAndEnd"}
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        XLEIntField("NextTransferHandle", 0x00000000),
-        FieldLenField("DataLengthBytes", None, "Data", "<I"),
-        FieldListField(
-            "Data", [], ByteField, count_from=lambda pkt: pkt.DataLengthBytes
+        ConditionalField(
+            XLEIntField("NextTransferHandle", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
         ),
+        ConditionalField(
+            FieldLenField("DataLengthBytes", None, "Data", "<I"),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            FieldListField(
+                "Data", [], ByteField, count_from=lambda pkt: pkt.DataLengthBytes
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+
         # Checksum only there if is end of transfer
         ConditionalField(
             XLEIntField("DataIntegrityChecksum", None),
-            lambda pkt: pkt.TransferFlag == 0x04 or pkt.TransferFlag == 0x05,
+            lambda pkt: (pkt.TransferFlag == 0x04 or pkt.TransferFlag == 0x05,) and pkt.CompletionCode == 0
         )
 
-        # NOTE: if building this packet via Scapy, you must calculate and insert
+        # NOTE: if building a packet via Scapy, you must calculate and insert
         # the checksum yourself in the last packet - otherwise this framework
         # would have to keep track of all the the previous data packets created
         # up til the final one.
@@ -919,10 +1043,10 @@ bind_layers(PLDM_HEADER, PLDM_TYPE_6_PAYLOAD, PldmType=0x06)
 
 
 # Register Commands/Packets based on Payload Type, Rq/Rs and Command Type
-register_pldm_class(NegotiateRedfishParameters_Request)     #
-register_pldm_class(NegotiateRedfishParameters_Response)    #
-register_pldm_class(NegotiateMediumParameters_Request)      #
-register_pldm_class(NegotiateMediumParameters_Response)     #
+register_pldm_class(NegotiateRedfishParameters_Request)
+register_pldm_class(NegotiateRedfishParameters_Response)
+register_pldm_class(NegotiateMediumParameters_Request)
+register_pldm_class(NegotiateMediumParameters_Response)
 register_pldm_class(GetSchemaDictionary_Request)
 register_pldm_class(GetSchemaDictionary_Response)
 register_pldm_class(GetSchemaURI_Request)

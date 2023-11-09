@@ -42,17 +42,13 @@ def test_NegotiateRedfishParameters_Request(class_type):
     return
 
 
-@pytest.mark.parametrize("class_type", NegotiateRedfishParameters_Response())
-def test_NegotiateRedfishParameters_Response(class_type):
-    """Verify NegotiateRedfishParameters_Response initialization"""
+@pytest.mark.parametrize("class_type", NegotiateRedfishParameters_Response.Data())
+def test_NegotiateRedfishParametersData(class_type):
+    """Verify NegotiateRedfishParameters_Response data structure"""
 
-    assert (class_type.CommandValue == NegotiateRedfishParameters_Request.CommandValue), \
-        "Incorrect command code"
-    assert (len(class_type.fields_desc) == 17), "Incorrect number of fields"
+    assert (len(class_type.fields_desc) == 16), "Incorrect number of fields"
 
-    assert (class_type.CompletionCode == 0x00)
     assert (class_type.DeviceConcurrencySupport == 0x00)
-
     assert (class_type.NegotiateRedfishParametersReserved_0 == 0x00)
     assert (class_type.bej1_1_supported == 0x00)
     assert (class_type.expand_supported == 0x00)
@@ -71,6 +67,18 @@ def test_NegotiateRedfishParameters_Response(class_type):
     assert (class_type.DeviceConfigurationSignature == 0x00)
     return
 
+
+@pytest.mark.parametrize("class_type", NegotiateRedfishParameters_Response())
+def test_NegotiateRedfishParameters_Response(class_type):
+    """Verify NegotiateRedfishParameters_Response initialization"""
+
+    assert (class_type.CommandValue == NegotiateRedfishParameters_Request.CommandValue), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
+    assert (class_type.CompletionCode == 0x00)
+    assert (class_type.Parameters is not None)
+    return
 
 @pytest.mark.parametrize("class_type", NegotiateMediumParameters_Request())
 def test_NegotiateMediumParameters_Request(class_type):
@@ -368,16 +376,12 @@ def test_RDEOperationInit_Request(class_type):
     return
 
 
-@pytest.mark.parametrize("class_type", RDEOperationInit_Response())
-def test_RDEOperationInit_Response(class_type):
-    """Verify RDEOperationInit_Response initialization"""
+@pytest.mark.parametrize("class_type", RDEOperationInit_Response.Data())
+def test_RDEOperationInitData(class_type):
+    """Verify RDEOperationInit_Response data structure"""
 
-    assert (class_type.CommandValue == RDEOperationInit_Request.CommandValue), \
-        "Incorrect command code"
+    assert (len(class_type.fields_desc) == 19), "Incorrect number of fields"
 
-    assert (len(class_type.fields_desc) == 20), "Incorrect number of fields"
-
-    assert (class_type.CompletionCode == 0x00)
     assert (class_type.OperationStatus == 0x00)
     assert (class_type.CompletionPercentage == 0x00)
     assert (class_type.CompletionTimeSeconds == 0x00)
@@ -398,6 +402,19 @@ def test_RDEOperationInit_Response(class_type):
     assert (class_type.ResponsePayloadLength == 0x00)
     assert (class_type.ETag is not None)
     assert (class_type.ResponsePayload == 0x00)
+    return
+
+
+@pytest.mark.parametrize("class_type", RDEOperationInit_Response())
+def test_RDEOperationInit_Response(class_type):
+    """Verify RDEOperationInit_Response initialization"""
+
+    assert (class_type.CommandValue == RDEOperationInit_Request.CommandValue), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
+    assert (class_type.CompletionCode == 0x00)
+    assert (class_type.Parameters is not None)
     return
 
 
@@ -441,16 +458,11 @@ def test_SupplyCustomRequestParameters_Request(class_type):
     return
 
 
-@pytest.mark.parametrize("class_type", SupplyCustomRequestParameters_Response())
-def test_SupplyCustomRequestParameters_Response(class_type):
-    """Verify SupplyCustomRequestParameters_Response initialization"""
+@pytest.mark.parametrize("class_type", SupplyCustomRequestParameters_Response.Data())
+def test_SupplyCustomRequestParametersData(class_type):
+    """Verify SupplyCustomRequestParameters_Response data structure"""
 
-    assert (class_type.CommandValue == SupplyCustomRequestParameters_Request.CommandValue), \
-        "Incorrect command code"
-
-    assert (len(class_type.fields_desc) == 20), "Incorrect number of fields"
-
-    assert (class_type.CompletionCode == 0x00)
+    assert (len(class_type.fields_desc) == 19), "Incorrect number of fields"
     assert (class_type.OperationStatus == 0x00)
     assert (class_type.CompletionPercentage == 0x00)
     assert (class_type.CompletionTimeSeconds == 0x00)
@@ -472,6 +484,19 @@ def test_SupplyCustomRequestParameters_Response(class_type):
     assert (class_type.ResponsePayloadLength == 0x00)
     assert (class_type.ETag is not None)
     assert (class_type.ResponsePayload == 0x00)
+    return
+
+
+@pytest.mark.parametrize("class_type", SupplyCustomRequestParameters_Response())
+def test_SupplyCustomRequestParameters_Response(class_type):
+    """Verify SupplyCustomRequestParameters_Response initialization"""
+
+    assert (class_type.CommandValue == SupplyCustomRequestParameters_Request.CommandValue), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
+    assert (class_type.CompletionCode == 0x00)
+    assert (class_type.Parameters is not None)
     return
 
 
@@ -537,16 +562,12 @@ def test_RDEOperationStatus_Request(class_type):
     return
 
 
-@pytest.mark.parametrize("class_type", RDEOperationStatus_Response())
-def test_RDEOperationStatus_Response(class_type):
-    """Verify RDEOperationStatus_Response initialization"""
+@pytest.mark.parametrize("class_type", RDEOperationStatus_Response.Data())
+def test_RDEOperationStatusData(class_type):
+    """Verify RDEOperationStatus_Response data structure"""
 
-    assert (class_type.CommandValue == RDEOperationStatus_Request.CommandValue), \
-        "Incorrect command code"
+    assert (len(class_type.fields_desc) == 19), "Incorrect number of fields"
 
-    assert (len(class_type.fields_desc) == 20), "Incorrect number of fields"
-
-    assert (class_type.CompletionCode == 0x00)
     assert (class_type.OperationStatus == 0x00)
     assert (class_type.CompletionPercentage == 0x00)
     assert (class_type.CompletionTimeSeconds == 0x00)
@@ -570,6 +591,18 @@ def test_RDEOperationStatus_Response(class_type):
     assert (class_type.ResponsePayload == 0x00)
     return
 
+
+@pytest.mark.parametrize("class_type", RDEOperationStatus_Response())
+def test_RDEOperationStatus_Response(class_type):
+    """Verify RDEOperationStatus_Response initialization"""
+
+    assert (class_type.CommandValue == RDEOperationStatus_Request.CommandValue), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
+    assert (class_type.CompletionCode == 0x00)
+    assert (class_type.Status is not None)
+    return
 
 @pytest.mark.parametrize("class_type", RDEOperationKill_Request())
 def test_RDEOperationKill_Request(class_type):

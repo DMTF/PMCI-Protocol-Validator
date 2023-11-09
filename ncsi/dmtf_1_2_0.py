@@ -12,12 +12,31 @@ from scapy.fields import *  # pylint: disable=unused-import, unused-wildcard-imp
 from scapy.packet import Packet
 
 from ncsi.dmtf_enums import *  # pylint: disable=unused-import, unused-wildcard-import
-from ncsi.dmtf import NcsiReversePadField, NCSI_PAYLOAD
+from ncsi.dmtf import NcsiReversePadField, NCSI_PAYLOAD, register_ncsi_class
 
-""" TODO List
-0x27 GetPfAssignment    # TODO Complete implementation
-0x28 SetPfAssignment    # TODO Complete implementation
-"""
+
+# DSP0222 - Table 260
+class NCSI_UUID(Packet):
+    """This is the NC-SI format, per DSP0222"""
+
+    name = "UUID"
+    UUID_NODE_LEN = 6
+
+    fields_desc = [
+        XIntField("TimeLow", 0x00000000),
+        XShortField("TimeMid", 0x0000),
+        XShortField("TimeHighAndVersion", 0x0000),
+        XShortField("ClockSeqAndReserved", 0x0000),
+        scapy.layers.l2.DestMACField(
+            "Node"
+        ),  # it may not be a MAC, but is 6 bytes, so this works well
+    ]
+
+    def extract_padding(self, s):
+        return (
+            "",
+            s,
+        )  # this has no padding, but may have something following it (like an array of things, so override behavior)
 
 
 # DSP0222 - Table 111
@@ -108,7 +127,7 @@ class GetNcCapabilitiesSettings_Response(NCSI_PAYLOAD):
 
 # DSP0222 - Table 118
 class GetPfAssignment_Request(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Get PF Assignment Request"
+    """DSP0222 v1.2.0 Get PF Assignment Request"""
 
     name = "Get PF Assignment Request"
     CommandValue = 0x27
@@ -120,7 +139,7 @@ class GetPfAssignment_Request(NCSI_PAYLOAD):
 
 # DSP0222 v1.2.0 - Table 119
 class GetPfAssignment_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Get PF Assignment Response"
+    """DSP0222 v1.2.0 Get PF Assignment Response"""
 
     name = "Get PF Assignment Response"
     CommandValue = GetPfAssignment_Request.CommandValue | 0x80
@@ -137,7 +156,7 @@ class GetPfAssignment_Response(NCSI_PAYLOAD):
 
 # DSP0222 - Table 127
 class SetPfAssignment_Request(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Set PF Assignment Request"
+    """DSP0222 v1.2.0 Set PF Assignment Request"""
 
     name = "Get PF Assignment Request"
     CommandValue = 0x28
@@ -152,7 +171,7 @@ class SetPfAssignment_Request(NCSI_PAYLOAD):
 
 # DSP0222 v1.2.0 - Table 128
 class SetPfAssignment_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Set PF Assignment Response"
+    """DSP0222 v1.2.0 Set PF Assignment Response"""
 
     name = "Get PF Assignment Response"
     CommandValue = SetPfAssignment_Request.CommandValue | 0x80
@@ -166,7 +185,7 @@ class SetPfAssignment_Response(NCSI_PAYLOAD):
 
 # DSP0222 - Table 129
 class GetChannelConfiguration_Request(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Get Channel Configuration Request"
+    """DSP0222 v1.2.0 Get Channel Configuration Request"""
 
     name = "Get Channel Configuration Request"
     CommandValue = 0x29
@@ -185,74 +204,90 @@ class ChannelConfigurationEntry(Packet):
         ByteField("MinTxBW", 0)
     ]
 
+    def extract_padding(self, s):
+        return ("", s)
+
 
 # DSP0222 v1.2.0 - Table 130
 class GetChannelConfiguration_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Get Channel Configuration Response"
+    """DSP0222 v1.2.0 Get Channel Configuration Response"""
 
     name = "Get Channel Configuration Response"
     CommandValue = GetChannelConfiguration_Request.CommandValue | 0x80
 
+    class Data(Packet):
+        name = "Get Channel Configuration Response Data"
+
+        fields_desc = [
+            ByteEnumField(
+                "FabricType",
+                0,
+                {
+                    1: "Ethernet operation is enabled",
+                    2: "Fibre Channel operation is enabled",
+                    3: "InfiniBand operation is enabled",
+                }
+            ),
+            # Media field
+            BitEnumField(
+                "SharedInterface",
+                0,
+                1,
+                {
+                    0: "The media is dedicated to one NC-SI channel",
+                    1: "The media is shared between multiple channels",
+                }
+            ),
+            BitField("Reserved_0", 0, 4),
+            BitEnumField(
+                "SFFcage",
+                0,
+                1,
+                {
+                    0: "The media does not have an SFF-style interface",
+                    1: "The media has an SFF-style interface",
+                }
+            ),
+            BitEnumField(
+                "BaseT",
+                0,
+                1,
+                {
+                    0: "The media does not have a Base-T interface",
+                    1: "The media has a Base-T (RJ-45 style) interface",
+                }
+            ),
+            BitEnumField(
+                "Backplane",
+                0,
+                1,
+                {
+                    0: "The media does not have a backplane interface",
+                    1: "The media has a backplane interface",
+                }
+            ),
+            ShortField("MaxMTU", 0),
+            X3BytesField("Reserved_1", 0x000000),
+            FieldLenField(
+                "NumEnabledPartitions", None, count_of="Bandwidth", fmt="B"
+            ),
+            PacketListField(
+                "Bandwidth",
+                None,
+                ChannelConfigurationEntry,
+                count_from=lambda pkt: pkt.NumEnabledPartitions
+            )
+        ]
+
+        def extract_padding(self, s):
+            return ("", s)
+
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-        ByteEnumField(
-            "FabricType",
-            0,
-            {
-                1: "Ethernet operation is enabled",
-                2: "Fibre Channel operation is enabled",
-                3: "InfiniBand operation is enabled",
-            }
-        ),
-        # Media field
-        BitEnumField(
-            "SharedInterface",
-            0,
-            1,
-            {
-                0: "The media is dedicated to one NC-SI channel",
-                1: "The media is shared between multiple channels",
-            }
-        ),
-        BitField("Reserved_0", 0, 4),
-        BitEnumField(
-            "SFFcage",
-            0,
-            1,
-            {
-                0: "The media does not have an SFF-style interface",
-                1: "The media has an SFF-style interface",
-            }
-        ),
-        BitEnumField(
-            "BaseT",
-            0,
-            1,
-            {
-                0: "The media does not have a Base-T interface",
-                1: "The media has a Base-T (RJ-45 style) interface",
-            }
-        ),
-        BitEnumField(
-            "Backplane",
-            0,
-            1,
-            {
-                0: "The media does not have a backplane interface",
-                1: "The media has a backplane interface",
-            }
-        ),
-        ShortField("MaxMTU", 0),
-        X3BytesField("Reserved_1", 0x000000),
-        FieldLenField(
-            "NumEnabledPartitions", None, count_of="Bandwidth", fmt="B"
-        ),
-        PacketListField(
-            "Bandwidth",
-            None,
-            ChannelConfigurationEntry,
-            count_from=lambda pkt: pkt.NumEnabledPartitions
+        ConditionalField(
+            PacketField("CfgData", Data(), Data),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
@@ -260,7 +295,7 @@ class GetChannelConfiguration_Response(NCSI_PAYLOAD):
 
 # DSP0222 - Table 129
 class SetChannelConfiguration_Request(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Set Channel Configuration Request"
+    """DSP0222 v1.2.0 Set Channel Configuration Request"""
 
     name = "Set Channel Configuration Request"
     CommandValue = 0x2A
@@ -292,7 +327,7 @@ class SetChannelConfiguration_Request(NCSI_PAYLOAD):
 
 # DSP0222 v1.2.0 - Table 130
 class SetChannelConfiguration_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Set Channel Configuration Response"
+    """DSP0222 v1.2.0 Set Channel Configuration Response"""
 
     name = "Set Channel Configuration Response"
     CommandValue = SetChannelConfiguration_Request.CommandValue | 0x80
@@ -312,14 +347,20 @@ class GetPartitionConfiguration_Request(NCSI_PAYLOAD):
     CommandValue = 0x2B
 
     fields_desc = [
+        ByteField("PartitionID", 0),
+        X3BytesField("Reserved", 0x000000),
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
- # DSP0222 - Table 141
+
+# DSP0222 - Table 141
 class AddressTlvEntry(Packet):
     """Table 141 - Address Type-Length-Value Field Bit Definitions"""
 
     fields_desc = [
+        FieldLenField(
+            "AddressLength", None, count_of="Address", fmt="B"
+        ),
         XByteEnumField(
             "AddressType",
             0,
@@ -343,250 +384,258 @@ class AddressTlvEntry(Packet):
                 0xF8: "InfiniBand VPort/LID",
             }
         ),
-        FieldLenField(
-            "AddressLength", None, count_of="Address", fmt="B"
-        ),
-        FieldListField(
+        MACField(
             "Address",
-            [],
-            XByteField("", 0x00),
-            count_from=lambda pkt: pkt.AddressLength,
+            "00:00:00:00:00:00"
         )
     ]
+
+    def extract_padding(self, s):
+        return ("", s)
 
 
 # DSP0222 v1.2.0 - Table 137
 class GetPartitionConfiguration_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Get Partition Configuration Response"
+    """DSP0222 v1.2.0 Get Partition Configuration Response"""
 
     name = "Get Partition Configuration Response"
     CommandValue = GetPartitionConfiguration_Request.CommandValue | 0x80
 
+    class Data(Packet):
+
+        fields_desc = [
+            # Personality Configuration Field
+            BitField("Reserved_0", 0, 1),
+            BitEnumField(
+                "NVMeCfg",
+                0,
+                1,
+                {
+                    0: "NVMe operation is not enabled",
+                    1: "NVMe operation is enabled",
+                }
+            ),
+            BitEnumField(
+                "RDMAStatusCfg",
+                0,
+                1,
+                {
+                    0: "RDMA operation is not enabled",
+                    1: "RDMA operation is enabled",
+                }
+            ),
+            BitEnumField(
+                "iSCSIOffloadStatusCfg",
+                0,
+                1,
+                {
+                    0: "iSCSI Offload operation is not enabled",
+                    1: "iSCSI Offload operation is enabled",
+                }
+            ),
+            BitEnumField(
+                "InfiniBandStatusCfg",
+                0,
+                1,
+                {
+                    0: "InfiniBand operation is not enabled",
+                    1: "InfiniBand operation is enabled",
+                }
+            ),
+            BitEnumField(
+                "FibreChannelOverEthernetStatusCfg",
+                0,
+                1,
+                {
+                    0: "Fibre Channel over Ethernet operation is not enabled",
+                    1: "Fibre Channel over Ethernet operation is enabled",
+                }
+            ),
+            BitEnumField(
+                "FibreChannelStatusCfg",
+                0,
+                1,
+                {
+                    0: "Fibre Channel operation is not enabled",
+                    1: "Fibre Channel operation is enabled",
+                }
+            ),
+            BitEnumField(
+                "EthernetStatusCfg",
+                0,
+                1,
+                {
+                    0: "Ethernet operation is not enabled",
+                    1: "Ethernet operation is enabled",
+                }
+            ),
+
+            # Personality Support
+            BitField("Reserved_1", 0, 1),
+            BitEnumField(
+                "NVMeSpt",
+                0,
+                1,
+                {
+                    0: "NVMe operation is not supported",
+                    1: "NVMe operation is supported",
+                }
+            ),
+            BitEnumField(
+                "RDMAStatusSpt",
+                0,
+                1,
+                {
+                    0: "RDMA operation is not supported",
+                    1: "RDMA operation is supported",
+                }
+            ),
+            BitEnumField(
+                "iSCSIOffloadStatusSpt",
+                0,
+                1,
+                {
+                    0: "iSCSI Offload operation is not supported",
+                    1: "iSCSI Offload operation is supported",
+                }
+            ),
+            BitEnumField(
+                "InfiniBandStatusSpt",
+                0,
+                1,
+                {
+                    0: "InfiniBand operation is not supported",
+                    1: "InfiniBand operation is supported",
+                }
+            ),
+            BitEnumField(
+                "FibreChannelOverEthernetStatusSpt",
+                0,
+                1,
+                {
+                    0: "Fibre Channel over Ethernet operation is not supported",
+                    1: "Fibre Channel over Ethernet operation is supported",
+                }
+            ),
+            BitEnumField(
+                "FibreChannelStatusSpt",
+                0,
+                1,
+                {
+                    0: "Fibre Channel operation is not supported",
+                    1: "Fibre Channel operation is supported",
+                }
+            ),
+            BitEnumField(
+                "EthernetStatusSpt",
+                0,
+                1,
+                {
+                    0: "Ethernet operation is not supported",
+                    1: "Ethernet operation is supported",
+                }
+            ),
+
+            # Configuration Flags Field
+            BitField("Reserved_2", 0, 9),
+            BitEnumField(
+                "Bootable",
+                0,
+                1,
+                {
+                    0: "The partition does not support boot",
+                    1: "The partition supports boot and reporting",
+                }
+            ),
+            BitEnumField(
+                "BootStatus",
+                0,
+                1,
+                {
+                    0: "The partition is not configured for boot",
+                    1: "The partition is configured for boot",
+                }
+            ),
+            BitEnumField(
+                "PartitionLinkStatusReporting",
+                0,
+                1,
+                {
+                    0: "Partition Link Status reporting is not supported",
+                    1: "Partition Link Status reporting (bit 2) is supported",
+                }
+            ),
+            BitEnumField(
+                "PartitionLinkStatus",
+                0,
+                2,
+                {
+                    0: "When reporting is supported, Partition Link is down",
+                    1: "When reporting is supported, Partition Link is forced up",
+                    2: "When reporting is supported, Partition Link follows Channel Link",
+                    3: "Reserved"
+                }
+            ),
+            BitEnumField(
+                "HostDriverStatusReporting",
+                0,
+                1,
+                {
+                    0: "Host Driver status reporting is not supported",
+                    1: "Host Driver status reporting (bit 0) is supported",
+                }
+            ),
+            BitEnumField(
+                "HostDriverStatus",
+                0,
+                1,
+                {
+                    0: "When reporting is supported, a Host driver is not present on the partition",
+                    1: "When reporting is supported, a Host driver is present on the partition",
+                }
+            ),
+            ByteField("MaxTxBW", 0),
+            ByteField("MinTxBW", 0),
+            XShortField("Reserved_3", 0x0000),
+            XShortField("PCI_DID", 0x0000),
+            XShortField("PCI_VID", 0x0000),
+            XShortField("PCI_SSID", 0x0000),
+            XShortField("PCI_SVID", 0x0000),
+
+            XByteField("PCIeEndpointNum", 0x00),
+            XByteField("PCIeBusNum", 0x00),
+            XByteField("PCIeDeviceNum", 0x00),
+            XByteField("PCIeFunctionNum", 0x00),
+
+            XByteField("Reserved_4", 0x00),
+            FieldLenField(
+                "AddressCount", 0, count_of="AddressTLVs", fmt="B"
+            ),
+            PacketListField(
+                "AddressTLVs",
+                None,
+                AddressTlvEntry,
+                count_from=lambda pkt: pkt.AddressCount
+            )
+        ]
+
+        def extract_padding(self, s):
+            return ("", s)
+
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        # Personality Configuration Field
-        BitField("Reserved_0", 0, 1),
-        BitEnumField(
-            "NVMeCfg",
-            0,
-            1,
-            {
-                0: "NVMe operation is not enabled",
-                1: "NVMe operation is enabled",
-            }
+        ConditionalField(
+            PacketField("CfgData", Data(), Data),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
-        BitEnumField(
-            "RDMAStatusCfg",
-            0,
-            1,
-            {
-                0: "RDMA operation is not enabled",
-                1: "RDMA operation is enabled",
-            }
-        ),
-        BitEnumField(
-            "iSCSIOffloadStatusCfg",
-            0,
-            1,
-            {
-                0: "iSCSI Offload operation is not enabled",
-                1: "iSCSI Offload operation is enabled",
-            }
-        ),
-        BitEnumField(
-            "InfiniBandStatusCfg",
-            0,
-            1,
-            {
-                0: "InfiniBand operation is not enabled",
-                1: "InfiniBand operation is enabled",
-            }
-        ),
-        BitEnumField(
-            "FibreChannelOverEthernetStatusCfg",
-            0,
-            1,
-            {
-                0: "Fibre Channel over Ethernet operation is not enabled",
-                1: "Fibre Channel over Ethernet operation is enabled",
-            }
-        ),
-        BitEnumField(
-            "FibreChannelStatusCfg",
-            0,
-            1,
-            {
-                0: "Fibre Channel operation is not enabled",
-                1: "Fibre Channel operation is enabled",
-            }
-        ),
-        BitEnumField(
-            "EthernetStatusCfg",
-            0,
-            1,
-            {
-                0: "Ethernet operation is not enabled",
-                1: "Ethernet operation is enabled",
-            }
-        ),
-
-        # Personality Support
-        BitField("Reserved_1", 0, 1),
-        BitEnumField(
-            "NVMeSpt",
-            0,
-            1,
-            {
-                0: "NVMe operation is not supported",
-                1: "NVMe operation is supported",
-            }
-        ),
-        BitEnumField(
-            "RDMAStatusSpt",
-            0,
-            1,
-            {
-                0: "RDMA operation is not supported",
-                1: "RDMA operation is supported",
-            }
-        ),
-        BitEnumField(
-            "iSCSIOffloadStatusSpt",
-            0,
-            1,
-            {
-                0: "iSCSI Offload operation is not supported",
-                1: "iSCSI Offload operation is supported",
-            }
-        ),
-        BitEnumField(
-            "InfiniBandStatusSpt",
-            0,
-            1,
-            {
-                0: "InfiniBand operation is not supported",
-                1: "InfiniBand operation is supported",
-            }
-        ),
-        BitEnumField(
-            "FibreChannelOverEthernetStatusSpt",
-            0,
-            1,
-            {
-                0: "Fibre Channel over Ethernet operation is not supported",
-                1: "Fibre Channel over Ethernet operation is supported",
-            }
-        ),
-        BitEnumField(
-            "FibreChannelStatusSpt",
-            0,
-            1,
-            {
-                0: "Fibre Channel operation is not supported",
-                1: "Fibre Channel operation is supported",
-            }
-        ),
-        BitEnumField(
-            "EthernetStatusSpt",
-            0,
-            1,
-            {
-                0: "Ethernet operation is not supported",
-                1: "Ethernet operation is supported",
-            }
-        ),
-
-        # Configuration Flags Field
-        BitField("Reserved_2", 0, 25),
-        BitEnumField(
-            "Bootable",
-            0,
-            1,
-            {
-                0: "The partition does not support boot",
-                1: "The partition supports boot and reporting",
-            }
-        ),
-        BitEnumField(
-            "BootStatus",
-            0,
-            1,
-            {
-                0: "The partition is not configured for boot",
-                1: "The partition is configured for boot",
-            }
-        ),
-        BitEnumField(
-            "PartitionLinkStatusReporting",
-            0,
-            1,
-            {
-                0: "Partition Link Status reporting is not supported",
-                1: "Partition Link Status reporting (bit 2) is supported",
-            }
-        ),
-        BitEnumField(
-            "PartitionLinkStatus",
-            0,
-            2,
-            {
-                0: "When reporting is supported, Partition Link is down",
-                1: "When reporting is supported, Partition Link is forced up",
-                2: "When reporting is supported, Partition Link follows Channel Link",
-                3: "Reserved"
-            }
-        ),
-        BitEnumField(
-            "HostDriverStatusReporting",
-            0,
-            1,
-            {
-                0: "Host Driver status reporting is not supported",
-                1: "Host Driver status reporting (bit 0) is supported",
-            }
-        ),
-        BitEnumField(
-            "HostDriverStatus",
-            0,
-            1,
-            {
-                0: "When reporting is supported, a Host driver is not present on the partition",
-                1: "When reporting is supported, a Host driver is present on the partition",
-            }
-        ),
-        ByteField("MaxTxBW", 0),
-        ByteField("MinTxBW", 0),
-        XShortField("Reserved_3", 0x0000),
-        XLEShortField("PCI_DID", 0x0000),
-        XLEShortField("PCI_VID", 0x0000),
-        XLEShortField("PCI_SSID", 0x0000),
-        XLEShortField("PCI_SVID", 0x0000),
-
-        XByteField("PCIeEndpointNum", 0x00),
-        XByteField("PCIeBusNum", 0x00),
-        XByteField("PCIeDeviceNum", 0x00),
-        XByteField("PCIeFunctionNum", 0x00),
-
-        XByteField("Reserved_4", 0x00),
-        FieldLenField(
-            "AddressCount", 0, count_of="AddressTLVs", fmt="B"
-        ),
-        PacketListField(
-            "AddressTLVs",
-            None,
-            AddressTlvEntry,
-            count_from=lambda pkt: pkt.AddressCount
-        ),
-
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 - Table 142
 class SetPartitionConfiguration_Request(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Set Partition Configuration Request"
+    """DSP0222 v1.2.0 Set Partition Configuration Request"""
 
     name = "Set Partition Configuration Request"
     CommandValue = 0x2C
@@ -678,7 +727,7 @@ class SetPartitionConfiguration_Request(NCSI_PAYLOAD):
 
 # DSP0222 v1.2.0 - Table 146
 class SetPartitionConfiguration_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Set Partition Configuration Response"
+    """DSP0222 v1.2.0 Set Partition Configuration Response"""
 
     name = "Set Partition Configuration Response"
     CommandValue = SetPartitionConfiguration_Request.CommandValue | 0x80
@@ -686,7 +735,6 @@ class SetPartitionConfiguration_Response(NCSI_PAYLOAD):
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
@@ -715,6 +763,9 @@ class BootProtocolTlvPXE(Packet):
             count_from=lambda pkt: pkt.Length,
         )
     ]
+
+    def extract_padding(self, s):
+        return ("", s)
 
 
 class BootProtocolTlvFC(Packet):
@@ -757,6 +808,9 @@ class BootProtocolTlvFC(Packet):
         )
     ]
 
+    def extract_padding(self, s):
+        return ("", s)
+
 
 class BootProtocolTlvFCoE(Packet):
     """DSP0222 v1.2.0 - Table 153"""
@@ -785,6 +839,9 @@ class BootProtocolTlvFCoE(Packet):
             count_from=lambda pkt: pkt.Length,
         )
     ]
+
+    def extract_padding(self, s):
+        return ("", s)
 
 
 class BootProtocolTlvISCSI(Packet):
@@ -837,6 +894,9 @@ class BootProtocolTlvISCSI(Packet):
             count_from=lambda pkt: pkt.Length,
         )
     ]
+
+    def extract_padding(self, s):
+        return ("", s)
 
 
 class BootProtocolTlvNVMeoFC(Packet):
@@ -917,6 +977,9 @@ class BootProtocolTlvNVMeoFC(Packet):
         )
     ]
 
+    def extract_padding(self, s):
+        return ("", s)
+
 
 class BootProtocolTlvGeneric(Packet):
     """Best guess at Unknown Boot Protocol TLV"""
@@ -938,6 +1001,9 @@ class BootProtocolTlvGeneric(Packet):
             count_from=lambda pkt: pkt.Length,
         )
     ]
+
+    def extract_padding(self, s):
+        return ("", s)
 
 
 # DSP0222 v1.2.0 - Table 147
@@ -976,35 +1042,48 @@ class GetBootConfig_Response(NCSI_PAYLOAD):
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
 
-        XShortField("Reserved", 0x0000),
-        XByteEnumField(
-            "ProtocolType",
-            0x00,
-            {
-                0x00: "PXE",
-                0x01: "iSCSI",
-                0x02: "FCoE",
-                0x03: "FC",
-                0x04: "NVMeoFC",
-                0xFF: "Unknown protocol type"
-            }
+        ConditionalField(
+            XShortField("Reserved", 0x0000),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
-        FieldLenField(
-            "NumberOfTLVs", None, length_of="ManagementData", fmt="B"
+        ConditionalField(
+            XByteEnumField(
+                "ProtocolType",
+                0x00,
+                {
+                    0x00: "PXE",
+                    0x01: "iSCSI",
+                    0x02: "FCoE",
+                    0x03: "FC",
+                    0x04: "NVMeoFC",
+                    0xFF: "Unknown protocol type"
+                }
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
-        PacketListField(
-            "TLVs",
-            [],
-            BootProtocolTlvGeneric(),
-            count_from=lambda pkt: pkt.NumberOfTLVs,
+        ConditionalField(
+            FieldLenField(
+                "NumberOfTLVs", None, count_of="TLVs", fmt="B"
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
+        ConditionalField(
+            PacketListField(
+                "TLVs",
+                [],
+                BootProtocolTlvGeneric(),
+                count_from=lambda pkt: pkt.NumberOfTLVs,
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 - Table 156
 class SetBootConfig_Request(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Set Boot Config Request"
+    """DSP0222 v1.2.0 Set Boot Config Request"""
 
     name = "Set Boot Config Request"
     CommandValue = 0x2E
@@ -1014,7 +1093,7 @@ class SetBootConfig_Request(NCSI_PAYLOAD):
         ByteField("Reserved", 0),
         XByteField("ProtocolType", 0x00),
         FieldLenField(
-            "NumberOfTLVs", None, length_of="ManagementData", fmt="B"
+            "NumberOfTLVs", None, count_of="TLVs", fmt="B"
         ),
         PacketListField(
             "TLVs",
@@ -1028,7 +1107,7 @@ class SetBootConfig_Request(NCSI_PAYLOAD):
 
 # DSP0222 v1.2.0 - Table 157
 class SetBootConfig_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Set Boot Config Response"
+    """DSP0222 v1.2.0 Set Boot Config Response"""
 
     name = "Set Boot Config Response"
     CommandValue = SetBootConfig_Request.CommandValue | 0x80
@@ -1036,7 +1115,6 @@ class SetBootConfig_Response(NCSI_PAYLOAD):
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
@@ -1301,6 +1379,9 @@ class GetPartitionStatisticsEthernet(Packet):
         XIntField("TotalBroadcastBytesTransmittedLower", 0x00000000),
     ]
 
+    def extract_padding(self, s):
+        return ("", s)
+
 
 class GetPartitionStatisticsFCoE(Packet):
     """Table 164 - Get Partition Statistics (FCoE) response"""
@@ -1400,6 +1481,9 @@ class GetPartitionStatisticsFCoE(Packet):
         XIntField("TotalFCoePacketsTransmittedUpper", 0x00000000),
         XIntField("TotalFCoePacketsTransmittLower", 0x00000000),
     ]
+
+    def extract_padding(self, s):
+        return ("", s)
 
 
 class GetPartitionStatisticsISCSI(Packet):
@@ -1505,6 +1589,9 @@ class GetPartitionStatisticsISCSI(Packet):
         XIntField("TotaliSCSIOffloadPacketsTransmittedUpper", 0x00000000),
         XIntField("TotaliSCSIOffloadPacketsTransmittLower", 0x00000000),
     ]
+
+    def extract_padding(self, s):
+        return ("", s)
 
 
 class GetPartitionStatisticsIB(Packet):
@@ -1684,6 +1771,9 @@ class GetPartitionStatisticsIB(Packet):
         IntField("TotalMulticastBytesTransmittedLower", 0x00000000),
     ]
 
+    def extract_padding(self, s):
+        return ("", s)
+
 
 class GetPartitionStatisticsFC(Packet):
     """Table 176 - Get Partition Statistics (FC) response"""
@@ -1785,6 +1875,9 @@ class GetPartitionStatisticsFC(Packet):
         XIntField("LossOfSignal", 0x00000000),
         XIntField("InvalidCRCs", 0x00000000),
     ]
+
+    def extract_padding(self, s):
+        return ("", s)
 
 
 class GetPartitionStatisticsRDMA(Packet):
@@ -1944,6 +2037,9 @@ class GetPartitionStatisticsRDMA(Packet):
         XIntField("TotalWritePacketsTransmittedLower", 0x00000000),
     ]
 
+    def extract_padding(self, s):
+        return ("", s)
+
 
 # DSP0222 v1.2.0 - Table 161
 class GetPartitionStatistics_Response(NCSI_PAYLOAD):
@@ -1956,59 +2052,62 @@ class GetPartitionStatistics_Response(NCSI_PAYLOAD):
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
 
-        XByteEnumField(
-            "StatsType",
-            0,
-            {
-                0x01: "Ethernet",
-                0x02: "iSCSI",
-                0x04: "FCoE",
-                0x08: "RDMA",
-                0x10: "IB",
-                0x20: "FC"
-            }
+        ConditionalField(
+            XByteEnumField(
+                "StatsType",
+                0,
+                {
+                    0x01: "Ethernet",
+                    0x02: "iSCSI",
+                    0x04: "FCoE",
+                    0x08: "RDMA",
+                    0x10: "IB",
+                    0x20: "FC"
+                }
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
         ConditionalField(
             PacketField(
                 "StatsEthernet",
                 GetPartitionStatisticsEthernet(),
                 GetPartitionStatisticsEthernet),
-                lambda pkt: pkt.StatsType == 0x01
+                lambda pkt: pkt.StatsType == 0x01 and pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
         ConditionalField(
             PacketField(
                 "StatsISCSI",
                 GetPartitionStatisticsISCSI(),
                 GetPartitionStatisticsISCSI),
-                lambda pkt: pkt.StatsType == 0x02
+                lambda pkt: pkt.StatsType == 0x02 and pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
         ConditionalField(
             PacketField(
                 "StatsFCoE",
                 GetPartitionStatisticsFCoE(),
                 GetPartitionStatisticsFCoE),
-                lambda pkt: pkt.StatsType == 0x04
+                lambda pkt: pkt.StatsType == 0x04 and pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
         ConditionalField(
             PacketField(
                 "StatsRDMA",
                 GetPartitionStatisticsRDMA(),
                 GetPartitionStatisticsRDMA),
-                lambda pkt: pkt.StatsType == 0x08
+                lambda pkt: pkt.StatsType == 0x08 and pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
         ConditionalField(
             PacketField(
                 "StatsIB",
                 GetPartitionStatisticsIB(),
                 GetPartitionStatisticsIB),
-                lambda pkt: pkt.StatsType == 0x10
+                lambda pkt: pkt.StatsType == 0x10 and pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
         ConditionalField(
             PacketField(
                 "StatsFC",
                 GetPartitionStatisticsFC(),
                 GetPartitionStatisticsFC),
-                lambda pkt: pkt.StatsType == 0x20
+                lambda pkt: pkt.StatsType == 0x20 and pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
 
         NcsiReversePadField(XIntField("Checksum", None), 4)
@@ -2043,7 +2142,7 @@ class SetModuleManagementData_Request(NCSI_PAYLOAD):
 
 # DSP0222 v1.2.0 - Table 180
 class SetModuleManagementData_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Set Module Management Data Response"
+    """DSP0222 v1.2.0 Set Module Management Data Response"""
 
     name = "Set Module Management Data Response"
     CommandValue = SetModuleManagementData_Request.CommandValue | 0x80
@@ -2054,10 +2153,76 @@ class SetModuleManagementData_Response(NCSI_PAYLOAD):
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
+# DSP0222 - Table 187
+class GetModuleManagementData_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Get Module Management Data Request"""
+
+    name = "Get Module Management Data Request"
+    CommandValue = 0x32
+
+    fields_desc = [
+        ByteField("RequestedBank", 0),
+        ByteField("RequestedPage", 0),
+        ByteField("Reserved_0", 0),
+
+        # Flags Field
+        BitField("Reserved_1", 0, 7),
+        BitEnumField("PageUpperFlag",
+                     0,
+                     1,
+                     {
+                         0 : "Requesting lower page data",
+                         1 : "Requesting upper page data",
+                     },
+        ),
+
+        NcsiReversePadField(XIntField("Checksum", None), 4),
+    ]
+
+
+# DSP0222 - Table 188
+class GetModuleManagementData_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Get Module Management Data Response"""
+
+    name = "Get Module Management Data Response"
+    CommandValue = GetModuleManagementData_Request.CommandValue | 0x80
+
+    fields_desc = [
+        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
+        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
+
+        ConditionalField(
+            ByteField("MaxBank", 0),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
+        ConditionalField(
+            ByteField("MaxPage", 0),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
+        ConditionalField(
+            ByteField("BankNumber", 0),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
+        ConditionalField(
+            ByteField("PageNumber", 0),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
+        ConditionalField(
+            FieldListField(
+                "Data",
+                [],
+                XByteField("", 0x00),
+                count_from=lambda pkt: 128
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
+
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
 
 # DSP0222 - Table 192
 class SetPassThroughModeControl_Request(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Set Pass-through Mode Control Request"
+    """DSP0222 v1.2.0 Set Pass-through Mode Control Request"""
 
     name = "Set Pass-through Mode Control Request"
     CommandValue = 0x33
@@ -2106,22 +2271,35 @@ class GetPassThroughModeControl_Response(NCSI_PAYLOAD):
     name = "Get Pass-through Mode Response"
     CommandValue = GetPassThroughModeControl_Request.CommandValue | 0x80
 
+    class Data(Packet):
+
+        fields_desc = [
+            XShortField("Reserved_0", 0x0000),
+
+            # Pass-through Mode Status
+            BitField("Reserved_1", 0, 5),
+            BitEnumField("EmbeddedCpuBmcPassthroughTraffic", 0, 1, ALLOWED_DISALLOWED),
+            BitEnumField("HostBmcPassthroughTraffic", 0, 1, ALLOWED_DISALLOWED),
+            BitEnumField("NetworkBMCPassthroughTraffic", 0, 1, ALLOWED_DISALLOWED),
+
+            # Pass-through Pass-through Mode Capability
+            BitField("Reserved_2", 0, 5),
+            BitEnumField("EmbeddedCpuBmcPassthroughTrafficSupported", 0, 1, SUPPORTED_NOT_SUPPORTED),
+            BitEnumField("HostBmcPassthroughTrafficSupported", 0, 1, SUPPORTED_NOT_SUPPORTED),
+            BitEnumField("NetworkBMCPassthroughTrafficSupported", 0, 1, SUPPORTED_NOT_SUPPORTED),
+        ]
+
+        def extract_padding(self, s):
+            return ("", s)
+
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-        XShortField("Reserved_0", 0x0000),
 
-        # Pass-through Mode Status
-        BitField("Reserved_1", 0, 5),
-        BitEnumField("EmbeddedCpuBmcPassthroughTraffic", 0, 1, ALLOWED_DISALLOWED),
-        BitEnumField("HostBmcPassthroughTraffic", 0, 1, ALLOWED_DISALLOWED),
-        BitEnumField("NetworkBMCPassthroughTraffic", 0, 1, ALLOWED_DISALLOWED),
-
-        # Pass-through Pass-through Mode Capability
-        BitField("Reserved_2", 0, 5),
-        BitEnumField("EmbeddedCpuBmcPassthroughTrafficSupported", 0, 1, SUPPORTED_NOT_SUPPORTED),
-        BitEnumField("HostBmcPassthroughTrafficSupported", 0, 1, SUPPORTED_NOT_SUPPORTED),
-        BitEnumField("NetworkBMCPassthroughTrafficSupported", 0, 1, SUPPORTED_NOT_SUPPORTED),
+        ConditionalField(
+            PacketField("ModeData", Data(), Data),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
 
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
@@ -2141,7 +2319,7 @@ class GetVfAllocation_Request(NCSI_PAYLOAD):
 
 # DSP0222 v1.2.0 - Table 199
 class GetVfAllocation_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Get VF Allocation Response"
+    """DSP0222 v1.2.0 Get VF Allocation Response"""
 
     name = "Get VF Allocation Response"
     CommandValue = GetVfAllocation_Request.CommandValue | 0x80
@@ -2149,11 +2327,16 @@ class GetVfAllocation_Response(NCSI_PAYLOAD):
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-        FieldListField(
-            "FunctionNumVfList",
-            [],
-            XByteField("FunctionNumVFs", None),
+
+        ConditionalField(
+            FieldListField(
+                "FunctionNumVfList",
+                [],
+                XByteField("FunctionNumVFs", None),
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
+
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
@@ -2177,7 +2360,7 @@ class SetVfAllocation_Request(NCSI_PAYLOAD):
 
 # DSP0222 v1.2.0 - Table 203
 class SetVfAllocation_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Set VF Allocation Response"
+    """DSP0222 v1.2.0 Set VF Allocation Response"""
 
     name = "Set VF Allocation Response"
     CommandValue = SetVfAllocation_Request.CommandValue | 0x80
@@ -2211,6 +2394,130 @@ class SettingsCommit_Response(NCSI_PAYLOAD):
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
+# DSP0222 - Table 212
+class GetAsicTemperature_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Get ASIC Temperature Request"""
+
+    name = "Get ASIC Temperature Request"
+    CommandValue = 0x48
+
+    fields_desc = [
+        XIntField("Reserved", 0x00000000),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
+# DSP0222 - Table 213
+class GetAsicTemperature_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Get ASIC Temperature Response"""
+
+    name = "Get ASIC Temperature Response"
+    CommandValue = GetAsicTemperature_Request.CommandValue | 0x80
+
+    fields_desc = [
+        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
+        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
+        ConditionalField(
+            XShortField("MaximumTemperature", 0x00),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
+        ConditionalField(
+            XShortField("CurrentTemperature", 0x00),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
+# DSP0222 - Table 214
+class GetAmbientTemperature_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Get Ambient Temperature Request"""
+
+    name = "Get Ambient Temperature Request"
+    CommandValue = 0x49
+
+    fields_desc = [
+        XIntField("Reserved", 0x00000000),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
+# DSP0222 - Table 215
+class GetAmbientTemperature_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Get Ambient Temperature Response"""
+
+    name = "Get ASIC Temperature Response"
+    CommandValue = GetAmbientTemperature_Request.CommandValue | 0x80
+
+    fields_desc = [
+        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
+        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
+
+        ConditionalField(
+            XByteField("TemperatureValue_3", 0x00),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
+        ConditionalField(
+            XByteField("TemperatureValue_2", 0x00),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
+        ConditionalField(
+            XByteField("TemperatureValue_1", 0x00),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
+        ConditionalField(
+            ByteField("NumberOfSensors", 0x00),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
+
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
+# DSP0222 - Table 216
+class GetTransceiverTemperature_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Get Transceiver Temperature Request"""
+
+    name = "Get Transceiver Temperature Request"
+    CommandValue = 0x4A
+
+    fields_desc = [
+        XIntField("Reserved", 0x00000000),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
+# DSP0222 - Table 217
+class GetTransceiverTemperature_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Get Transceiver Temperature Response"""
+
+    name = "Get Transceiver Temperature Response"
+    CommandValue = GetTransceiverTemperature_Request.CommandValue | 0x80
+
+    fields_desc = [
+        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
+        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
+
+        ConditionalField(
+            XShortField("TempHighAlarmThreshold", 0x0000),
+             lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
+        ConditionalField(
+            XShortField("TempHighWarningThreshold", 0x0000),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
+        ConditionalField(
+            XShortField("TemperatureValue", 0x0000),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
+        ConditionalField(
+            XShortField("Reserved", 0x0000),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
+        ),
 
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
@@ -2248,37 +2555,49 @@ class ThermalShutdownControl_Response(NCSI_PAYLOAD):
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        XShortField("Reserved_0", 0x0000),
-
-        BitField("Reserved_1", 0, 6),
-        BitEnumField(
-            "EnableDisableSupport",
-            0,
-            1,
-            {
-                0: "Enable/Disable operations for thermal shutdown are not supported",
-                1: "Enable/Disable operations for thermal shutdown are supported",
-            }
+        ConditionalField(
+            XShortField("Reserved_0", 0x0000),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
-        BitEnumField(
-            "OperatingState",
-            0,
-            1,
-            {
-                0: "Thermal self-shutdown is disabled on the device",
-                1: "Thermal self-shutdown is enabled on the device",
-            }
+        ConditionalField(
+            BitField("Reserved_1", 0, 6),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
-        ByteField("ShutdownTemperature", 0),
-
+        ConditionalField(
+            BitEnumField(
+                "EnableDisableSupport",
+                0,
+                1,
+                {
+                    0: "Enable/Disable operations for thermal shutdown are not supported",
+                    1: "Enable/Disable operations for thermal shutdown are supported",
+                }
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            BitEnumField(
+                "OperatingState",
+                0,
+                1,
+                {
+                    0: "Thermal self-shutdown is disabled on the device",
+                    1: "Thermal self-shutdown is enabled on the device",
+                }
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            ByteField("ShutdownTemperature", 0),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 - Table 222
 class TransmitDataNC_Request(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Transmit Data to NC Request"
+    """DSP0222 v1.2.0 Transmit Data to NC Request"""
 
     name = "Transmit Data to NC Request"
     CommandValue = 0x4C
@@ -2348,7 +2667,7 @@ class RetrieveDataFromNC_Request(NCSI_PAYLOAD):
 
 # DSP0222 v1.2.0 - Table 229
 class RetrieveDataFromNC_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Receive Data from NC Response"
+    """DSP0222 v1.2.0 Receive Data from NC Response"""
 
     name = "Receive Data from NC Response"
     CommandValue = RetrieveDataFromNC_Request.CommandValue | 0x80
@@ -2356,23 +2675,32 @@ class RetrieveDataFromNC_Response(NCSI_PAYLOAD):
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-        X3BytesField("Reserved", 0x000000),
-        ByteEnumField(
-            "OpCode",
-            0,
-            {
-                0x01: "First block of data in the transfer",
-                0x02: "Intermediate block of data in the transfer",
-                0x04: "Last block of data in the transfer",
-                0x05: "First and last block of data in the transfer",
-                0x08: "Terminate the transfer",
-            }
+        ConditionalField(
+            X3BytesField("Reserved", 0x000000),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
-        FieldListField(
-            "Data",
-            [],
-            XByteField("Data", None),
-            128
+        ConditionalField(
+            ByteEnumField(
+                "OpCode",
+                0,
+                {
+                    0x01: "First block of data in the transfer",
+                    0x02: "Intermediate block of data in the transfer",
+                    0x04: "Last block of data in the transfer",
+                    0x05: "First and last block of data in the transfer",
+                    0x08: "Terminate the transfer",
+                }
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            FieldListField(
+                "Data",
+                [],
+                XByteField("Data", None),
+                128
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
@@ -2418,10 +2746,13 @@ class InventoryInfoEntry(Packet):
         )
     ]
 
+    def extract_padding(self, s):
+        return ("", s)
+
 
 # DSP0222 v1.2.0 - Table 233
 class GetInventoryInformation_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Get Inventory Information Response"
+    """DSP0222 v1.2.0 Get Inventory Information Response"""
 
     name = "Get Inventory Information Response"
     CommandValue = GetInventoryInformation_Request.CommandValue | 0x80
@@ -2429,14 +2760,117 @@ class GetInventoryInformation_Response(NCSI_PAYLOAD):
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-        FieldLenField(
-            "NumberOfTLVs", None, count_of="TLV", fmt="B"
+        ConditionalField(
+            FieldLenField(
+                "NumberOfTLVs", None, count_of="TLV", fmt="B"
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
-        PacketListField(
-            "TLV",
-            [],
-            InventoryInfoEntry(),
-            count_from=lambda pkt: pkt.NumberOfTLVs
+        ConditionalField(
+            PacketListField(
+                "TLV",
+                [],
+                InventoryInfoEntry(),
+                count_from=lambda pkt: pkt.NumberOfTLVs
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
+# DSP0222 -  Table 258
+class GetPackageUUID_Request(NCSI_PAYLOAD):  # TODO to check
+    """DSP0222 v1.2.0 Get Package UUID Request"""
+
+    name = "Get Package UUID Request"
+    CommandValue = 0x52
+
+    fields_desc = [
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
+# DSP0222 -  Table 259
+class GetPackageUUID_Response(NCSI_PAYLOAD):  # TODO to check
+    """DSP0222 v1.2.0 Get Package UUID Response"""
+
+    name = "Get Package UUID Response"
+    CommandValue = 0xD2
+
+    fields_desc = [
+        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
+        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
+        ConditionalField(
+            PacketField("UUID", NCSI_UUID(), NCSI_UUID),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
+# DSP0261 - Table 10
+class GetSupportedMedia_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Get Supported Media Request"""
+
+    name = "Get Supported Media Request"
+    CommandValue = 0x54
+
+    fields_desc = [
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
+# DSP0261 - Table 12
+class MediaDescriptor(Packet):
+    """Repeated data within the GetSupportedMedia_Response"""
+
+    name = "Media Descriptor"
+    fields_desc = [
+        XByteField("EID", 0x00),
+        XShortField("BindingID", 0x00),
+        XShortField("MediumID", 0x00),
+        BitField("Status", 0, 1),
+        BitField("MediaDescriptorReserved_1", 0, 6),
+        BitField("PassthroughSupported", 0, 1),
+        FieldLenField("PhysicalAddressSize", None, "PhysicalAddress", "B"),
+        StrLenField(
+            "PhysicalAddress", b"", length_from=lambda pkt: pkt.PhysicalAddressSize
+        ),
+    ]
+
+    def extract_padding(self, s):  # all payloads need to do this
+        return "", s
+
+
+# DSP0261 - Table 11
+class GetSupportedMedia_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Get Supported Media Response"""
+
+    name = "Get Supported Media Response"
+    CommandValue = 0xD4
+
+    fields_desc = [
+        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
+        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
+        ConditionalField(
+            X3BytesField("GetSupportedMediaReserved_1", 0x000000),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            FieldLenField(
+                "NumberOfSupportedMedias", None, count_of="MediaDescriptors", fmt="B"
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            PacketListField(
+                "MediaDescriptors",
+                None,
+                MediaDescriptor,
+                count_from=lambda pkt: pkt.NumberOfSupportedMedias,
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
@@ -2451,7 +2885,6 @@ class TransportSpecificAENEnable_Request(NCSI_PAYLOAD):
 
     fields_desc = [
         XShortField("Reserved_0", 0x0000),
-
         BitField("Reserved_1", 0, 13),
         BitEnumField(
             "PendingSpdmRequestAEN",
@@ -2494,14 +2927,107 @@ class TransportSpecificAENEnable_Response(NCSI_PAYLOAD):
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
 
+
+# DSP0222 -  Table 250
+class SendNCPLDMReply_Request(NCSI_PAYLOAD):  # TODO to check
+    """DSP0222 v1.2.0 Send NC PLDM Reply Request"""
+
+    name = "Send NC PLDM Reply Request"
+    CommandValue = 0x57
+
+    fields_desc = [
+        # PLDM Message Common Fields
+        X3BytesField("MessageCommonFields", 0x000000),
+        XByteField("PLDMCompletionCode", 0x00),
+
+        # PLDM Message payload + Payload Pad
+        ### TODO Implement
+
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
+# DSP0222 -  Table 251
+class SendNCPLDMReply_Response(NCSI_PAYLOAD):  # TODO to check
+    """DSP0222 v1.2.0 Send NC PLDM Reply Response"""
+
+    name = "Send NC PLDM Reply Response"
+    CommandValue = 0xD7
+
+    fields_desc = [
+        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
+        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
+        ConditionalField(
+            X3BytesField("Reserved", 0x000000),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            BitEnumField(
+                "Flags",
+                0,
+                8,
+                {
+                    0: "No additional pending PLDM command from NC to MC",
+                    1: "The NC has additional pending PLDM command to the MC",
+                },
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
+# DSP0222 -  Table 256
+class GetMcMacAddress_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Get MC MAC Address Request"""
+
+    name = "Get MC MAC Address Request"
+    CommandValue = 0x58
+
+    fields_desc = [
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
+# DSP0222 -  Table 257
+class GetMcMacAddress_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Get MC MAC Address Response"""
+
+    name = "Get MC MAC Address Response"
+    CommandValue = 0xD8
+
+    fields_desc = [
+        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
+        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
+        ConditionalField(
+            FieldLenField("AddressCount", None, count_of="Addresses", fmt="B"),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+
+        ConditionalField(
+            X3BytesField("GetMcMacAddress_1", 0),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+
+        ConditionalField(
+            FieldListField(
+                "Addresses",
+                [],
+                MACField("", "ff:ff:ff:ff:ff:ff"),
+                count_from=lambda pkt: pkt.AddressCount,
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
 
 # DSP0222 - Table 255
 class SPDM_Request(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 SPDM Request"
+    """DSP0222 v1.2.0 SPDM Request"""
 
     name = "SPDM Request"
     CommandValue = 0x60
@@ -2517,7 +3043,7 @@ class SPDM_Request(NCSI_PAYLOAD):
 
 # DSP0222 v1.2.0 - Table 256
 class SPDM_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 SPDM Response"
+    """DSP0222 v1.2.0 SPDM Response"""
 
     name = "SPDM Response"
     CommandValue = SPDM_Request.CommandValue | 0x80
@@ -2525,11 +3051,22 @@ class SPDM_Response(NCSI_PAYLOAD):
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        ByteField("SpdmVersion", 0),
-        ByteField("RequestCode", 0),
-        XByteField("Param1", 0x00),
-        XByteField("Param2", 0x00),
+        ConditionalField(
+            ByteField("SpdmVersion", 0),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            ByteField("RequestCode", 0),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            XByteField("Param1", 0x00),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            XByteField("Param2", 0x00),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
@@ -2548,7 +3085,7 @@ class QueryPendingNcSpdmRequest_Request(NCSI_PAYLOAD):
 
 # DSP0222 v1.2.0 - Table 258
 class QueryPendingNcSpdmRequest_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Query Pending NC SPDM Response"
+    """DSP0222 v1.2.0 Query Pending NC SPDM Response"""
 
     name = "Query Pending NC SPDM Response"
     CommandValue = QueryPendingNcSpdmRequest_Request.CommandValue | 0x80
@@ -2556,11 +3093,22 @@ class QueryPendingNcSpdmRequest_Response(NCSI_PAYLOAD):
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        ByteField("SpdmVersion", 0),
-        ByteField("RequestCode", 0),
-        XByteField("Param1", 0x00),
-        XByteField("Param2", 0x00),
+        ConditionalField(
+            ByteField("SpdmVersion", 0),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            ByteField("RequestCode", 0),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            XByteField("Param1", 0x00),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            XByteField("Param2", 0x00),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
 
 ### TODO Implement variable payload
 
@@ -2570,7 +3118,7 @@ class QueryPendingNcSpdmRequest_Response(NCSI_PAYLOAD):
 
 # DSP0222 - Table 260
 class SendNcSpdmReply_Request(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Send NC SPDM Reply"
+    """DSP0222 v1.2.0 Send NC SPDM Reply"""
 
     name = "Send NC SPDM Reply"
     CommandValue = 0x62
@@ -2589,7 +3137,7 @@ class SendNcSpdmReply_Request(NCSI_PAYLOAD):
 
 # DSP0222 v1.2.0 - Table 261
 class SendNcSpdmReply_Response(NCSI_PAYLOAD):
-    "DSP0222 v1.2.0 Send NC SPDM Reply Response"
+    """DSP0222 v1.2.0 Send NC SPDM Reply Response"""
 
     name = "Send NC SPDM Reply Response"
     CommandValue = SendNcSpdmReply_Request.CommandValue | 0x80
@@ -2597,18 +3145,92 @@ class SendNcSpdmReply_Response(NCSI_PAYLOAD):
     fields_desc = [
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
-
-        X3BytesField("Reserved", 0x000000),
-        BitField("ReservedFlags", 0, 7),
-        BitEnumField(
-            "PendingRequest",
-            0,
-            1,
-            {
-                0: "No additional pending SPDM command from NC to MC",
-                1: "The NC has additional pending SPDM command to the MC",
-            }
+        ConditionalField(
+            X3BytesField("Reserved", 0x000000),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
-
+        ConditionalField(
+            BitField("ReservedFlags", 0, 7),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
+        ConditionalField(
+            BitEnumField(
+                "PendingRequest",
+                0,
+                1,
+                {
+                    0: "No additional pending SPDM command from NC to MC",
+                    1: "The NC has additional pending SPDM command to the MC",
+                }
+            ),
+            lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
+        ),
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
+
+
+# Register classes for auto lookup
+register_ncsi_class(GetNcCapabilitiesSettings_Request)
+register_ncsi_class(GetNcCapabilitiesSettings_Response)
+register_ncsi_class(GetPfAssignment_Request)
+register_ncsi_class(GetPfAssignment_Response)
+register_ncsi_class(SetPfAssignment_Request)
+register_ncsi_class(SetPfAssignment_Response)
+register_ncsi_class(GetChannelConfiguration_Request)
+register_ncsi_class(GetChannelConfiguration_Response)
+register_ncsi_class(SetChannelConfiguration_Request)
+register_ncsi_class(SetChannelConfiguration_Response)
+register_ncsi_class(GetPartitionConfiguration_Request)
+register_ncsi_class(GetPartitionConfiguration_Response)
+register_ncsi_class(SetPartitionConfiguration_Request)
+register_ncsi_class(SetPartitionConfiguration_Response)
+register_ncsi_class(GetBootConfig_Request)
+register_ncsi_class(GetBootConfig_Response)
+register_ncsi_class(SetBootConfig_Request)
+register_ncsi_class(SetBootConfig_Response)
+register_ncsi_class(GetPartitionStatistics_Request)
+register_ncsi_class(GetPartitionStatistics_Response)
+register_ncsi_class(SetModuleManagementData_Request)
+register_ncsi_class(SetModuleManagementData_Response)
+register_ncsi_class(GetModuleManagementData_Request)
+register_ncsi_class(GetModuleManagementData_Response)
+register_ncsi_class(SetPassThroughModeControl_Request)
+register_ncsi_class(SetPassThroughModeControl_Response)
+register_ncsi_class(GetPassThroughModeControl_Request)
+register_ncsi_class(GetPassThroughModeControl_Response)
+register_ncsi_class(GetVfAllocation_Request)
+register_ncsi_class(GetVfAllocation_Response)
+register_ncsi_class(SetVfAllocation_Request)
+register_ncsi_class(SetVfAllocation_Response)
+register_ncsi_class(SettingsCommit_Request)
+register_ncsi_class(SettingsCommit_Response)
+register_ncsi_class(GetAsicTemperature_Request)
+register_ncsi_class(GetAsicTemperature_Response)
+register_ncsi_class(GetAmbientTemperature_Request)
+register_ncsi_class(GetAmbientTemperature_Response)
+register_ncsi_class(GetTransceiverTemperature_Request)
+register_ncsi_class(GetTransceiverTemperature_Response)
+register_ncsi_class(ThermalShutdownControl_Request)
+register_ncsi_class(ThermalShutdownControl_Response)
+register_ncsi_class(TransmitDataNC_Request)
+register_ncsi_class(TransmitDataNC_Response)
+register_ncsi_class(RetrieveDataFromNC_Request)
+register_ncsi_class(RetrieveDataFromNC_Response)
+register_ncsi_class(GetInventoryInformation_Request)
+register_ncsi_class(GetInventoryInformation_Response)
+register_ncsi_class(GetPackageUUID_Request)
+register_ncsi_class(GetPackageUUID_Response)
+register_ncsi_class(GetSupportedMedia_Request)
+register_ncsi_class(GetSupportedMedia_Response)
+register_ncsi_class(TransportSpecificAENEnable_Request)
+register_ncsi_class(TransportSpecificAENEnable_Response)
+register_ncsi_class(SendNCPLDMReply_Request)
+register_ncsi_class(SendNCPLDMReply_Response)
+register_ncsi_class(GetMcMacAddress_Request)
+register_ncsi_class(GetMcMacAddress_Response)
+register_ncsi_class(SPDM_Request)
+register_ncsi_class(SPDM_Response)
+register_ncsi_class(QueryPendingNcSpdmRequest_Request)
+register_ncsi_class(QueryPendingNcSpdmRequest_Response)
+register_ncsi_class(SendNcSpdmReply_Request)
+register_ncsi_class(SendNcSpdmReply_Response)

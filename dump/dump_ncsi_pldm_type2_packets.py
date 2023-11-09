@@ -20,8 +20,6 @@ from pldm.type2 import *  # pylint: disable=unused-import, unused-wildcard-impor
 test_data = [0]
 
 test_pldm2_commands = [
-    "SetTID",
-    "GetTID",
     "GetTerminusUID",
     "SetEventReceiver",
     "GetEventReceiver",
