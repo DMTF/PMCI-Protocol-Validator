@@ -20,8 +20,9 @@ def test_TestServiceWrapper(class_type):
         "Incorrect specification version"
 
     assert (class_type.ProtocolType == 0)
-    assert (class_type.Reserved == 0)
+    assert (class_type.Reserved_0 == 0)
     assert (class_type.Direction == 0)
+    assert (class_type.Reserved_1 == 0)
     assert (class_type.TestClientID == 0)
     return
 

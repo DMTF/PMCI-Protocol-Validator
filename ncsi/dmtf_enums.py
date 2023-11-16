@@ -13,7 +13,7 @@ STANDARD_RESPONSE_CODE_VALUES = {
     0x0001: "Command Failed",
     0x0002: "Command Unavailable",
     0x0003: "Command Unsupported",
-    0x0004: "Delayed Response",
+    0x0004: "Delayed Response"
 }
 
 STANDARD_REASON_CODE_VALUES = {
@@ -28,12 +28,21 @@ STANDARD_REASON_CODE_VALUES = {
     0x0008: "Link Command Failed-Hardware Access Error",
     0x0009: "Command Timeout",
     0x000A: "Secondary Device Not Powered",
-    0x7FFF: "Unknown / Unsupported Command Type",
+    0x7FFF: "Unknown / Unsupported Command Type"
 }
 
-PROTOCOL_TYPE = {0x0: "PXE", 0x1: "iSCSI", 0x2: "FCoE", 0x3: "FC", 0x4: "NVMe"}
+PROTOCOL_TYPE = {
+    0x0: "PXE",
+    0x1: "iSCSI",
+    0x2: "FCoE",
+    0x3: "FC",
+    0x4: "NVMe"
+}
 
-FORWARD_FILTER_OUT = {0: "Filter out this packet type", 1: "Forward this packet type"}
+FORWARD_FILTER_OUT = {
+    0: "Filter out this packet type",
+    1: "Forward this packet type"
+}
 
 INTERFACE = {0: "Does not have interface", 1: "Have interface"}
 
@@ -48,13 +57,28 @@ LINK_SETTINGS_REASON_CODES = {
     0x0908: "Set Link FEC Conflict",
     0x0909: "Set Link EEE Conflict",
     0x090A: "Set Link LT Conflict",
-    0x090B: "Set Link Parallel Detection Conflict",
+    0x090B: "Set Link Parallel Detection Conflict"
 }
 
-SUPPORTED_NOT_SUPPORTED = {0: "Not supported", 1: "Supported"}
+SUPPORTED_NOT_SUPPORTED = {
+    0: "Not supported",
+    1: "Supported"
+}
 
-ENABLE_DISABLE = {0: "Disable", 1: "Enable"}
+ENABLE_DISABLE = {
+    0: "Disable",
+    1: "Enable"
+}
 
-ALLOWED_DISALLOWED = {0: "Disallow", 1: "Allow"}
+ALLOWED_DISALLOWED = {
+    0: "Disallow",
+    1: "Allow"
+}
 
-STATS_TYPE = {0x01: "Ethernet", 0x02: "iSCSI", 0x04: "FCoE", 0x08: "RDMA", 0x10: "IB"}
+STATS_TYPE = {
+    0x01: "Ethernet",
+    0x02: "iSCSI",
+    0x04: "FCoE",
+    0x08: "RDMA",
+    0x10: "IB"
+}

@@ -46,7 +46,7 @@ class physicalMedium:
         """Returns an error description for the specified error code"""
 
         try:
-            return self.ErrorStrings[resp]
+            return physicalMedium.ErrorStrings[resp]
         except:
             return "Unknown"
 

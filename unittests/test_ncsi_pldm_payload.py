@@ -13,7 +13,7 @@ from ncsi.pldm_payload import *  # pylint: disable=unused-import, unused-wildcar
 
 @pytest.mark.parametrize("class_type", NcsiPldm_Request())
 def test_NcsiPldm_Request(class_type):
-    "Verify NcsiPldm_Request initialization"
+    """Verify NcsiPldm_Request initialization"""
 
     assert (class_type.CommandValue == 0x51), "Incorrect command code"
     return
@@ -21,7 +21,7 @@ def test_NcsiPldm_Request(class_type):
 
 @pytest.mark.parametrize("class_type", NcsiPldm_Response())
 def test_NcsiPldm_Response(class_type):
-    "Verify NcsiPldm_Response initialization"
+    """Verify NcsiPldm_Response initialization"""
 
     assert (class_type.CommandValue == 0xD1), "Incorrect command code"
     assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"

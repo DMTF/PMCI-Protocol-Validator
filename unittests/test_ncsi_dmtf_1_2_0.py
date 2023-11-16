@@ -191,7 +191,10 @@ def test_GetPartitionConfiguration_Request(class_type):
     "Verify GetPartitionConfiguration_Request initialization"
 
     assert (class_type.CommandValue == 0x2B), "Incorrect command code"
-    assert (len(class_type.fields_desc) == 1), "Incorrect number of fields"
+    assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
+
+    assert (class_type.PartitionID == 0)
+    assert (class_type.Reserved == 0)
     assert (class_type.Checksum is None)
     return
 
@@ -203,7 +206,7 @@ def test_AddressTlvEntry(class_type):
     assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
     assert (class_type.AddressType == 0)
     assert (class_type.AddressLength is None)
-    assert (class_type.Address == [])
+    assert (class_type.Address == "00:00:00:00:00:00")
     return
 
 
@@ -213,10 +216,11 @@ def test_GetPartitionConfiguration_Response(class_type):
 
     assert (class_type.CommandValue == GetPartitionConfiguration_Request.CommandValue | 0x80), \
         "Incorrect command code"
-    assert (len(class_type.fields_desc) >= 8), "Incorrect number of fields"
+    assert (len(class_type.fields_desc) == 4), "Incorrect number of fields"
 
     assert (class_type.ResponseCode == 0x00)
     assert (class_type.ReasonCode == 0x00)
+    assert (class_type.CfgData is not None)
     assert (class_type.Checksum is None)
     return
 
@@ -557,17 +561,11 @@ def test_GetPassThroughModeControl_Request(class_type):
     return
 
 
-@pytest.mark.parametrize("class_type", GetPassThroughModeControl_Response())
-def test_GetPassThroughModeControl_Response(class_type):
+@pytest.mark.parametrize("class_type", GetPassThroughModeControl_Response.Data())
+def test_GetPassThroughModeControlResponseData(class_type):
     """Verify GetPassThroughModeControl_Response initialization"""
 
-    assert (class_type.CommandValue == GetPassThroughModeControl_Request.CommandValue | 0x80), \
-        "Incorrect command code"
-    assert (len(class_type.fields_desc) == 12), "Incorrect number of fields"
-
-    assert (class_type.ResponseCode == 0x00)
-    assert (class_type.ReasonCode == 0x00)
-
+    assert (len(class_type.fields_desc) == 9), "Incorrect number of fields"
     assert (class_type.Reserved_0 == 0)
     assert (class_type.Reserved_1 == 0)
     assert (class_type.EmbeddedCpuBmcPassthroughTraffic == 0)
@@ -578,6 +576,20 @@ def test_GetPassThroughModeControl_Response(class_type):
     assert (class_type.HostBmcPassthroughTrafficSupported == 0)
     assert (class_type.NetworkBMCPassthroughTrafficSupported == 0)
 
+    return
+
+
+@pytest.mark.parametrize("class_type", GetPassThroughModeControl_Response())
+def test_GetPassThroughModeControl_Response(class_type):
+    """Verify GetPassThroughModeControl_Response initialization"""
+
+    assert (class_type.CommandValue == GetPassThroughModeControl_Request.CommandValue | 0x80), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 4), "Incorrect number of fields"
+    assert (class_type.ResponseCode == 0x00)
+    assert (class_type.ReasonCode == 0x00)
+    assert (class_type.ModeData is not None)
     assert (class_type.Checksum is None)
     return
 
@@ -926,3 +938,294 @@ def test_SendNcSpdmReply_Response(class_type):
     assert (class_type.Checksum is None)
     return
 
+
+@pytest.mark.parametrize("class_type", GetSupportedMedia_Request())
+def test_GetSupportedMedia_Request(class_type):
+    """Verify GetSupportedMedia_Request initialization"""
+
+    assert (class_type.CommandValue == 0x54), "Incorrect command code"
+    assert (len(class_type.fields_desc) == 1), "Incorrect number of fields"
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetSupportedMedia_Response())
+def test_GetSupportedMedia_Response(class_type):
+    """Verify GetSupportedMedia_Response initialization"""
+
+    assert (class_type.CommandValue == GetSupportedMedia_Request.CommandValue | 0x80), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 6), "Incorrect number of fields"
+    assert (class_type.ResponseCode == 0x00)
+    assert (class_type.ReasonCode == 0x00)
+
+    assert (class_type.GetSupportedMediaReserved_1 == 0x00)
+    assert (class_type.NumberOfSupportedMedias is None)
+    assert (class_type.MediaDescriptors == [])
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetPackageUUID_Request())
+def test_GetPackageUUID_Request(class_type):
+    """Verify GetPackageUUID_Request initialization"""
+
+    assert (class_type.CommandValue == 0x52), "Incorrect command code"
+    assert (len(class_type.fields_desc) == 1), "Incorrect number of fields"
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetPackageUUID_Response())
+def test_GetPackageUUID_Response(class_type):
+    """Verify GetPackageUUID_Response initialization"""
+
+    assert (class_type.CommandValue == GetPackageUUID_Request.CommandValue | 0x80), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 4), "Incorrect number of fields"
+
+    assert (class_type.ResponseCode == 0x00)
+    assert (class_type.ReasonCode == 0x00)
+    assert (class_type.UUID is not None)
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetAsicTemperature_Request())
+def test_GetAsicTemperature_Request(class_type):
+    """Verify Get ASIC Temperature Request initialization"""
+
+    assert (class_type.CommandValue == 0x48), "Incorrect command code"
+    assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
+    assert (class_type.Reserved == 0x00000000)
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetAsicTemperature_Response())
+def test_GetAsicTemperature_Response(class_type):
+    """Verify Get ASIC Temperature Response initialization"""
+
+    assert (class_type.CommandValue == GetAsicTemperature_Request.CommandValue | 0x80), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 5), "Incorrect number of fields"
+    assert (class_type.ResponseCode == 0x00)
+    assert (class_type.ReasonCode == 0x00)
+    assert (class_type.MaximumTemperature == 0x00)
+    assert (class_type.CurrentTemperature == 0x00)
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetAmbientTemperature_Request())
+def test_GetAmbientTemperature_Request(class_type):
+    """Verify Get Ambient Temperature Request initialization"""
+
+    assert (class_type.CommandValue == 0x49), "Incorrect command code"
+    assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
+    assert (class_type.Reserved == 0x00000000)
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetAmbientTemperature_Response())
+def test_GetAmbientTemperature_Response(class_type):
+    """Verify GetAmbientTemperature Response initialization"""
+
+    assert (class_type.CommandValue == GetAmbientTemperature_Request.CommandValue | 0x80), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 7), "Incorrect number of fields"
+    assert (class_type.ResponseCode == 0x00)
+    assert (class_type.ReasonCode == 0x00)
+    assert (class_type.TemperatureValue_3 == 0x00)
+    assert (class_type.TemperatureValue_2 == 0x00)
+    assert (class_type.TemperatureValue_1 == 0x00)
+    assert (class_type.NumberOfSensors == 0)
+    assert (class_type.Checksum is None)
+    return
+
+
+
+@pytest.mark.parametrize("class_type", GetTransceiverTemperature_Request())
+def test_GetTransceiverTemperature_Request(class_type):
+    """Verify Get Transceiver Temperature Request initialization"""
+
+    assert (class_type.CommandValue == 0x4A), "Incorrect command code"
+    assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
+    assert (class_type.Reserved == 0x00000000)
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetTransceiverTemperature_Response())
+def test_GetTransceiverTemperature_Response(class_type):
+    """Verify Get Transceiver Temperature Response initialization"""
+
+    assert (class_type.CommandValue == GetTransceiverTemperature_Request.CommandValue | 0x80), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 7), "Incorrect number of fields"
+    assert (class_type.ResponseCode == 0x00)
+    assert (class_type.ReasonCode == 0x00)
+    assert (class_type.TempHighAlarmThreshold == 0x0000)
+    assert (class_type.TempHighWarningThreshold == 0x0000)
+    assert (class_type.TemperatureValue == 0x0000)
+    assert (class_type.Reserved == 0x0000)
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetChannelConfiguration_Request())
+def test_GetChannelConfiguration_Request(class_type):
+    """Verify Get Channel Configuration Request initialization"""
+
+    assert (class_type.CommandValue == 0x29), "Incorrect command code"
+    assert (len(class_type.fields_desc) == 1), "Incorrect number of fields"
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetChannelConfiguration_Response.Data())
+def test_GetChannelConfigurationData(class_type):
+    """Verify Get Channel Configuration Response data structure"""
+
+    assert (len(class_type.fields_desc) == 10), "Incorrect number of fields"
+
+    assert (class_type.FabricType == 0)
+    assert (class_type.SharedInterface == 0)
+    assert (class_type.Reserved_0 == 0)
+    assert (class_type.SFFcage == 0)
+    assert (class_type.BaseT == 0)
+    assert (class_type.Backplane == 0)
+    assert (class_type.MaxMTU == 0)
+    assert (class_type.Reserved_1 == 0)
+    assert (class_type.NumEnabledPartitions is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetChannelConfiguration_Response())
+def test_GetChannelConfiguration_Response(class_type):
+    """Verify Get Channel Configuration Response initialization"""
+
+    assert (class_type.CommandValue == GetChannelConfiguration_Request.CommandValue | 0x80), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 4), "Incorrect number of fields"
+    assert (class_type.ResponseCode == 0x00)
+    assert (class_type.ReasonCode == 0x00)
+    assert (class_type.CfgData is not None)
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetModuleManagementData_Request())
+def test_GetModuleManagementData_Request(class_type):
+    """Verify Get Module Management Data Request initialization"""
+
+    assert (class_type.CommandValue == 0x32), "Incorrect command code"
+    assert (len(class_type.fields_desc) == 6), "Incorrect number of fields"
+
+    assert (class_type.RequestedBank == 0)
+    assert (class_type.RequestedPage == 0)
+    assert (class_type.Reserved_0 == 0)
+    assert (class_type.Reserved_1 == 0)
+    assert (class_type.PageUpperFlag == 0)
+
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetModuleManagementData_Response())
+def test_GetModuleManagementData_Response(class_type):
+    """Verify Get Module ManagementData Response initialization"""
+
+    assert (class_type.CommandValue == GetModuleManagementData_Request.CommandValue | 0x80), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 8), "Incorrect number of fields"
+
+    assert (class_type.ResponseCode == 0x00)
+    assert (class_type.ReasonCode == 0x00)
+    assert (class_type.MaxBank == 0)
+    assert (class_type.MaxPage == 0)
+    assert (class_type.BankNumber == 0)
+    assert (class_type.PageNumber == 0)
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetMcMacAddress_Request())
+def test_GetMcMacAddress_Request(class_type):
+    """Verify GetMcMacAddress_Request initialization"""
+
+    assert (class_type.CommandValue == 0x58), "Incorrect command code"
+    assert (len(class_type.fields_desc) == 1), "Incorrect number of fields"
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", GetMcMacAddress_Response())
+def test_GetMcMacAddress_Response(class_type):
+    """Verify GetMcMacAddress_Response initialization"""
+
+    assert (class_type.CommandValue == GetMcMacAddress_Request.CommandValue | 0x80), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 6), "Incorrect number of fields"
+    assert (class_type.ResponseCode == 0x00)
+    assert (class_type.ReasonCode == 0x00)
+    assert (class_type.AddressCount is None)
+    assert (class_type.GetMcMacAddress_1 == 0x00)
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", SendNCPLDMReply_Request())
+def test_SendNCPLDMReply_Request(class_type):
+    """Verify SendNCPLDMReply_Request initialization"""
+
+    assert (class_type.CommandValue == 0x57), "Incorrect command code"
+    assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
+
+    assert (class_type.MessageCommonFields == 0)
+    assert (class_type.PLDMCompletionCode == 0)
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", SendNCPLDMReply_Response())
+def test_SendNCPLDMReply_Response(class_type):
+    """Verify SendNCPLDMReply_Response initialization"""
+
+    assert (class_type.CommandValue == SendNCPLDMReply_Request.CommandValue | 0x80), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 5), "Incorrect number of fields"
+
+    assert (class_type.ResponseCode == 0x00)
+    assert (class_type.ReasonCode == 0x00)
+    assert (class_type.Reserved == 0)
+    assert (class_type.Flags == 0)
+    assert (class_type.Checksum is None)
+    return
+
+"""
+@pytest.mark.parametrize("class_type", TransportSpecificAENEnable_Request())
+def test_TransportSpecificAENEnable_Request(class_type):
+    ""Verify TransportSpecificAENEnable_Request initialization""
+
+    assert (class_type.CommandValue == 0x55), "Incorrect command code"
+    assert (len(class_type.fields_desc) == 6), "Incorrect number of fields"
+
+    assert (class_type.Reserved_0 == 0)
+    assert (class_type.Reserved_1 == 0)
+    assert (class_type.PendingSPDMRequestAEN == 0)
+    assert (class_type.PendingPLDMRequestAEN == 0)
+    assert (class_type.MediumChangeAENControl == 0)
+    assert (class_type.Checksum is None)
+    return
+"""

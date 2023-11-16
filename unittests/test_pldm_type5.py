@@ -22,7 +22,7 @@ def test_PLDM_TYPE_5_PAYLOAD_class(class_type):
 
 @pytest.mark.parametrize("class_type", RecordDescriptor())
 def test_RecordDescriptor(class_type):
-    "Verify RecordDescriptor initialization"
+    """Verify RecordDescriptor initialization"""
 
     assert (len(class_type.fields_desc) == 15), "Incorrect number of fields"
 
@@ -33,7 +33,7 @@ def test_RecordDescriptor(class_type):
 
 @pytest.mark.parametrize("class_type", ComponentParameterTableEntry())
 def test_ComponentParameterTableEntry(class_type):
-    "Verify ComponentParameterTableEntry initialization"
+    """Verify ComponentParameterTableEntry initialization"""
 
     assert (len(class_type.fields_desc) == 27), "Incorrect number of fields"
 
@@ -93,22 +93,18 @@ def test_QueryDeviceIdentifiers_Response(class_type):
 
 @pytest.mark.parametrize("class_type", GetFirmwareParameters_Request())
 def test_GetFirmwareParameters_Request(class_type):
-    "Verify GetFirmwareParameters_Request initialization"
+    """Verify GetFirmwareParameters_Request initialization"""
 
     assert (class_type.CommandValue == 0x02), "Incorrect command code"
     assert (len(class_type.fields_desc) == 0), "Incorrect number of fields"
     return
 
 
-@pytest.mark.parametrize("class_type", GetFirmwareParameters_Response())
-def test_GetFirmwareParameters_Response(class_type):
-    "Verify GetFirmwareParameters_Response initialization"
+@pytest.mark.parametrize("class_type", GetFirmwareParameters_Response.Data())
+def test_GetFirmwareParametersData(class_type):
+    """Verify GetFirmwareParameters_Response data  structure"""
 
-    assert (class_type.CommandValue == GetFirmwareParameters_Request.CommandValue), \
-        "Incorrect command code"
-
-    assert (len(class_type.fields_desc) == 18), "Incorrect number of fields"
-    assert (class_type.CompletionCode == 0x00)
+    assert (len(class_type.fields_desc) == 17), "Incorrect number of fields"
     assert (class_type.FirmwareDeviceUpdateModeRestrictionsReserved_0 == 0)
     assert (class_type.FirmwareDeviceUpdateModeRestrictions == 0)
     assert (class_type.FirmwareDevicePartialUpdates == 0)
@@ -129,24 +125,32 @@ def test_GetFirmwareParameters_Response(class_type):
     return
 
 
+@pytest.mark.parametrize("class_type", GetFirmwareParameters_Response())
+def test_GetFirmwareParameters_Response(class_type):
+    """Verify GetFirmwareParameters_Response initialization"""
+
+    assert (class_type.CommandValue == GetFirmwareParameters_Request.CommandValue), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
+    assert (class_type.CompletionCode == 0x00)
+    assert (class_type.Parameters is not None)
+    return
+
 @pytest.mark.parametrize("class_type", QueryDownstreamDevices_Request())
 def test_QueryDownstreamDevices_Request(class_type):
-    "Verify QueryDownstreamDevices_Request initialization"
+    """Verify QueryDownstreamDevices_Request initialization"""
 
     assert (class_type.CommandValue == 0x03), "Incorrect command code"
     assert (len(class_type.fields_desc) == 0), "Incorrect number of fields"
     return
 
 
-@pytest.mark.parametrize("class_type", QueryDownstreamDevices_Response())
-def test_QueryDownstreamDevices_Response(class_type):
-    "Verify QueryDownstreamDevices_Response initialization"
+@pytest.mark.parametrize("class_type", QueryDownstreamDevices_Response.Data())
+def test_QueryDownstreamDevicesData(class_type):
+    """Verify QueryDownstreamDevices_Response data structure"""
 
-    assert (class_type.CommandValue == QueryDownstreamDevices_Request.CommandValue), \
-        "Incorrect command code"
-
-    assert (len(class_type.fields_desc) == 9), "Incorrect number of fields"
-    assert (class_type.CompletionCode == 0x00)
+    assert (len(class_type.fields_desc) == 8), "Incorrect number of fields"
     assert (class_type.DownstreamDeviceUpdateSupported == 0)
     assert (class_type.NumberofDownstreamDevices == 0)
     assert (class_type.MaxNumberofDownstreamDevices == 0)
@@ -158,9 +162,21 @@ def test_QueryDownstreamDevices_Response(class_type):
     return
 
 
+@pytest.mark.parametrize("class_type", QueryDownstreamDevices_Response())
+def test_QueryDownstreamDevices_Response(class_type):
+    """Verify QueryDownstreamDevices_Response initialization"""
+
+    assert (class_type.CommandValue == QueryDownstreamDevices_Request.CommandValue), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
+    assert (class_type.CompletionCode == 0x00)
+    assert (class_type.Parameters is not None)
+    return
+
 @pytest.mark.parametrize("class_type", QueryDownstreamIdentifiers_Request())
 def test_QueryDownstreamIdentifiers_Request(class_type):
-    "Verify QueryDownstreamIdentifiers_Request initialization"
+    """Verify QueryDownstreamIdentifiers_Request initialization"""
 
     assert (class_type.CommandValue == 0x04), "Incorrect command code"
     assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
@@ -172,7 +188,7 @@ def test_QueryDownstreamIdentifiers_Request(class_type):
 
 @pytest.mark.parametrize("class_type", DownstreamDevice())
 def test_DownstreamDevice(class_type):
-    "Verify DownstreamDevice initialization"
+    """Verify DownstreamDevice initialization"""
 
     assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
 
@@ -184,7 +200,7 @@ def test_DownstreamDevice(class_type):
 
 @pytest.mark.parametrize("class_type", QueryDownstreamIdentifiers_Response())
 def test_QueryDownstreamIdentifiers_Response(class_type):
-    "Verify QueryDownstreamIdentifiers_Response initialization"
+    """Verify QueryDownstreamIdentifiers_Response initialization"""
 
     assert (class_type.CommandValue == QueryDownstreamIdentifiers_Request.CommandValue), \
         "Incorrect command code"
@@ -201,7 +217,7 @@ def test_QueryDownstreamIdentifiers_Response(class_type):
 
 @pytest.mark.parametrize("class_type", GetDownstreamFirmwareParameters_Request())
 def test_GetDownstreamFirmwareParameters_Request(class_type):
-    "Verify GetDownstreamFirmwareParameters_Request initialization"
+    """Verify GetDownstreamFirmwareParameters_Request initialization"""
 
     assert (class_type.CommandValue == 0x05), "Incorrect command code"
     assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
@@ -213,7 +229,7 @@ def test_GetDownstreamFirmwareParameters_Request(class_type):
 
 @pytest.mark.parametrize("class_type", DownstreamDeviceParameterTableEntry())
 def test_DownstreamDeviceParameterTableEntry(class_type):
-    "Verify DownstreamDeviceParameterTableEntry initialization"
+    """Verify DownstreamDeviceParameterTableEntry initialization"""
 
     assert (len(class_type.fields_desc) == 25), "Incorrect number of fields"
 
@@ -245,15 +261,11 @@ def test_DownstreamDeviceParameterTableEntry(class_type):
     return
 
 
-@pytest.mark.parametrize("class_type", GetDownstreamFirmwareParameters_Response())
-def test_GetDownstreamFirmwareParameters_Response(class_type):
-    "Verify GetDownstreamFirmwareParameters_Response initialization"
+@pytest.mark.parametrize("class_type", GetDownstreamFirmwareParameters_Response.Data())
+def test_GetDownstreamFirmwareParametersData(class_type):
+    """Verify GetDownstreamFirmwareParameters_Response data structure"""
 
-    assert (class_type.CommandValue == GetDownstreamFirmwareParameters_Request.CommandValue), \
-        "Incorrect command code"
-
-    assert (len(class_type.fields_desc) == 14), "Incorrect number of fields"
-    assert (class_type.CompletionCode == 0x00)
+    assert (len(class_type.fields_desc) == 13), "Incorrect number of fields"
     assert (class_type.NextDataTransferHandle == 0)
     assert (class_type.TransferFlag == 1)
     assert (class_type.FDPCapabilitiesDuringUpdateReserved_1 == 0)
@@ -270,9 +282,22 @@ def test_GetDownstreamFirmwareParameters_Response(class_type):
     return
 
 
+@pytest.mark.parametrize("class_type", GetDownstreamFirmwareParameters_Response())
+def test_GetDownstreamFirmwareParameters_Response(class_type):
+    """Verify GetDownstreamFirmwareParameters_Response initialization"""
+
+    assert (class_type.CommandValue == GetDownstreamFirmwareParameters_Request.CommandValue), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
+    assert (class_type.CompletionCode == 0x00)
+    assert (class_type.Parameters is not None)
+    return
+
+
 @pytest.mark.parametrize("class_type", RequestUpdate_Request())
 def test_RequestUpdate_Request(class_type):
-    "Verify RequestUpdate_Request initialization"
+    """Verify RequestUpdate_Request initialization"""
 
     assert (class_type.CommandValue == 0x10), "Incorrect command code"
     assert (len(class_type.fields_desc) == 7), "Incorrect number of fields"
@@ -289,7 +314,7 @@ def test_RequestUpdate_Request(class_type):
 
 @pytest.mark.parametrize("class_type", RequestUpdate_Response())
 def test_RequestUpdate_Response(class_type):
-    "Verify RequestUpdate_Response initialization"
+    """Verify RequestUpdate_Response initialization"""
 
     assert (class_type.CommandValue == RequestUpdate_Request.CommandValue), \
         "Incorrect command code"
@@ -303,7 +328,7 @@ def test_RequestUpdate_Response(class_type):
 
 @pytest.mark.parametrize("class_type", GetPackageData_Request())
 def test_GetPackageData_Request(class_type):
-    "Verify GetPackageData_Request initialization"
+    """Verify GetPackageData_Request initialization"""
 
     assert (class_type.CommandValue == 0x11), "Incorrect command code"
     assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
@@ -315,7 +340,7 @@ def test_GetPackageData_Request(class_type):
 
 @pytest.mark.parametrize("class_type", GetPackageData_Response())
 def test_GetPackageData_Response(class_type):
-    "Verify GetPackageData_Response initialization"
+    """Verify GetPackageData_Response initialization"""
 
     assert (class_type.CommandValue == GetPackageData_Request.CommandValue), \
         "Incorrect command code"
@@ -330,7 +355,7 @@ def test_GetPackageData_Response(class_type):
 
 @pytest.mark.parametrize("class_type", GetDeviceMetaData_Request())
 def test_GetDeviceMetaData_Request(class_type):
-    "Verify GetDeviceMetaData_Request initialization"
+    """Verify GetDeviceMetaData_Request initialization"""
 
     assert (class_type.CommandValue == 0x12), "Incorrect command code"
     assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
@@ -342,7 +367,7 @@ def test_GetDeviceMetaData_Request(class_type):
 
 @pytest.mark.parametrize("class_type", GetDeviceMetaData_Response())
 def test_GetDeviceMetaData_Response(class_type):
-    "Verify GetDeviceMetaData_Response initialization"
+    """Verify GetDeviceMetaData_Response initialization"""
 
     assert (class_type.CommandValue == GetDeviceMetaData_Request.CommandValue), \
         "Incorrect command code"
@@ -357,7 +382,7 @@ def test_GetDeviceMetaData_Response(class_type):
 
 @pytest.mark.parametrize("class_type", PassComponentTable_Request())
 def test_PassComponentTable_Request(class_type):
-    "Verify PassComponentTable_Request initialization"
+    """Verify PassComponentTable_Request initialization"""
 
     assert (class_type.CommandValue == 0x13), "Incorrect command code"
     assert (len(class_type.fields_desc) == 8), "Incorrect number of fields"
@@ -375,7 +400,7 @@ def test_PassComponentTable_Request(class_type):
 
 @pytest.mark.parametrize("class_type", PassComponentTable_Response())
 def test_PassComponentTable_Response(class_type):
-    "Verify PassComponentTable_Response initialization"
+    """Verify PassComponentTable_Response initialization"""
 
     assert (class_type.CommandValue == PassComponentTable_Request.CommandValue), \
         "Incorrect command code"
@@ -389,7 +414,7 @@ def test_PassComponentTable_Response(class_type):
 
 @pytest.mark.parametrize("class_type", UpdateComponent_Request())
 def test_UpdateComponent_Request(class_type):
-    "Verify UpdateComponent_Request initialization"
+    """Verify UpdateComponent_Request initialization"""
 
     assert (class_type.CommandValue == 0x14), "Incorrect command code"
     assert (len(class_type.fields_desc) == 11), "Incorrect number of fields"
@@ -410,7 +435,7 @@ def test_UpdateComponent_Request(class_type):
 
 @pytest.mark.parametrize("class_type", UpdateComponent_Response())
 def test_UpdateComponent_Response(class_type):
-    "Verify UpdateComponent_Response initialization"
+    """Verify UpdateComponent_Response initialization"""
 
     assert (class_type.CommandValue == UpdateComponent_Request.CommandValue), \
         "Incorrect command code"
@@ -428,7 +453,7 @@ def test_UpdateComponent_Response(class_type):
 
 @pytest.mark.parametrize("class_type", RequestFirmwareData_Request())
 def test_RequestFirmwareData_Request(class_type):
-    "Verify RequestFirmwareData_Request initialization"
+    """Verify RequestFirmwareData_Request initialization"""
 
     assert (class_type.CommandValue == 0x15), "Incorrect command code"
     assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
@@ -440,7 +465,7 @@ def test_RequestFirmwareData_Request(class_type):
 
 @pytest.mark.parametrize("class_type", RequestFirmwareData_Response())
 def test_RequestFirmwareData_Response(class_type):
-    "Verify RequestFirmwareData_Response initialization"
+    """Verify RequestFirmwareData_Response initialization"""
 
     assert (class_type.CommandValue == RequestFirmwareData_Request.CommandValue), \
         "Incorrect command code"
@@ -452,7 +477,7 @@ def test_RequestFirmwareData_Response(class_type):
 
 @pytest.mark.parametrize("class_type", TransferComplete_Request())
 def test_TransferComplete_Request(class_type):
-    "Verify TransferComplete_Request initialization"
+    """Verify TransferComplete_Request initialization"""
 
     assert (class_type.CommandValue == 0x16), "Incorrect command code"
     assert (len(class_type.fields_desc) == 1), "Incorrect number of fields"
@@ -463,7 +488,7 @@ def test_TransferComplete_Request(class_type):
 
 @pytest.mark.parametrize("class_type", TransferComplete_Response())
 def test_TransferComplete_Response(class_type):
-    "Verify TransferComplete_Response initialization"
+    """Verify TransferComplete_Response initialization"""
 
     assert (class_type.CommandValue == TransferComplete_Request.CommandValue), \
         "Incorrect command code"
@@ -475,7 +500,7 @@ def test_TransferComplete_Response(class_type):
 
 @pytest.mark.parametrize("class_type", VerifyComplete_Request())
 def test_VerifyComplete_Request(class_type):
-    "Verify VerifyComplete_Request initialization"
+    """Verify VerifyComplete_Request initialization"""
 
     assert (class_type.CommandValue == 0x17), "Incorrect command code"
     assert (len(class_type.fields_desc) == 1), "Incorrect number of fields"
@@ -486,7 +511,7 @@ def test_VerifyComplete_Request(class_type):
 
 @pytest.mark.parametrize("class_type", VerifyComplete_Response())
 def test_VerifyComplete_Response(class_type):
-    "Verify VerifyComplete_Response initialization"
+    """Verify VerifyComplete_Response initialization"""
 
     assert (class_type.CommandValue == VerifyComplete_Request.CommandValue), \
         "Incorrect command code"
@@ -498,7 +523,7 @@ def test_VerifyComplete_Response(class_type):
 
 @pytest.mark.parametrize("class_type", ApplyComplete_Request())
 def test_ApplyComplete_Request(class_type):
-    "Verify ApplyComplete_Request initialization"
+    """Verify ApplyComplete_Request initialization"""
 
     assert (class_type.CommandValue == 0x18), "Incorrect command code"
     assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
@@ -510,7 +535,7 @@ def test_ApplyComplete_Request(class_type):
 
 @pytest.mark.parametrize("class_type", ApplyComplete_Response())
 def test_ApplyComplete_Response(class_type):
-    "Verify ApplyComplete_Response initialization"
+    """Verify ApplyComplete_Response initialization"""
 
     assert (class_type.CommandValue == ApplyComplete_Request.CommandValue), \
         "Incorrect command code"
@@ -522,7 +547,7 @@ def test_ApplyComplete_Response(class_type):
 
 @pytest.mark.parametrize("class_type", GetMetaData_Request())
 def test_GetMetaData_Request(class_type):
-    "Verify GetMetaData_Request initialization"
+    """Verify GetMetaData_Request initialization"""
 
     assert (class_type.CommandValue == 0x19), "Incorrect command code"
     assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
@@ -534,7 +559,7 @@ def test_GetMetaData_Request(class_type):
 
 @pytest.mark.parametrize("class_type", GetMetaData_Response())
 def test_GetMetaData_Response(class_type):
-    "Verify GetMetaData_Response initialization"
+    """Verify GetMetaData_Response initialization"""
 
     assert (class_type.CommandValue == GetMetaData_Request.CommandValue), \
         "Incorrect command code"
@@ -548,7 +573,7 @@ def test_GetMetaData_Response(class_type):
 
 @pytest.mark.parametrize("class_type", ActivateFirmware_Request())
 def test_ActivateFirmware_Request(class_type):
-    "Verify ActivateFirmware_Request initialization"
+    """Verify ActivateFirmware_Request initialization"""
 
     assert (class_type.CommandValue == 0x1A), "Incorrect command code"
     assert (len(class_type.fields_desc) == 1), "Incorrect number of fields"
@@ -559,7 +584,7 @@ def test_ActivateFirmware_Request(class_type):
 
 @pytest.mark.parametrize("class_type", ActivateFirmware_Response())
 def test_ActivateFirmware_Response(class_type):
-    "Verify ActivateFirmware_Response initialization"
+    """Verify ActivateFirmware_Response initialization"""
 
     assert (class_type.CommandValue == ActivateFirmware_Request.CommandValue), \
         "Incorrect command code"
@@ -572,22 +597,18 @@ def test_ActivateFirmware_Response(class_type):
 
 @pytest.mark.parametrize("class_type", GetStatus_Request())
 def test_GetStatus_Request(class_type):
-    "Verify GetStatus_Request initialization"
+    """Verify GetStatus_Request initialization"""
 
     assert (class_type.CommandValue == 0x1B), "Incorrect command code"
     assert (len(class_type.fields_desc) == 0), "Incorrect number of fields"
     return
 
 
-@pytest.mark.parametrize("class_type", GetStatus_Response())
+@pytest.mark.parametrize("class_type", GetStatus_Response.Data())
 def test_GetStatus_Response(class_type):
-    "Verify GetStatus_Response initialization"
+    """Verify GetStatus_Response initialization"""
 
-    assert (class_type.CommandValue == GetStatus_Request.CommandValue), \
-        "Incorrect command code"
-
-    assert (len(class_type.fields_desc) == 8), "Incorrect number of fields"
-    assert (class_type.CompletionCode == 0x00)
+    assert (len(class_type.fields_desc) == 7), "Incorrect number of fields"
     assert (class_type.CurrentState == 0)
     assert (class_type.PreviousState == 0)
     assert (class_type.AuxState == 0)
@@ -598,9 +619,22 @@ def test_GetStatus_Response(class_type):
     return
 
 
+@pytest.mark.parametrize("class_type", GetStatus_Response())
+def test_GetStatus_Response(class_type):
+    """Verify GetStatus_Response initialization"""
+
+    assert (class_type.CommandValue == GetStatus_Request.CommandValue), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
+    assert (class_type.CompletionCode == 0x00)
+    assert (class_type.Status is not None)
+    return
+
+
 @pytest.mark.parametrize("class_type", CancelUpdateComponent_Request())
 def test_CancelUpdateComponent_Request(class_type):
-    "Verify CancelUpdateComponent_Request initialization"
+    """Verify CancelUpdateComponent_Request initialization"""
 
     assert (class_type.CommandValue == 0x1C), "Incorrect command code"
     assert (len(class_type.fields_desc) == 0), "Incorrect number of fields"
@@ -609,7 +643,7 @@ def test_CancelUpdateComponent_Request(class_type):
 
 @pytest.mark.parametrize("class_type", CancelUpdateComponent_Response())
 def test_CancelUpdateComponent_Response(class_type):
-    "Verify CancelUpdateComponent_Response initialization"
+    """Verify CancelUpdateComponent_Response initialization"""
 
     assert (class_type.CommandValue == CancelUpdateComponent_Request.CommandValue), \
         "Incorrect command code"
@@ -621,7 +655,7 @@ def test_CancelUpdateComponent_Response(class_type):
 
 @pytest.mark.parametrize("class_type", CancelUpdate_Request())
 def test_CancelUpdate_Request(class_type):
-    "Verify CancelUpdate_Request initialization"
+    """Verify CancelUpdate_Request initialization"""
 
     assert (class_type.CommandValue == 0x1D), "Incorrect command code"
     assert (len(class_type.fields_desc) == 0), "Incorrect number of fields"
@@ -630,7 +664,7 @@ def test_CancelUpdate_Request(class_type):
 
 @pytest.mark.parametrize("class_type", CancelUpdate_Response())
 def test_CancelUpdate_Response(class_type):
-    "Verify CancelUpdate_Response initialization"
+    """Verify CancelUpdate_Response initialization"""
 
     assert (class_type.CommandValue == CancelUpdate_Request.CommandValue), \
         "Incorrect command code"
@@ -644,7 +678,7 @@ def test_CancelUpdate_Response(class_type):
 
 @pytest.mark.parametrize("class_type", ActivatePendingComponentImageSet_Request())
 def test_ActivatePendingComponentImageSet_Request(class_type):
-    "Verify ActivatePendingComponentImageSet_Request initialization"
+    """Verify ActivatePendingComponentImageSet_Request initialization"""
 
     assert (class_type.CommandValue == 0x1E), "Incorrect command code"
     assert (len(class_type.fields_desc) == 0), "Incorrect number of fields"
@@ -653,7 +687,7 @@ def test_ActivatePendingComponentImageSet_Request(class_type):
 
 @pytest.mark.parametrize("class_type", ActivatePendingComponentImageSet_Response())
 def test_ActivatePendingComponentImageSet_Response(class_type):
-    "Verify ActivatePendingComponentImageSet_Response initialization"
+    """Verify ActivatePendingComponentImageSet_Response initialization"""
 
     assert (class_type.CommandValue == ActivatePendingComponentImageSet_Request.CommandValue), \
         "Incorrect command code"
@@ -666,7 +700,7 @@ def test_ActivatePendingComponentImageSet_Response(class_type):
 
 @pytest.mark.parametrize("class_type", ActivatePendingComponentImage_Request())
 def test_ActivatePendingComponentImage_Request(class_type):
-    "Verify ActivatePendingComponentImage_Request initialization"
+    """Verify ActivatePendingComponentImage_Request initialization"""
 
     assert (class_type.CommandValue == 0x1F), "Incorrect command code"
     assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
@@ -679,7 +713,7 @@ def test_ActivatePendingComponentImage_Request(class_type):
 
 @pytest.mark.parametrize("class_type", ActivatePendingComponentImage_Response())
 def test_ActivatePendingComponentImage_Response(class_type):
-    "Verify ActivatePendingComponentImage_Response initialization"
+    """Verify ActivatePendingComponentImage_Response initialization"""
 
     assert (class_type.CommandValue == ActivatePendingComponentImage_Request.CommandValue), \
         "Incorrect command code"
@@ -692,7 +726,7 @@ def test_ActivatePendingComponentImage_Response(class_type):
 
 @pytest.mark.parametrize("class_type", RequestDownstreamDeviceUpdate_Request())
 def test_RequestDownstreamDeviceUpdate_Request(class_type):
-    "Verify RequestDownstreamDeviceUpdate_Request initialization"
+    """Verify RequestDownstreamDeviceUpdate_Request initialization"""
 
     assert (class_type.CommandValue == 0x20), "Incorrect command code"
     assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
@@ -705,7 +739,7 @@ def test_RequestDownstreamDeviceUpdate_Request(class_type):
 
 @pytest.mark.parametrize("class_type", RequestDownstreamDeviceUpdate_Response())
 def test_RequestDownstreamDeviceUpdate_Response(class_type):
-    "Verify RequestDownstreamDeviceUpdate_Response initialization"
+    """Verify RequestDownstreamDeviceUpdate_Response initialization"""
 
     assert (class_type.CommandValue == RequestDownstreamDeviceUpdate_Request.CommandValue), \
         "Incorrect command code"
@@ -719,7 +753,7 @@ def test_RequestDownstreamDeviceUpdate_Response(class_type):
 
 @pytest.mark.parametrize("class_type", TestUnsupportedPldm_Request())
 def test_TestUnsupportedPldm_Request(class_type):
-    "Verify TestUnsupportedPldm_Request initialization"
+    """Verify TestUnsupportedPldm_Request initialization"""
 
     assert (class_type.CommandValue == 0xF2), "Incorrect command code"
     assert (len(class_type.fields_desc) == 0), "Incorrect number of fields"
@@ -728,7 +762,7 @@ def test_TestUnsupportedPldm_Request(class_type):
 
 @pytest.mark.parametrize("class_type", TestUnsupportedPldm_Response())
 def test_TestUnsupportedPldm_Response(class_type):
-    "Verify TestUnsupportedPldm_Response initialization"
+    """Verify TestUnsupportedPldm_Response initialization"""
 
     assert (class_type.CommandValue == TestUnsupportedPldm_Request.CommandValue), \
         "Incorrect command code"

@@ -30,7 +30,7 @@ from pldm.dmtf import (
     FDStates,
     AuxStates,
     AuxStatus,
-    AuxReasonCodes,
+    AuxReasonCodes
 )
 
 DSP0267_COMPLIANCE_VERSION = int.from_bytes([1, 1, 0, 0], 'big')
@@ -259,7 +259,6 @@ class ComponentParameterTableEntry(Packet):
     def extract_padding(self, pld):  # all payloads need to do this
         return ("", pld,)
 
-
 #### PLDM Type 5 Message Classes ####
 class QueryDeviceIdentifiers_Request(PLDM_TYPE_5_PAYLOAD):
     name = "Query Device Identifiers Request"
@@ -272,16 +271,27 @@ class QueryDeviceIdentifiers_Response(PLDM_TYPE_5_PAYLOAD):
 
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        FieldLenField(
-            "DeviceIdentifiersLength", None, fmt="<I", length_of="Descriptors"
+        ConditionalField(
+            FieldLenField(
+                "DeviceIdentifiersLength", None, fmt="<I", length_of="Descriptors"
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        FieldLenField("DescriptorCount", None, fmt="B", count_of="Descriptors"),
-        PacketListField(
-            "Descriptors",
-            None,
-            RecordDescriptor,
-            count_from=lambda pkt: pkt.DescriptorCount,
+        ConditionalField(
+            FieldLenField(
+                "DescriptorCount", None, fmt="B", count_of="Descriptors"
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
+        ConditionalField(
+            PacketListField(
+                "Descriptors",
+                None,
+                RecordDescriptor,
+                count_from=lambda pkt: pkt.DescriptorCount,
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -294,107 +304,118 @@ class GetFirmwareParameters_Response(PLDM_TYPE_5_PAYLOAD):
     name = "Get Firmware Parameters Response"
     CommandValue = 0x02
 
+    class Data(Packet):
+        fields_desc = [
+            # Capabilities During Update
+            # byte 0 bits 7:5
+            XBitField("FirmwareDeviceUpdateModeRestrictionsReserved_0", 0, 3),
+            # byte 0  bit 4
+            BitEnumField(
+                "FirmwareDeviceUpdateModeRestrictions",
+                0,
+                1,
+                {
+                    0: "No host OS restriction",
+                    1: "Firmware Device unable to enter update mode if OS active",
+                },
+            ),
+            # byte 0 bit 3
+            BitEnumField(
+                "FirmwareDevicePartialUpdates",
+                0,
+                1,
+                {
+                    0: "Firmware Device cannot accept a partial update",
+                    1: "Firmware Device can support a partial update",
+                },
+            ),
+            # byte 0 bit 2
+            BitEnumField(
+                "FirmwareDeviceHostFunctionalityDuringUpdate",
+                0,
+                1,
+                {
+                    0: "Device host functionality is not reduced during Firmware Update",
+                    1: "Device host functionality will be reduced, perhaps becoming inaccessible, during Firmware Update",
+                },
+            ),
+            # byte 0 bit 1
+            BitEnumField(
+                "ComponentUpdateFailureRetryCapability",
+                0,
+                1,
+                {
+                    0: "Device can have component updated again",
+                    1: "Device will not be able to update component again",
+                },
+            ),
+            # byte 0 bit 0
+            BitEnumField(
+                "ComponentUpdateFailureRecoveryCapability",
+                0,
+                1,
+                {
+                    0: "Device will revert to previous component image",
+                    1: "Device will not revert to previous component image",
+                },
+            ),
+            # byte 1 bit 7:1
+            XBitField("GetFirmwareParametersReserved_0", 0, 7),
+            # byte 1  bit 0
+            BitEnumField(
+                "FirmwareDeviceDowngradeRestrictions",
+                0,
+                1,
+                {
+                    0: "Firmware Device does not have downgrade restrictions",
+                    1: "Firmware Device supports downgrade restrictions",
+                },
+            ),
+            # bytes 3:2
+            XBitField("GetFirmwareParametersReserved_1", 0, 16),
+            FieldLenField(
+                "ComponentCount", None, fmt="<H", count_of="ComponentParameterTable"
+            ),
+            ByteEnumField("ActiveComponentImageSetVersionStringType", 0, StringTypeValues),
+            FieldLenField(
+                "ActiveComponentImageSetVersionStringLength",
+                None,
+                length_of="ActiveComponentImageSetVersionString",
+                fmt="B",
+            ),
+            ByteEnumField("PendingComponentImageSetVersionStringType", 0, StringTypeValues),
+            FieldLenField(
+                "PendingComponentImageSetVersionStringLength",
+                None,
+                length_of="PendingComponentImageSetVersionString",
+                fmt="B",
+            ),
+            StrLenField(
+                "ActiveComponentImageSetVersionString",
+                "",
+                length_from=lambda pkt: pkt.ActiveComponentImageSetVersionStringLength,
+            ),
+            StrLenField(
+                "PendingComponentImageSetVersionString",
+                "",
+                length_from=lambda pkt: pkt.PendingComponentImageSetVersionStringLength,
+            ),
+            PacketListField(
+                "ComponentParameterTable",
+                [],
+                ComponentParameterTableEntry,
+                count_from=lambda pkt: pkt.ComponentCount,
+            )
+        ]
+
+        def extract_padding(self, s):
+            return ("", s)
+
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        # Capabilities During Update
-        # byte 0 bits 7:5
-        XBitField("FirmwareDeviceUpdateModeRestrictionsReserved_0", 0, 3),
-        # byte 0  bit 4
-        BitEnumField(
-            "FirmwareDeviceUpdateModeRestrictions",
-            0,
-            1,
-            {
-                0: "No host OS restriction",
-                1: "Firmware Device unable to enter update mode if OS active",
-            },
-        ),
-        # byte 0 bit 3
-        BitEnumField(
-            "FirmwareDevicePartialUpdates",
-            0,
-            1,
-            {
-                0: "Firmware Device cannot accept a partial update",
-                1: "Firmware Device can support a partial update",
-            },
-        ),
-        # byte 0 bit 2
-        BitEnumField(
-            "FirmwareDeviceHostFunctionalityDuringUpdate",
-            0,
-            1,
-            {
-                0: "Device host functionality is not reduced during Firmware Update",
-                1: "Device host functionality will be reduced, perhaps becoming inaccessible, during Firmware Update",
-            },
-        ),
-        # byte 0 bit 1
-        BitEnumField(
-            "ComponentUpdateFailureRetryCapability",
-            0,
-            1,
-            {
-                0: "Device can have component updated again",
-                1: "Device will not be able to update component again",
-            },
-        ),
-        # byte 0 bit 0
-        BitEnumField(
-            "ComponentUpdateFailureRecoveryCapability",
-            0,
-            1,
-            {
-                0: "Device will revert to previous component image",
-                1: "Device will not revert to previous component image",
-            },
-        ),
-        # byte 1 bit 7:1
-        XBitField("GetFirmwareParametersReserved_0", 0, 7),
-        # byte 1  bit 0
-        BitEnumField(
-            "FirmwareDeviceDowngradeRestrictions",
-            0,
-            1,
-            {
-                0: "Firmware Device does not have downgrade restrictions",
-                1: "Firmware Device supports downgrade restrictions",
-            },
-        ),
-        # bytes 3:2
-        XBitField("GetFirmwareParametersReserved_1", 0, 16),
-        FieldLenField(
-            "ComponentCount", None, fmt="<H", count_of="ComponentParameterTable"
-        ),
-        ByteEnumField("ActiveComponentImageSetVersionStringType", 0, StringTypeValues),
-        FieldLenField(
-            "ActiveComponentImageSetVersionStringLength",
-            None,
-            length_of="ActiveComponentImageSetVersionString",
-            fmt="B",
-        ),
-        ByteEnumField("PendingComponentImageSetVersionStringType", 0, StringTypeValues),
-        FieldLenField(
-            "PendingComponentImageSetVersionStringLength",
-            None,
-            length_of="PendingComponentImageSetVersionString",
-            fmt="B",
-        ),
-        StrLenField(
-            "ActiveComponentImageSetVersionString",
-            "",
-            length_from=lambda pkt: pkt.ActiveComponentImageSetVersionStringLength,
-        ),
-        StrLenField(
-            "PendingComponentImageSetVersionString",
-            "",
-            length_from=lambda pkt: pkt.PendingComponentImageSetVersionStringLength,
-        ),
-        PacketListField(
-            "ComponentParameterTable",
-            [],
-            ComponentParameterTableEntry,
-            count_from=lambda pkt: pkt.ComponentCount,
+        ConditionalField(
+            PacketField("Parameters", Data(), Data),
+            lambda pkt: pkt.CompletionCode == 0
         )
     ]
 
@@ -408,52 +429,63 @@ class QueryDownstreamDevices_Response(PLDM_TYPE_5_PAYLOAD):
     name = "Query Downstream Devices Response"
     CommandValue = 0x03
 
+    class Data(Packet):
+        fields_desc = [
+            ByteEnumField(
+                "DownstreamDeviceUpdateSupported",
+                0,
+                {
+                    0: "The FDP does not support firmware updates but may report inventory information on downstream devices",
+                    1: "The FDP supports firmware updates for downstream devices",
+                },
+            ),
+            LEShortField("NumberofDownstreamDevices", 0),
+            LEShortField("MaxNumberofDownstreamDevices", 0),
+            # byte 0 bits 7-3
+            BitField("Reserved_0", 0, 5),
+            # byte 0 bit 2
+            BitEnumField(
+                "FDPSupportsAbilityToUpdateMultipleDownstreamDevicesSimultaneously",
+                0,
+                1,
+                {
+                    0: "No support for simultaneous update",
+                    1: "FDP supports simultaneous update of multiple downstream devices ",
+                },
+            ),
+            # byte 0 bit 1
+            BitEnumField(
+                "FDPSupportsDownstreamDevicesDynamicallyRemoved",
+                0,
+                1,
+                {
+                    0: "No dynamically removed downstream devices",
+                    1: "FDP supports dynamically removed downstream devices",
+                },
+            ),
+            # byte 0 bit 0
+            BitEnumField(
+                "FDPSupportsDownstreamDevicesDynamicallyAttached",
+                0,
+                1,
+                {
+                    0: "No dynamically attached downstream devices",
+                    1: "FDP supports dynamically attached downstream devices",
+                },
+            ),
+            # bytes 3:1
+            BitField("Reserved_1", 0, 24),
+        ]
+
+        def extract_padding(self, s):
+            return ("", s)
+
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        ByteEnumField(
-            "DownstreamDeviceUpdateSupported",
-            0,
-            {
-                0: "The FDP does not support firmware updates but may report inventory information on downstream devices",
-                1: "The FDP supports firmware updates for downstream devices",
-            },
-        ),
-        LEShortField("NumberofDownstreamDevices", 0),
-        LEShortField("MaxNumberofDownstreamDevices", 0),
-        # byte 0 bits 7-3
-        BitField("Reserved_0", 0, 5),
-        # byte 0 bit 2
-        BitEnumField(
-            "FDPSupportsAbilityToUpdateMultipleDownstreamDevicesSimultaneously",
-            0,
-            1,
-            {
-                0: "No support for simultaneous update",
-                1: "FDP supports simultaneous update of multiple downstream devices ",
-            },
-        ),
-        # byte 0 bit 1
-        BitEnumField(
-            "FDPSupportsDownstreamDevicesDynamicallyRemoved",
-            0,
-            1,
-            {
-                0: "No dynamically removed downstream devices",
-                1: "FDP supports dynamically removed downstream devices",
-            },
-        ),
-        # byte 0 bit 0
-        BitEnumField(
-            "FDPSupportsDownstreamDevicesDynamicallyAttached",
-            0,
-            1,
-            {
-                0: "No dynamically attached downstream devices",
-                1: "FDP supports dynamically attached downstream devices",
-            },
-        ),
-        # bytes 3:1
-        BitField("Reserved_1", 0, 24),
+        ConditionalField(
+            PacketField("Parameters", Data(), Data),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -464,7 +496,12 @@ class QueryDownstreamIdentifiers_Request(PLDM_TYPE_5_PAYLOAD):
     fields_desc = [
         XLEIntField("DataTransferHandle", 0x00000000),
         ByteEnumField(
-            "TransferOperationFlag", 0x0, {0x00: "GetNextPart", 0x01: "GetFirstPart"}
+            "TransferOperationFlag",
+            0x0,
+            {
+                0x00: "GetNextPart",
+                0x01: "GetFirstPart"
+            }
         )
     ]
 
@@ -507,25 +544,41 @@ class QueryDownstreamIdentifiers_Response(PLDM_TYPE_5_PAYLOAD):
                 0x91: "INVALID_TRANSFER_OPERATION_FLAG",
             },
         ),
-        XLEIntField("NextDataTransferHandle", 0x00000000),
-        ByteEnumField("TransferFlag", 0x01, TransferFlags),
-        # portion of QueryDownstreamIdentifiers
-        FieldLenField(
-            "DownstreamDevicesLength",
-            None, fmt="<I",
-            length_of="DownstreamDevices"
+
+        ConditionalField(
+            XLEIntField("NextDataTransferHandle", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        FieldLenField(
-            "NumberOfDownstreamDevices",
-            None, count_of="DownstreamDevices",
-            fmt="<H"
+        ConditionalField(
+            ByteEnumField("TransferFlag", 0x01, TransferFlags),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        FieldListField(
-            "DownstreamDevices",
-            [],
-            PacketField("", DownstreamDevice(), DownstreamDevice),
-            count_from=lambda pkt: pkt.NumberOfDownstreamDevices,
+        ConditionalField(
+            # portion of QueryDownstreamIdentifiers
+            FieldLenField(
+                "DownstreamDevicesLength",
+                None, fmt="<I",
+                length_of="DownstreamDevices"
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
+        ConditionalField(
+            FieldLenField(
+                "NumberOfDownstreamDevices",
+                None, count_of="DownstreamDevices",
+                fmt="<H"
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            FieldListField(
+                "DownstreamDevices",
+                [],
+                PacketField("", DownstreamDevice(), DownstreamDevice),
+                count_from=lambda pkt: pkt.NumberOfDownstreamDevices,
+            ),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -662,6 +715,94 @@ class GetDownstreamFirmwareParameters_Response(PLDM_TYPE_5_PAYLOAD):
     name = "Get Downstream Firmware Parameters Response"
     CommandValue = 0x05
 
+    class Data(Packet):
+        fields_desc = [
+            XLEIntField("NextDataTransferHandle", 0x00000000),
+            ByteEnumField("TransferFlag", 0x01, TransferFlags),
+            # portion of GetDownstreamFirmwareParameters -> Table 20
+            # FDPCapabilitiesDuringUpdate
+            # byte 0 bits 7:5
+            BitField("FDPCapabilitiesDuringUpdateReserved_1", 0, 3),
+            # byte 0 bit 4
+            BitEnumField(
+                "FDPUpdateModeRestrictions",
+                0,
+                1,
+                {
+                    0: "No host OS environment restriction for update mode",
+                    1: "Firmware device unable to enter update mode if host OS environment is active",
+                },
+            ),
+            # byte 0 bits 3
+            BitField("FDPCapabilitiesDuringUpdateReserved_0", 0, 1),
+            # byte 0 bit 2
+            BitEnumField(
+                "DownstreamDeviceHostFunctionalityDuringFirmwareUpdate",
+                0,
+                1,
+                {
+                    0: "Device host functionality is not reduced during Firmware Update",
+                    1: "Device host functionality will be reduced, perhaps becoming inaccessible, during Firmware"
+                    " Update",
+                },
+            ),
+            # byte 0 bit 1
+            BitEnumField(
+                "ComponentUpdateFailureRetryCapability",
+                0,
+                1,
+                {
+                    0: "Downstream Device can have component updated again without exiting update mode and "
+                    " restarting transfer via RequestUpdate command",
+                    1: "Downstream Device will not be able to update component again unless it exits update mode"
+                    " and the UA sends a new Request Update command",
+                },
+            ),
+            # byte 0 bit 0
+            BitEnumField(
+                "DownstreamDeviceComponentUpdateFailureRecoveryCapability",
+                0,
+                1,
+                {
+                    0: "Downstream Device will revert to previous component image upon a failure, timeout, or"
+                    " cancellation of the transfer",
+                    1: "Downstream Device will NOT revert to previous component image upon a failure, timeout, or"
+                    " cancellation of the transfer",
+                },
+            ),
+            # byte 1 bits 7:1
+            BitField("FDPCapabilitiesDuringUpdateReserved_2", 0, 7),
+            # byte 1 bits 0 (bit 8)
+            BitEnumField(
+                "DowngradeRestrictions",
+                0,
+                1,
+                {
+                    0: "FDP does not have downgrade restrictions which may prevent a component image"
+                    " from being downgraded",
+                    1: "FDP supports downgrade restrictions, and each component image will report"
+                    " whether a downgrade to an older component image can occur",
+                },
+            ),
+            # bytes 3:2
+            BitField("FDPCapabilitiesDuringUpdateReserved_3", 0, 16),
+            FieldLenField(
+                "DownstreamDeviceCount",
+                None,
+                count_of="DownstreamDeviceParameterTable",
+                fmt="<H",
+            ),
+            PacketListField(
+                "DownstreamDeviceParameterTable",
+                [],
+                DownstreamDeviceParameterTableEntry,
+                count_from=lambda pkt: pkt.DownstreamDeviceCount,
+            )
+        ]
+
+        def extract_padding(self, s):
+            return ("", s)
+
     fields_desc = [
         XByteEnumField(
             "CompletionCode",
@@ -672,89 +813,11 @@ class GetDownstreamFirmwareParameters_Response(PLDM_TYPE_5_PAYLOAD):
                 0x91: "INVALID_TRANSFER_OPERATION_FLAG",
             },
         ),
-        XLEIntField("NextDataTransferHandle", 0x00000000),
-        ByteEnumField("TransferFlag", 0x01, TransferFlags),
-        # portion of GetDownstreamFirmwareParameters -> Table 20
-        # FDPCapabilitiesDuringUpdate
-        # byte 0 bits 7:5
-        BitField("FDPCapabilitiesDuringUpdateReserved_1", 0, 3),
-        # byte 0 bit 4
-        BitEnumField(
-            "FDPUpdateModeRestrictions",
-            0,
-            1,
-            {
-                0: "No host OS environment restriction for update mode",
-                1: "Firmware device unable to enter update mode if host OS environment is active",
-            },
-        ),
-        # byte 0 bits 3
-        BitField("FDPCapabilitiesDuringUpdateReserved_0", 0, 1),
-        # byte 0 bit 2
-        BitEnumField(
-            "DownstreamDeviceHostFunctionalityDuringFirmwareUpdate",
-            0,
-            1,
-            {
-                0: "Device host functionality is not reduced during Firmware Update",
-                1: "Device host functionality will be reduced, perhaps becoming inaccessible, during Firmware"
-                " Update",
-            },
-        ),
-        # byte 0 bit 1
-        BitEnumField(
-            "ComponentUpdateFailureRetryCapability",
-            0,
-            1,
-            {
-                0: "Downstream Device can have component updated again without exiting update mode and "
-                " restarting transfer via RequestUpdate command",
-                1: "Downstream Device will not be able to update component again unless it exits update mode"
-                " and the UA sends a new Request Update command",
-            },
-        ),
-        # byte 0 bit 0
-        BitEnumField(
-            "DownstreamDeviceComponentUpdateFailureRecoveryCapability",
-            0,
-            1,
-            {
-                0: "Downstream Device will revert to previous component image upon a failure, timeout, or"
-                " cancellation of the transfer",
-                1: "Downstream Device will NOT revert to previous component image upon a failure, timeout, or"
-                " cancellation of the transfer",
-            },
-        ),
-        # byte 1 bits 7:1
-        BitField("FDPCapabilitiesDuringUpdateReserved_2", 0, 7),
-        # byte 1 bits 0 (bit 8)
-        BitEnumField(
-            "DowngradeRestrictions",
-            0,
-            1,
-            {
-                0: "FDP does not have downgrade restrictions which may prevent a component image"
-                " from being downgraded",
-                1: "FDP supports downgrade restrictions, and each component image will report"
-                " whether a downgrade to an older component image can occur",
-            },
-        ),
-        # bytes 3:2
-        BitField("FDPCapabilitiesDuringUpdateReserved_3", 0, 16),
-        FieldLenField(
-            "DownstreamDeviceCount",
-            None,
-            count_of="DownstreamDeviceParameterTable",
-            fmt="<H",
-        ),
-        PacketListField(
-            "DownstreamDeviceParameterTable",
-            [],
-            DownstreamDeviceParameterTableEntry,
-            count_from=lambda pkt: pkt.DownstreamDeviceCount,
+        ConditionalField(
+            PacketField("Parameters", Data(), Data),
+            lambda pkt: pkt.CompletionCode == 0
         )
     ]
-
 
 class RequestUpdate_Request(PLDM_TYPE_5_PAYLOAD):
     name = "Request Update Request"
@@ -795,8 +858,14 @@ class RequestUpdate_Response(PLDM_TYPE_5_PAYLOAD):
                 0x8E: "RETRY_REQUEST_UPDATE",
             },
         ),
-        LEShortField("FirmwareDeviceMetaDataLength", 0x0000),
-        XByteField("FDWillSendGetPackageDataCommand", 0x00)
+        ConditionalField(
+            LEShortField("FirmwareDeviceMetaDataLength", 0x0000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            XByteField("FDWillSendGetPackageDataCommand", 0x00),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -806,7 +875,7 @@ class GetPackageData_Request(PLDM_TYPE_5_PAYLOAD):
 
     fields_desc = [
         XLEIntField("DataTransferHandle", 0x00000000),
-        ByteEnumField("TransferFlag", 0x01, TransferFlags),
+        ByteEnumField("TransferFlag", 0x01, TransferFlags)
     ]
 
 
@@ -826,9 +895,18 @@ class GetPackageData_Response(PLDM_TYPE_5_PAYLOAD):
                 0x91: "INVALID_TRANSFER_OPERATION_FLAG",
             },
         ),
-        XLEIntField("NextDataTransferHandle", 0x00000000),
-        ByteEnumField("TransferFlag", 0x01, TransferFlags),
-        FieldListField("PortionOfPackageData", [], XByteField("", 0)),
+        ConditionalField(
+            XLEIntField("NextDataTransferHandle", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            ByteEnumField("TransferFlag", 0x01, TransferFlags),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            FieldListField("PortionOfPackageData", [], XByteField("", 0)),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -839,7 +917,12 @@ class GetDeviceMetaData_Request(PLDM_TYPE_5_PAYLOAD):
     fields_desc = [
         XLEIntField("DataTransferHandle", 0x00000000),
         ByteEnumField(
-            "TransferOperationFlag", 0x0, {0x00: "GetNextPart", 0x01: "GetFirstPart"}
+            "TransferOperationFlag",
+            0x0,
+            {
+                0x00: "GetNextPart",
+                0x01: "GetFirstPart"
+            }
         )
     ]
 
@@ -861,9 +944,18 @@ class GetDeviceMetaData_Response(PLDM_TYPE_5_PAYLOAD):
                 0x93: "PACKAGE_DATA_ERROR",
             }
         ),
-        XLEIntField("NextDataTransferHandle", 0x00000000),
-        ByteEnumField("TransferFlag", 0x01, TransferFlags),
-        FieldListField("PortionOfMetaData", [], XByteField("", 0))
+        ConditionalField(
+           XLEIntField("NextDataTransferHandle", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            ByteEnumField("TransferFlag", 0x01, TransferFlags),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            FieldListField("PortionOfMetaData", [], XByteField("", 0)),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -891,7 +983,7 @@ class PassComponentTable_Request(PLDM_TYPE_5_PAYLOAD):
             "ComponentVersionString",
             b"",
             length_from=lambda pkt: pkt.ComponentVersionStringLength,
-        ),
+        )
     ]
 
 
@@ -909,12 +1001,18 @@ class PassComponentTable_Response(PLDM_TYPE_5_PAYLOAD):
                 0x84: "INVALID_STATE_FOR_COMMAND",
             },
         ),
-        ByteEnumField(
-            "ComponentResponse",
-            0,
-            {0: "Component can be updated", 1: "Component may be updateable"},
+        ConditionalField(
+            ByteEnumField(
+                "ComponentResponse",
+                0,
+                {0: "Component can be updated", 1: "Component may be updateable"},
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        XByteEnumField("ComponentResponseCode", 0x00, ComponentResponseCodes)
+        ConditionalField(
+            XByteEnumField("ComponentResponseCode", 0x00, ComponentResponseCodes),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -957,27 +1055,45 @@ class UpdateComponent_Response(PLDM_TYPE_5_PAYLOAD):
             0x00,
             {**PLDM_BASE_CODES, 0x80: "NOT_IN_UPDATE_MODE"}
         ),
-        ByteEnumField(
-            "ComponentCompatibilityResponse",
-            0,
-            {
-                0: "Component can be updated",
-                1: "Component will not be updated"
-            },
+        ConditionalField(
+            ByteEnumField(
+                "ComponentCompatibilityResponse",
+                0,
+                {
+                    0: "Component can be updated",
+                    1: "Component will not be updated"
+                },
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        XByteEnumField(
-            "ComponentCompatibilityResponseCode",
-            0x00,
-            ComponentCompatibilityResponseCodes,
+        ConditionalField(
+            XByteEnumField(
+                "ComponentCompatibilityResponseCode",
+                0x00,
+                ComponentCompatibilityResponseCodes,
+            ),
+            lambda pkt: pkt.CompletionCode == 0
         ),
-        # UpdateOptionFlags
-        # byte 0 bit 7:1
-        BitField("Reserved_0", 0, 7),
-        # byte 0 bit 0
-        BitField("UpdateOptionFlagsRequestForceUpdate", 0, 1),
-        # bytes 3:1
-        BitField("Reserved_1", 0, 24),
-        LEShortField("EstimatedTimeBeforeSendingRequestFirmwareData", 0x0000),
+        ConditionalField(
+            # UpdateOptionFlags
+            # byte 0 bit 7:1
+            BitField("Reserved_0", 0, 7),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            # byte 0 bit 0
+            BitField("UpdateOptionFlagsRequestForceUpdate", 0, 1),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            # bytes 3:1
+            BitField("Reserved_1", 0, 24),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            LEShortField("EstimatedTimeBeforeSendingRequestFirmwareData", 0x0000),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -1015,7 +1131,10 @@ class RequestFirmwareData_Response(PLDM_TYPE_5_PAYLOAD):
 class TransferComplete_Request(PLDM_TYPE_5_PAYLOAD):
     name = "Transfer Complete Request"
     CommandValue = 0x16
-    fields_desc = [XByteEnumField("TransferResult", 0x00, TransferResults)]
+
+    fields_desc = [
+        XByteEnumField("TransferResult", 0x00, TransferResults)
+    ]
 
 
 class TransferComplete_Response(PLDM_TYPE_5_PAYLOAD):
@@ -1049,7 +1168,11 @@ class VerifyComplete_Response(PLDM_TYPE_5_PAYLOAD):
 
     fields_desc = [
         XByteEnumField(
-            "CompletionCode", 0x00, {**PLDM_BASE_CODES, 0x88: "COMMAND_NOT_EXPECTED"}
+            "CompletionCode",
+            0x00,
+            {
+                **PLDM_BASE_CODES, 0x88: "COMMAND_NOT_EXPECTED"
+            }
         )
     ]
 
@@ -1070,7 +1193,11 @@ class ApplyComplete_Response(PLDM_TYPE_5_PAYLOAD):
 
     fields_desc = [
         XByteEnumField(
-            "CompletionCode", 0x00, {**PLDM_BASE_CODES, 0x88: "COMMAND_NOT_EXPECTED"}
+            "CompletionCode",
+            0x00,
+            {
+                **PLDM_BASE_CODES, 0x88: "COMMAND_NOT_EXPECTED"
+            }
         )
     ]
 
@@ -1083,7 +1210,7 @@ class GetMetaData_Request(PLDM_TYPE_5_PAYLOAD):
         XLEIntField("DataTransferHandle", 0x00000000),
         XByteEnumField(
             "TransferOperationFlag", 0x00, {0x00: "GetNextPart", 0x01: "GetFirstPart"}
-        ),
+        )
     ]
 
 
@@ -1102,8 +1229,14 @@ class GetMetaData_Response(PLDM_TYPE_5_PAYLOAD):
                 0x91: "INVALID_TRANSFER_OPERATION_FLAG",
             },
         ),
+        ConditionalField(
         XLEIntField("NextDataTransferHandle", 0x00000000),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
         XByteEnumField("TransferFlag", 0x01, TransferFlags),
+            lambda pkt: pkt.CompletionCode == 0
+        )
         # PortionOfMetaData should added as payload to command
     ]
 
@@ -1111,6 +1244,7 @@ class GetMetaData_Response(PLDM_TYPE_5_PAYLOAD):
 class ActivateFirmware_Request(PLDM_TYPE_5_PAYLOAD):
     name = "Activate Firmware Request"
     CommandValue = 0x1A
+
     fields_desc = [
         ByteField("SelfContainedActivationRequest", 0)
     ]
@@ -1119,6 +1253,7 @@ class ActivateFirmware_Request(PLDM_TYPE_5_PAYLOAD):
 class ActivateFirmware_Response(PLDM_TYPE_5_PAYLOAD):
     name = "Activate Firmware Response"
     CommandValue = 0x1A
+
     fields_desc = [
         XByteEnumField(
             "CompletionCode",
@@ -1132,7 +1267,10 @@ class ActivateFirmware_Response(PLDM_TYPE_5_PAYLOAD):
                 0x8C: "SELF_CONTAINED_ACTIVATION_NOT_PERMITTED",
             },
         ),
-        LEShortField("EstimatedTimeForSelfContainedActivation", 0)
+        ConditionalField(
+            LEShortField("EstimatedTimeForSelfContainedActivation", 0),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -1145,15 +1283,26 @@ class GetStatus_Response(PLDM_TYPE_5_PAYLOAD):
     name = "Get Status Response"
     CommandValue = 0x1B
 
+    class Data(Packet):
+        fields_desc = [
+            ByteEnumField("CurrentState", 0, FDStates),
+            ByteEnumField("PreviousState", 0, FDStates),
+            ByteEnumField("AuxState", 0, AuxStates),
+            XByteEnumField("AuxStateStatus", 0x00, AuxStatus),
+            ByteField("ProgressPercent", 0x00),
+            ByteEnumField("ReasonCode", 0, AuxReasonCodes),
+            XBitField("UpdateOptionFlagsEnabled", 0, 32)
+        ]
+
+        def extract_padding(self, s):
+            return ("", s)
+
     fields_desc = [
         XByteEnumField("CompletionCode", 0x00, PLDM_BASE_CODES),
-        ByteEnumField("CurrentState", 0, FDStates),
-        ByteEnumField("PreviousState", 0, FDStates),
-        ByteEnumField("AuxState", 0, AuxStates),
-        XByteEnumField("AuxStateStatus", 0x00, AuxStatus),
-        ByteField("ProgressPercent", 0x00),
-        ByteEnumField("ReasonCode", 0, AuxReasonCodes),
-        XBitField("UpdateOptionFlagsEnabled", 0, 32)
+        ConditionalField(
+            PacketField("Status", Data(), Data),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -1196,8 +1345,15 @@ class CancelUpdate_Response(PLDM_TYPE_5_PAYLOAD):
                 0x80: "NOT_IN_UPDATE_MODE",
                 0x86: "BUSY_IN_BACKGROUND"},
         ),
-        ByteField("NonFunctioningComponentIndication", 0),  # TODO to check bool8
-        BitField("NonFunctioningComponentBitmap", 0, 64)
+
+        ConditionalField(
+            ByteField("NonFunctioningComponentIndication", 0),
+            lambda pkt: pkt.CompletionCode == 0
+        ),
+        ConditionalField(
+            BitField("NonFunctioningComponentBitmap", 0, 64),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -1221,7 +1377,10 @@ class ActivatePendingComponentImageSet_Response(PLDM_TYPE_5_PAYLOAD):
                 0x92: "ACTIVATE_PENDING_IMAGE_NOT_PERMITTED",
             },
         ),
-        LEShortField("EstimatedTimeForActivation", 0)
+        ConditionalField(
+            LEShortField("EstimatedTimeForActivation", 0),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -1253,7 +1412,10 @@ class ActivatePendingComponentImage_Response(PLDM_TYPE_5_PAYLOAD):
                 0x92: "ACTIVATE_PENDING_IMAGE_NOT_PERMITTED",
             },
         ),
-        LEShortField("EstimatedTimeForActivation", 0)
+        ConditionalField(
+            LEShortField("EstimatedTimeForActivation", 0),
+            lambda pkt: pkt.CompletionCode == 0
+        )
     ]
 
 
@@ -1316,10 +1478,10 @@ class TestUnsupportedPldm_Response(PLDM_TYPE_5_PAYLOAD):
 bind_layers(PLDM_HEADER, PLDM_TYPE_5_PAYLOAD, PldmType=0x05)
 
 # Register Commands/Packets based on Payload Type, Rq/Rs and Command Type
-register_pldm_class(QueryDeviceIdentifiers_Request)     #
-register_pldm_class(QueryDeviceIdentifiers_Response)    #
-register_pldm_class(GetFirmwareParameters_Request)      #
-register_pldm_class(GetFirmwareParameters_Response)     #
+register_pldm_class(QueryDeviceIdentifiers_Request)
+register_pldm_class(QueryDeviceIdentifiers_Response)
+register_pldm_class(GetFirmwareParameters_Request)
+register_pldm_class(GetFirmwareParameters_Response)
 register_pldm_class(QueryDownstreamDevices_Request)
 register_pldm_class(QueryDownstreamDevices_Response)
 register_pldm_class(QueryDownstreamIdentifiers_Request)
@@ -1350,12 +1512,12 @@ register_pldm_class(GetMetaData_Response)
 
 register_pldm_class(ActivateFirmware_Request)
 register_pldm_class(ActivateFirmware_Response)
-register_pldm_class(GetStatus_Request)              #
-register_pldm_class(GetStatus_Response)             #
-register_pldm_class(CancelUpdateComponent_Request)  #
-register_pldm_class(CancelUpdateComponent_Response) #
-register_pldm_class(CancelUpdate_Request)           #
-register_pldm_class(CancelUpdate_Response)          #
+register_pldm_class(GetStatus_Request)
+register_pldm_class(GetStatus_Response)
+register_pldm_class(CancelUpdateComponent_Request)
+register_pldm_class(CancelUpdateComponent_Response)
+register_pldm_class(CancelUpdate_Request)
+register_pldm_class(CancelUpdate_Response)
 
 register_pldm_class(ActivatePendingComponentImageSet_Request)
 register_pldm_class(ActivatePendingComponentImageSet_Response)

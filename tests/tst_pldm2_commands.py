@@ -4,82 +4,628 @@
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
 #  File Abstract:
-#  DSP0240 test cases.
+#  DSP0240 basic test cases.
 ##############################################################################
 
-from pldm.type2 import *  # pylint: disable=unused-import, unused-wildcard-import
+from testframework.utilities import common_send_receive
+from pldm.type2 import *
+
+
+def VerifyCommonFields(RecvPacket, SendPacket):
+    """Validate PLDM fields"""
+
+    ### TODO: Implement
+    pass
 
 
 def test_GetPDRRepositoryInfo(testFixture, lowerLayerHeaders):
     """Test DSP0248 Get PDR Repository Info request"""
 
-    # Build the full PLDM request packet
-    SendPacket = lowerLayerHeaders / PLDM_HEADER(InstanceID=testFixture.getNextInstanceID())
-    SendPacket = SendPacket / GetPDRRepositoryInfo_Request()
+    # Assemble the full PLDM request packet
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPDRRepositoryInfo_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    # Send request
-    testFixture.showPacket(SendPacket)
+    # Send the request and wait for the response
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    ErrorCode = testFixture.commObject.Write(SendPacket)
-    if ErrorCode == testFixture.commObject.ERROR_SUCCESS:
+    # Validate header fields
+    VerifyCommonFields(RecvPacket, SendPacket)
 
-        # Get response
-        (ErrorCode, RecvPacket) = testFixture.commObject.Read()
+    # Validate response fields
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetPDRRepositoryInfo_Response.CommandValue)
+    assert (RecvPacket[GetPDRRepositoryInfo_Response].CompletionCode == 0x00)
+    assert (RecvPacket[GetPDRRepositoryInfo_Response].RecordCount > 0x00)
+    assert (RecvPacket[GetPDRRepositoryInfo_Response].RepositorySize > 0x00)
+    assert (RecvPacket[GetPDRRepositoryInfo_Response].LargestRecordSize > 0x00)
 
-        if ErrorCode == testFixture.commObject.ERROR_SUCCESS:
-            testFixture.showPacket(RecvPacket)
-
-            # Validate fields
-            testFixture.VerifyCommonFields(RecvPacket, SendPacket)
-
-            assert (RecvPacket[PLDM_HEADER].CommandCode ==
-                    GetPDRRepositoryInfo_Response.CommandValue)
-            assert (RecvPacket[GetPDRRepositoryInfo_Response].CompletionCode == 0x00)
-
-            assert (RecvPacket[GetPDRRepositoryInfo_Response].RecordCount > 0x00)
-            assert (RecvPacket[GetPDRRepositoryInfo_Response].RepositorySize > 0x00)
-            assert (RecvPacket[GetPDRRepositoryInfo_Response].LargestRecordSize > 0x00)
-
-        else:
-            testFixture.logMessage("ERROR: read failed: " +
-                                   testFixture.commObject.ResponseToStr(ErrorCode))
-    else:
-        testFixture.logMessage("ERROR: write failed: " +
-                               testFixture.commObject.ResponseToStr(ErrorCode))
-    return
+    return RecvPacket
 
 
 def test_GetPDRRepositorySignature(testFixture, lowerLayerHeaders):
     """Test DSP0248 GetPDRRepositorySignature request"""
 
-    # Build the full PLDM request packet
-    SendPacket = lowerLayerHeaders / PLDM_HEADER(InstanceID=testFixture.getNextInstanceID())
-    SendPacket = SendPacket / GetPDRRepositorySignature_Request()
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPDRRepositorySignature_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    # Send request
-    testFixture.showPacket(SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    ErrorCode = testFixture.commObject.Write(SendPacket)
-    if ErrorCode == testFixture.commObject.ERROR_SUCCESS:
+    VerifyCommonFields(RecvPacket, SendPacket)
 
-        # Get response
-        (ErrorCode, RecvPacket) = testFixture.commObject.Read()
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetPDRRepositorySignature_Response.CommandValue)
+    assert (RecvPacket[GetPDRRepositorySignature_Response].CompletionCode == 0x00)
+    assert (RecvPacket[GetPDRRepositorySignature_Response].PdrRepositorySignature != 0x00)
 
-        if ErrorCode == testFixture.commObject.ERROR_SUCCESS:
-            testFixture.showPacket(RecvPacket)
+    return RecvPacket
 
-            # Validate fields
-            testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
-            assert (RecvPacket[PLDM_HEADER].CommandCode ==
-                    GetPDRRepositorySignature_Response.CommandValue)
-            assert (RecvPacket[GetPDRRepositorySignature_Response].CompletionCode == 0x00)
-            assert (RecvPacket[GetPDRRepositorySignature_Response].PdrRepositorySignature != 0x00)
+def test_GetTerminusUID(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Get Terminus UID Request"""
 
-        else:
-            testFixture.logMessage("ERROR: read failed: " +
-                                   testFixture.commObject.ResponseToStr(ErrorCode))
-    else:
-        testFixture.logMessage("ERROR: write failed: " +
-                               testFixture.commObject.ResponseToStr(ErrorCode))
-    return
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetTerminusUID_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetTerminusUID_Request.CommandValue)
+    assert (RecvPacket[GetTerminusUID_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_SetEventReceiver(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Set Event Receiver Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetEventReceiver_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == SetEventReceiver_Request.CommandValue)
+    assert (RecvPacket[SetEventReceiver_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_GetEventReceiver(testFixture, lowerLayerHeaders):
+    """Test DSP0248 GetEventReceiver_Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetEventReceiver_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetEventReceiver_Request.CommandValue)
+    assert (RecvPacket[GetEventReceiver_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_PlatformEventMessage(testFixture, lowerLayerHeaders):
+    """Test DSP0248 PlatformEventMessage_Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / PlatformEventMessage_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == PlatformEventMessage_Request.CommandValue)
+    assert (RecvPacket[PlatformEventMessage_Response].CompletionCode == 0)
+    assert (RecvPacket[PlatformEventMessage_Response].Status <= 5)
+
+    return RecvPacket
+
+
+def test_PollForPlatformEventMessage(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Poll For Platform Event Message Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / PollForPlatformEventMessage_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == PollForPlatformEventMessage_Request.CommandValue)
+    assert (RecvPacket[PollForPlatformEventMessage_Response].CompletionCode == 0)
+    assert (RecvPacket[PollForPlatformEventMessage_Response].TransferFlag in [0, 1, 4, 5])
+    assert (RecvPacket[PollForPlatformEventMessage_Response].EventClass <= 6)
+
+    return RecvPacket
+
+
+def test_EventMessageSupported(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Event Message Supported Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / EventMessageSupported_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == EventMessageSupported_Request.CommandValue)
+    assert (RecvPacket[EventMessageSupported_Response].CompletionCode == 0)
+    assert (RecvPacket[EventMessageSupported_Response].ResponseData.synchronyConfiguration <= 3)
+    assert (RecvPacket[EventMessageSupported_Response].ResponseData.Reserved_2 == 0)
+    assert (RecvPacket[EventMessageSupported_Response].ResponseData.Reserved_1 == 0)
+
+    return RecvPacket
+
+
+def test_EventMessageBufferSize(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Event Message Buffer Size Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / EventMessageBufferSize_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == EventMessageBufferSize_Request.CommandValue)
+    assert (RecvPacket[EventMessageBufferSize_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_SetNumericSensorEnable(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Set Numeric Sensor Enable Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetNumericSensorEnable_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == SetNumericSensorEnable_Request.CommandValue)
+    assert (RecvPacket[SetNumericSensorEnable_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_GetSensorReading(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Get Sensor Reading Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetSensorReading_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetSensorReading_Request.CommandValue)
+    assert (RecvPacket[GetSensorReading_Response].CompletionCode == 0)
+
+    assert (RecvPacket[GetSensorReading_Response].SensorData.SensorDataSize <= 5)
+    assert (RecvPacket[GetSensorReading_Response].SensorData.SensorOperationalState <= 7)
+    assert (RecvPacket[GetSensorReading_Response].SensorData.SensorEventMessageEnable <= 4)
+    assert (RecvPacket[GetSensorReading_Response].SensorData.PresentState <= 10)
+    assert (RecvPacket[GetSensorReading_Response].SensorData.PreviousState <= 10)
+    assert (RecvPacket[GetSensorReading_Response].SensorData.EventState <= 10)
+
+    return RecvPacket
+
+
+def test_GetSensorThresholds(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Get Sensor Thresholds Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetSensorThresholds_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetSensorThresholds_Request.CommandValue)
+    assert (RecvPacket[GetSensorThresholds_Response].CompletionCode == 0)
+    assert (RecvPacket[GetSensorThresholds_Response].ThresholdData.SensorDataSize <= 5)
+
+    return RecvPacket
+
+
+def test_SetSensorThresholds(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Set Sensor Thresholds Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetSensorThresholds_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == SetSensorThresholds_Request.CommandValue)
+    assert (RecvPacket[SetSensorThresholds_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_RestoreSensorThresholds(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Restore Sensor Thresholds Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / RestoreSensorThresholds_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == RestoreSensorThresholds_Request.CommandValue)
+    assert (RecvPacket[RestoreSensorThresholds_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_GetSensorHysteresis(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Get Sensor Hysteresis Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetSensorHysteresis_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetSensorHysteresis_Request.CommandValue)
+    assert (RecvPacket[GetSensorHysteresis_Response].CompletionCode == 0)
+    assert (RecvPacket[GetSensorHysteresis_Response].SensorDataSize <= 5)
+
+    return RecvPacket
+
+
+def test_SetSensorHysteresis(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Set Sensor Hysteresis Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetSensorHysteresis_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == SetSensorHysteresis_Request.CommandValue)
+    assert (RecvPacket[SetSensorHysteresis_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_InitNumericSensor_Request(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Init Numeric Sensor Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / InitNumericSensor_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == InitNumericSensor_Request.CommandValue)
+    assert (RecvPacket[InitNumericSensor_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_SetStateSensorEnables_Request(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Set State Sensor Enables Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetStateSensorEnables_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == SetStateSensorEnables_Request.CommandValue)
+    assert (RecvPacket[SetStateSensorEnables_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_GetStateSensorReadings(testFixture, lowerLayerHeaders):
+    """Test DSP0248 GetStateSensorReadings_Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetStateSensorReadings_Requestxx()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetStateSensorReadings_Request.CommandValue)
+    assert (RecvPacket[GetStateSensorReadings_Response].CompletionCode == 0)
+    assert (RecvPacket[GetStateSensorReadings_Response].SensorReadingStateFields.SensorOperationalState <= 7)
+    assert (RecvPacket[GetStateSensorReadings_Response].SensorReadingStateFields.PreviousState <= 7)
+    assert (RecvPacket[GetStateSensorReadings_Response].SensorReadingStateFields.EventState <= 7)
+
+    return RecvPacket
+
+
+def test_InitStateSensor(testFixture, lowerLayerHeaders):
+    """Test DSP0248 InitStateSensor_Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / InitStateSensor_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == InitStateSensor_Request.CommandValue)
+    assert (RecvPacket[InitStateSensor_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_SetNumericEffecterEnable(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Set Numeric Effecter Enable Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetNumericEffecterEnable_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == SetNumericEffecterEnable_Request.CommandValue)
+    assert (RecvPacket[SetNumericEffecterEnable_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_SetNumericEffecterValue(testFixture, lowerLayerHeaders):
+    """Test DSP0248 xxx"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetNumericEffecterValue_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == SetNumericEffecterValue_Request.CommandValue)
+    assert (RecvPacket[SetNumericEffecterValue_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_GetNumericEffecterValue(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Get Numeric Effecter Value Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetNumericEffecterValue_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetNumericEffecterValue_Request.CommandValue)
+    assert (RecvPacket[GetNumericEffecterValue_Response].CompletionCode == 0)
+    assert (RecvPacket[GetNumericEffecterValue_Response].EffecterDataSize <= 5)
+    assert (RecvPacket[GetNumericEffecterValue_Response].EffecterOperationalState <= 8)
+
+    return RecvPacket
+
+
+def test_SetStateEffecterEnables_Request(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Set State Effecter Enables Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetStateEffecterEnables_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == SetStateEffecterEnables_Request.CommandValue)
+    assert (RecvPacket[SetStateEffecterEnables_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_SetStateEffecterStates(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Set State Effecter States Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetStateEffecterStates_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == SetStateEffecterStates_Request.CommandValue)
+    assert (RecvPacket[SetStateEffecterStates_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_GetStateEffecterStates(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Get State Effecter States Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetStateEffecterStates_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetStateEffecterStates_Request.CommandValue)
+    assert (RecvPacket[GetStateEffecterStates_Response].CompletionCode == 0)
+    assert (RecvPacket[GetStateEffecterStates_Response].CompositeEffecterCount >= 1)
+    assert (RecvPacket[GetStateEffecterStates_Response].CompositeEffecterCount <= 8)
+
+    return RecvPacket
+
+
+def test_GetPLDMEventLogInfo(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Get PLDM Event Log Info Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPLDMEventLogInfo_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetPLDMEventLogInfo_Request.CommandValue)
+    assert (RecvPacket[GetPLDMEventLogInfo_Response].CompletionCode == 0)
+    assert (RecvPacket[GetPLDMEventLogInfo_Response].EventLogInfo.LogOperationalStatus <= 6)
+    assert (RecvPacket[GetPLDMEventLogInfo_Response].EventLogInfo.ActiveLogClearingPolicy <= 2)
+
+    return RecvPacket
+
+
+def test_EnablePLDMEventLogging(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Enable PLDM Event Logging"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / EnablePLDMEventLogging_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == EnablePLDMEventLogging_Request.CommandValue)
+    assert (RecvPacket[EnablePLDMEventLogging_Response].CompletionCode == 0)
+    assert (RecvPacket[EnablePLDMEventLogging_Response].LogOperationalStatus <= 6)
+
+    return RecvPacket
+
+
+def test_ClearPLDMEventLog(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Clear PLDM Event Log Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / ClearPLDMEventLog_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == ClearPLDMEventLog_Request.CommandValue)
+    assert (RecvPacket[ClearPLDMEventLog_Response].CompletionCode == 0)
+    assert (RecvPacket[ClearPLDMEventLog_Response].LogOperationalStatus <= 6)
+
+    return RecvPacket
+
+
+def test_GetPLDMEventLogTimestamp(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Get PLDM EventLog Timestamp Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPLDMEventLogTimestamp_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetPLDMEventLogTimestamp_Request.CommandValue)
+    assert (RecvPacket[GetPLDMEventLogTimestamp_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_GetPLDMEventLogTimestamp(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Get PLDMEvent Log Timestamp Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPLDMEventLogTimestamp_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetPLDMEventLogTimestamp_Request.CommandValue)
+    assert (RecvPacket[GetPLDMEventLogTimestamp_Response].CompletionCode == 0)
+    assert (RecvPacket[GetPLDMEventLogTimestamp_Response].LogUpdateEvent <= 1)
+
+    return RecvPacket
+
+
+def test_SetPLDMEventLogTimestamp(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Set PLDM EventLog Timestamp Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetPLDMEventLogTimestamp_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == SetPLDMEventLogTimestamp_Request.CommandValue)
+    assert (RecvPacket[SetPLDMEventLogTimestamp_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_ReadPLDMEventLog(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Read PLDM Event Log Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / ReadPLDMEventLog_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == ReadPLDMEventLog_Request.CommandValue)
+    assert (RecvPacket[ReadPLDMEventLog_Response].CompletionCode == 0)
+    assert (RecvPacket[ReadPLDMEventLog_Response].SplitEntry <= 4)
+
+    return RecvPacket
+
+
+def test_GetPLDMEventLogPolicyInfo(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Get PLDM Event Log Policy Info Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPLDMEventLogPolicyInfo_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetPLDMEventLogPolicyInfo_Request.CommandValue)
+    assert (RecvPacket[GetPLDMEventLogPolicyInfo_Response].CompletionCode == 0)
+    assert (RecvPacket[GetPLDMEventLogPolicyInfo_Response].Reserved == 0)
+
+    return RecvPacket
+
+
+def test_SetPLDMEventLogPolicy(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Set PLDM EventLog Policy Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetPLDMEventLogPolicy_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == SetPLDMEventLogPolicy_Request.CommandValue)
+    assert (RecvPacket[SetPLDMEventLogPolicy_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_FindPLDMEventLogEntry(testFixture, lowerLayerHeaders):
+    """Test DSP0248 Find PLDM Event Log Entry Request"""
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / FindPLDMEventLogEntry_Request()
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == FindPLDMEventLogEntry_Request.CommandValue)
+    assert (RecvPacket[FindPLDMEventLogEntry_Response].CompletionCode == 0)
+
+    return RecvPacket

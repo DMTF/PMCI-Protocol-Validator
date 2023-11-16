@@ -7,7 +7,9 @@
 #  DSP0222 runtime test cases.
 ##############################################################################
 
-from ncsi.dmtf import *  # pylint: disable=unused-import, unused-wildcard-import
+from testframework.utilities import common_send_receive
+from ncsi.dmtf import *
+from ncsi.dmtf_1_2_0 import *
 
 
 def verify_ncsi_header(response, request):
@@ -21,126 +23,100 @@ def verify_ncsi_header(response, request):
     return
 
 
-def send_receive(testFixture, SendPacket):
-    """Common method to send the Request and receive the Response"""
-
-    # Send request
-    RecvPacket = None
-    testFixture.showPacket(SendPacket)
-
-    ErrorCode = testFixture.commObject.Write(SendPacket)
-    if ErrorCode == testFixture.commObject.ERROR_SUCCESS:
-
-        # Get response
-        (ErrorCode, RecvPacket) = testFixture.commObject.Read()
-
-        if ErrorCode == testFixture.commObject.ERROR_SUCCESS:
-            testFixture.showPacket(RecvPacket)
-            verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
-
-    return RecvPacket
-
-
 def test_clear_initial_state(testFixture, lowerLayer):
     """Test DSP0222 Clear Initial State Request and Response"""
 
-    # Build the full request packet
+    # Assemble the full request packet
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / ClearInitialState_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    # Send the request and get the response
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    # Validate the response header
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
+    # Validate the response fields
     assert (RecvPacket[ClearInitialState_Response].ResponseCode == 0)
     assert (RecvPacket[ClearInitialState_Response].ReasonCode == 0)
-    return
+
+    # Return the response packet for further processing
+    return RecvPacket
 
 
 def test_select_package(testFixture, lowerLayer):
     """Test DSP0222 Select Package Request and Response"""
 
-    # Build the full request packet
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / SelectPackage_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[SelectPackage_Response].ResponseCode == 0)
     assert (RecvPacket[SelectPackage_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_deselect_package(testFixture, lowerLayer):
     """Test DSP0222 Deselect Package Request and Response"""
 
-    # Build the full request packet
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / DeselectPackage_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[DeselectPackage_Response].ResponseCode == 0)
     assert (RecvPacket[DeselectPackage_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_enable_channel(testFixture, lowerLayer):
     """Test DSP0222 Enable Channel Request and Response"""
 
-    # Build the full request packet
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / EnableChannel_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[EnableChannel_Response].ResponseCode == 0)
     assert (RecvPacket[EnableChannel_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_disable_channel(testFixture, lowerLayer):
     """Test DSP0222 Disable Channel Request and Response"""
 
-    # Build the full request packet
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / DisableChannel_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[DisableChannel_Response].ResponseCode == 0)
     assert (RecvPacket[DisableChannel_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_reset_channel(testFixture, lowerLayer):
     """Test DSP0222 Reset Channel Request and Response"""
 
-    # Build the full request packet
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / ResetChannel_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[ResetChannel_Response].ResponseCode == 0)
     assert (RecvPacket[ResetChannel_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_get_version_id(testFixture, lowerLayer):
@@ -149,11 +125,10 @@ def test_get_version_id(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetVersionID_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None)
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetVersionID_Response].ResponseCode == 0)
     assert (RecvPacket[GetVersionID_Response].ReasonCode == 0)
     return RecvPacket
@@ -165,77 +140,80 @@ def test_get_capabilities(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetCapabilities_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetCapabilities_Response].ResponseCode == 0)
     assert (RecvPacket[GetCapabilities_Response].ReasonCode == 0)
     return RecvPacket
 
 
 def test_get_parameters(testFixture, lowerLayer):
-    """Test DSP0222 Get Parameter Request and Response"""
+    """Test DSP0222 v1.2.0 Get Parameter Request and Response"""
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetParameters_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetParameters_Response].ResponseCode == 0)
     assert (RecvPacket[GetParameters_Response].ReasonCode == 0)
+    assert (RecvPacket[GetParameters_Response].Data.Reserved_1 == 0)
+    assert (RecvPacket[GetParameters_Response].Data.Reserved_2 == 0)
+    assert (RecvPacket[GetParameters_Response].Data.Reserved_3 == 0)
+    assert (RecvPacket[GetParameters_Response].Data.Reserved_4 == 0)
+    assert (RecvPacket[GetParameters_Response].Data.Reserved_5 == 0)
+
     return RecvPacket
 
 
 def test_get_asic_temperature(testFixture, lowerLayer):
-    """Test DSP0222 Get ASIC Temperature"""
+    """Test DSP0222 v1.2.0 Get ASIC Temperature"""
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetAsicTemperature_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetAsicTemperature_Response].ResponseCode == 0)
     assert (RecvPacket[GetAsicTemperature_Response].ReasonCode == 0)
     return RecvPacket
 
 
 def test_get_ambient_temperature(testFixture, lowerLayer):
-    """Test DSP0222 GetAmbientTemperature"""
+    """Test DSP0222 v1.2.0 GetAmbientTemperature"""
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetAmbientTemperature_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetAmbientTemperature_Response].ResponseCode == 0)
     assert (RecvPacket[GetAmbientTemperature_Response].ReasonCode == 0)
+    assert (RecvPacket[GetAmbientTemperature_Response].NumberOfSensors <= 3)
     return RecvPacket
 
 
 def test_get_transceiver_temperature(testFixture, lowerLayer):
-    """Test DSP0222 Get Transceiver Temperature"""
+    """Test DSP0222 v1.2.0 Get Transceiver Temperature"""
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetTransceiverTemperature_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetTransceiverTemperature_Response].ResponseCode == 0)
     assert (RecvPacket[GetTransceiverTemperature_Response].ReasonCode == 0)
+    assert (RecvPacket[GetTransceiverTemperature_Response].Reserved == 0)
     return RecvPacket
 
 
@@ -245,14 +223,17 @@ def test_get_channel_configuration(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetChannelConfiguration_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetChannelConfiguration_Response].ResponseCode == 0)
     assert (RecvPacket[GetChannelConfiguration_Response].ReasonCode == 0)
-    return
+    assert (RecvPacket[GetChannelConfiguration_Response].FabricType >= 1)
+    assert (RecvPacket[GetChannelConfiguration_Response].FabricType <= 3)
+    assert (RecvPacket[GetChannelConfiguration_Response].Reserved_1 == 0)
+
+    return RecvPacket
 
 
 def test_get_module_management_data(testFixture, lowerLayer):
@@ -261,11 +242,10 @@ def test_get_module_management_data(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetModuleManagementData_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetModuleManagementData_Response].ResponseCode == 0)
     assert (RecvPacket[GetModuleManagementData_Response].ReasonCode == 0)
     return RecvPacket
@@ -277,14 +257,13 @@ def test_enable_channel_network_tx(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / EnableChannelNetworkTx_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[EnableChannelNetworkTx_Response].ResponseCode == 0)
     assert (RecvPacket[EnableChannelNetworkTx_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_disable_channel_network_tx(testFixture, lowerLayer):
@@ -293,14 +272,13 @@ def test_disable_channel_network_tx(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / DisableChannelNetworkTx_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[DisableChannelNetworkTx_Response].ResponseCode == 0)
     assert (RecvPacket[DisableChannelNetworkTx_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_aen_enable(testFixture, lowerLayer):
@@ -309,14 +287,13 @@ def test_aen_enable(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / AenEnable_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[AenEnable_Response].ResponseCode == 0)
     assert (RecvPacket[AenEnable_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_set_link(testFixture, lowerLayer):
@@ -325,14 +302,13 @@ def test_set_link(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / SetLink_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[SetLink_Response].ResponseCode == 0)
     assert (RecvPacket[SetLink_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_get_link_status(testFixture, lowerLayer):
@@ -341,11 +317,10 @@ def test_get_link_status(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetLinkStatus_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetLinkStatus_Response].ResponseCode == 0)
     assert (RecvPacket[GetLinkStatus_Response].ReasonCode == 0)
     return RecvPacket
@@ -357,14 +332,13 @@ def test_set_vlan_filter(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / SetVlanFilter_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[SetVlanFilter_Response].ResponseCode == 0)
     assert (RecvPacket[SetVlanFilter_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_enable_vlan(testFixture, lowerLayer):
@@ -373,14 +347,13 @@ def test_enable_vlan(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / EnableVlan_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[EnableVlan_Response].ResponseCode == 0)
     assert (RecvPacket[EnableVlan_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_disable_vlan(testFixture, lowerLayer):
@@ -389,14 +362,13 @@ def test_disable_vlan(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / DisableVlan_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[DisableVlan_Response].ResponseCode == 0)
     assert (RecvPacket[DisableVlan_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_get_supported_media(testFixture, lowerLayer):
@@ -405,11 +377,10 @@ def test_get_supported_media(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetSupportedMedia_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetSupportedMedia_Response].ResponseCode == 0)
     assert (RecvPacket[GetSupportedMedia_Response].ReasonCode == 0)
     return RecvPacket
@@ -421,14 +392,13 @@ def test_get_mc_mac_address(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetMcMacAddress_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetMcMacAddress_Response].ResponseCode == 0)
     assert (RecvPacket[GetMcMacAddress_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_set_mac_address(testFixture, lowerLayer):
@@ -437,14 +407,13 @@ def test_set_mac_address(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / SetMACAddress_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[SetMACAddress_Response].ResponseCode == 0)
     assert (RecvPacket[SetMACAddress_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_enable_broadcast_filter(testFixture, lowerLayer):
@@ -453,14 +422,13 @@ def test_enable_broadcast_filter(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / EnableBroadcastFilter_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[EnableBroadcastFilter_Response].ResponseCode == 0)
     assert (RecvPacket[EnableBroadcastFilter_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_get_controller_packet_statistics(testFixture, lowerLayer):
@@ -469,11 +437,10 @@ def test_get_controller_packet_statistics(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetControllerPacketStatistics_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetControllerPacketStatistics_Response].ResponseCode == 0)
     assert (RecvPacket[GetControllerPacketStatistics_Response].ReasonCode == 0)
     return RecvPacket
@@ -485,11 +452,10 @@ def test_get_ncsi_statistics(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetNCSIStatistics_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetNCSIStatistics_Response].ResponseCode == 0)
     assert (RecvPacket[GetNCSIStatistics_Response].ReasonCode == 0)
     return RecvPacket
@@ -501,11 +467,10 @@ def test_send_ncpldm_reply(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / SendNCPLDMReply_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[SendNCPLDMReply_Response].ResponseCode == 0)
     assert (RecvPacket[SendNCPLDMReply_Response].ReasonCode == 0)
     return RecvPacket
@@ -517,11 +482,10 @@ def test_get_package_uuid(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetPackageUUID_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetPackageUUID_Response].ResponseCode == 0)
     assert (RecvPacket[GetPackageUUID_Response].ReasonCode == 0)
     return RecvPacket
@@ -533,14 +497,13 @@ def test_disable_broadcast_filter(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / DisableBroadcastFilter_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[DisableBroadcastFilter_Response].ResponseCode == 0)
     assert (RecvPacket[DisableBroadcastFilter_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_enable_global_multicast_filter(testFixture, lowerLayer):
@@ -549,14 +512,28 @@ def test_enable_global_multicast_filter(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / EnableGlobalMulticastFilter_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[EnableGlobalMulticastFilter_Response].ResponseCode == 0)
     assert (RecvPacket[EnableGlobalMulticastFilter_Response].ReasonCode == 0)
-    return
+    return RecvPacket
+
+
+def test_disable_global_multicast_filter(testFixture, lowerLayer):
+    """Test DSP0222 Disable Global Multicast Filter"""
+
+    SendPacket = lowerLayer / testFixture.get_ncsi_header()
+    SendPacket = SendPacket / DisableGlobalMulticastFilter_Request()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
+    assert (RecvPacket[DisableGlobalMulticastFilter_Response].ResponseCode == 0)
+    assert (RecvPacket[DisableGlobalMulticastFilter_Response].ReasonCode == 0)
+    return RecvPacket
 
 
 def test_set_ncsi_flow_control(testFixture, lowerLayer):
@@ -565,14 +542,13 @@ def test_set_ncsi_flow_control(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / SetNCSIFlowControl_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[SetNCSIFlowControl_Response].ResponseCode == 0)
     assert (RecvPacket[SetNCSIFlowControl_Response].ReasonCode == 0)
-    return
+    return RecvPacket
 
 
 def test_get_ncsi_passthrough_statistics(testFixture, lowerLayer):
@@ -581,11 +557,10 @@ def test_get_ncsi_passthrough_statistics(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetNCSIPassthroughStatistics_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetNCSIPassthroughStatistics_Response].ResponseCode == 0)
     assert (RecvPacket[GetNCSIPassthroughStatistics_Response].ReasonCode == 0)
     return RecvPacket
@@ -597,27 +572,10 @@ def test_get_package_status(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetPackageStatus_Request()
 
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
+    verify_ncsi_header(RecvPacket[NCSI_HEADER], SendPacket[NCSI_HEADER])
+
     assert (RecvPacket[GetPackageStatus_Response].ResponseCode == 0)
     assert (RecvPacket[GetPackageStatus_Response].ReasonCode == 0)
     return RecvPacket
-
-
-def test_unsupported_ncsi(testFixture, lowerLayer):
-    """Test an Unsupported NC-SI request"""
-
-    SendPacket = lowerLayer / testFixture.get_ncsi_header()
-    SendPacket = SendPacket / UnsupportedNcsi_Request()
-
-    # Run transaction
-    RecvPacket = send_receive(testFixture, SendPacket)
-
-    # Verify response fields
-    assert (RecvPacket is not None), "Error: No response received"
-    assert (RecvPacket[UnsupportedNcsi_Response].ResponseCode == 0)
-    assert (RecvPacket[UnsupportedNcsi_Response].ReasonCode == 0)
-    return

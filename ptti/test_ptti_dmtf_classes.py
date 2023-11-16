@@ -18,13 +18,14 @@ EXPECTED_VERSION_COMPLIANCE = 0x10
 def test_TestServiceWrapper(class_type):
     """Validate TestServiceWrapper class format"""
 
-    assert (len(class_type.fields_desc) == 5), "Incorrect number of fields"
+    assert (len(class_type.fields_desc) == 6), "Incorrect number of fields"
 
     assert (isinstance(class_type.fields_desc[0], XByteField))      # Version
     assert (isinstance(class_type.fields_desc[1], XByteEnumField))  # ProtocolType
-    assert (isinstance(class_type.fields_desc[2], BitField))        # Reserved
+    assert (isinstance(class_type.fields_desc[2], BitField))        # Reserved_0
     assert (isinstance(class_type.fields_desc[3], BitEnumField))    # Direction
-    assert (isinstance(class_type.fields_desc[4], XLEIntField))     # TestClientID
+    assert (isinstance(class_type.fields_desc[4], BitField))        # Reserved_1
+    assert (isinstance(class_type.fields_desc[5], XLEIntField))     # TestClientID
     return
 
 
@@ -45,10 +46,10 @@ def test_Connect_Response(class_type):
 
     assert (len(class_type.fields_desc) == 4), "Incorrect number of fields"
 
-    assert (isinstance(class_type.fields_desc[0], XByteEnumField))  # CommandCode
-    assert (isinstance(class_type.fields_desc[1], XByteEnumField))  # ResponseCode
-    assert (isinstance(class_type.fields_desc[2], XByteField))      # TestServiceVersion
-    assert (isinstance(class_type.fields_desc[3], XLEIntField))       # TestClientID
+    assert (isinstance(class_type.fields_desc[0], XByteEnumField))      # CommandCode
+    assert (isinstance(class_type.fields_desc[1], XByteEnumField))      # ResponseCode
+    assert (isinstance(class_type.fields_desc[2], ConditionalField))    # TestServiceVersion
+    assert (isinstance(class_type.fields_desc[3], ConditionalField))    # TestClientID
     return
 
 
@@ -95,11 +96,11 @@ def test_QueryCapabilities_Response(class_type):
     """Validate QueryCapabilities_Response class field types"""
 
     assert (len(class_type.fields_desc) == 5), "Incorrect number of fields"
-    assert (isinstance(class_type.fields_desc[0], XByteEnumField))  # CommandCode
-    assert (isinstance(class_type.fields_desc[1], XByteEnumField))  # ResponseCode
-    assert (isinstance(class_type.fields_desc[2], XByteField))      # Reserved
-    assert (isinstance(class_type.fields_desc[3], FieldLenField))   # NumberOfCapabilitiesFields
-    assert (isinstance(class_type.fields_desc[4], PacketListField)) # TestServiceCapabilities
+    assert (isinstance(class_type.fields_desc[0], XByteEnumField))      # CommandCode
+    assert (isinstance(class_type.fields_desc[1], XByteEnumField))      # ResponseCode
+    assert (isinstance(class_type.fields_desc[2], ConditionalField))    # Reserved
+    assert (isinstance(class_type.fields_desc[3], ConditionalField))    # NumberOfCapabilitiesFields
+    assert (isinstance(class_type.fields_desc[4], ConditionalField))    # TestServiceCapabilities
     return
 
 
@@ -118,10 +119,10 @@ def test_QueryStatus_Response(class_type):
     """Validate QueryStatus Response class format"""
 
     assert (len(class_type.fields_desc) == 6), "Incorrect number of fields"
-    assert (isinstance(class_type.fields_desc[0], XByteEnumField))  # CommandCode
-    assert (isinstance(class_type.fields_desc[1], XByteEnumField))  # ResponseCode
-    assert (isinstance(class_type.fields_desc[2], ByteEnumField))   # QueryType
-    assert (isinstance(class_type.fields_desc[3], LEIntField))      # QueryResponseDataLength
+    assert (isinstance(class_type.fields_desc[0], XByteEnumField))      # CommandCode
+    assert (isinstance(class_type.fields_desc[1], XByteEnumField))      # ResponseCode
+    assert (isinstance(class_type.fields_desc[2], ConditionalField))    # QueryType
+    assert (isinstance(class_type.fields_desc[3], ConditionalField))    # QueryResponseDataLength
     return
 
 
@@ -139,9 +140,9 @@ def test_QuerySystemInventory_Response(class_type):
     """Validate QuerySystemInventory Response class format"""
 
     assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
-    assert (isinstance(class_type.fields_desc[0], XByteEnumField))  # CommandCode
-    assert (isinstance(class_type.fields_desc[1], XByteEnumField))  # ResponseCode
-    assert (isinstance(class_type.fields_desc[2], StrField))        # SystemInventory
+    assert (isinstance(class_type.fields_desc[0], XByteEnumField))      # CommandCode
+    assert (isinstance(class_type.fields_desc[1], XByteEnumField))      # ResponseCode
+    assert (isinstance(class_type.fields_desc[2], ConditionalField))    # SystemInventory
     return
 
 
@@ -183,11 +184,11 @@ def test_ConfigureDeviceUnderTest_Response(class_type):
     """Validate ConfigureDeviceUnderTest Response class format"""
 
     assert (len(class_type.fields_desc) == 5), "Incorrect number of fields"
-    assert (isinstance(class_type.fields_desc[0], XByteEnumField))  # CommandCode
-    assert (isinstance(class_type.fields_desc[1], XByteEnumField))  # ResponseCode
-    assert (isinstance(class_type.fields_desc[2], XLEIntField))     # DUTConnectionID
-    assert (isinstance(class_type.fields_desc[3], FieldLenField))   # IdentifierCount
-    assert (isinstance(class_type.fields_desc[4], FieldListField))  # IdentifierList
+    assert (isinstance(class_type.fields_desc[0], XByteEnumField))      # CommandCode
+    assert (isinstance(class_type.fields_desc[1], XByteEnumField))      # ResponseCode
+    assert (isinstance(class_type.fields_desc[2], ConditionalField))    # DUTConnectionID
+    assert (isinstance(class_type.fields_desc[3], ConditionalField))    # IdentifierCount
+    assert (isinstance(class_type.fields_desc[4], ConditionalField))    # IdentifierList
     return
 
 
@@ -209,9 +210,9 @@ def test_RegisterToProtocol_Response(class_type):
     """Validate RegisterToProtocol Response class format"""
 
     assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
-    assert (isinstance(class_type.fields_desc[0], XByteEnumField))  # CommandCode
-    assert (isinstance(class_type.fields_desc[1], XByteEnumField))  # ResponseCode
-    assert (isinstance(class_type.fields_desc[2], XLEIntField))     # DUTConnectionID
+    assert (isinstance(class_type.fields_desc[0], XByteEnumField))      # CommandCode
+    assert (isinstance(class_type.fields_desc[1], XByteEnumField))      # ResponseCode
+    assert (isinstance(class_type.fields_desc[2], ConditionalField))    # DUTConnectionID
     return
 
 
@@ -233,9 +234,9 @@ def test_RegisterAsyncMessageRecipient_Response(class_type):
     """Validate RegisterAsyncMessageRecipient Response class format"""
 
     assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
-    assert (isinstance(class_type.fields_desc[0], XByteEnumField))  # CommandCode
-    assert (isinstance(class_type.fields_desc[1], XByteEnumField))  # ResponseCode
-    assert (isinstance(class_type.fields_desc[2], XLEIntField))     # DUTConnectionID
+    assert (isinstance(class_type.fields_desc[0], XByteEnumField))      # CommandCode
+    assert (isinstance(class_type.fields_desc[1], XByteEnumField))      # ResponseCode
+    assert (isinstance(class_type.fields_desc[2], ConditionalField))    # DUTConnectionID
     return
 
 
@@ -286,8 +287,8 @@ def test_TestMessage_Request(class_type):
     """Validate TestMessage Request class format"""
 
     assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
-    assert (isinstance(class_type.fields_desc[0], XLEIntField)) # DUTConnectionID
-    assert (isinstance(class_type.fields_desc[1], LEIntField))  # MaximumWaitTime
+    assert (isinstance(class_type.fields_desc[0], XLEIntField))  # DUTConnectionID
+    assert (isinstance(class_type.fields_desc[1], LEIntField))   # MaximumWaitTime
     return
 
 
@@ -296,7 +297,7 @@ def test_TestMessage_Response(class_type):
     """Validate TestMessage Response class format"""
 
     assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
-    assert (isinstance(class_type.fields_desc[0], XByteEnumField))  # ResponseCode
-    assert (isinstance(class_type.fields_desc[1], XLEIntField))     # DUTConnectionID
-    assert (isinstance(class_type.fields_desc[2], LEIntField))      # Elapsed Time
+    assert (isinstance(class_type.fields_desc[0], XByteEnumField))    # ResponseCode
+    assert (isinstance(class_type.fields_desc[1], ConditionalField))  # DUTConnectionID
+    assert (isinstance(class_type.fields_desc[2], ConditionalField))  # Elapsed Time
     return

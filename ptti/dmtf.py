@@ -7,11 +7,12 @@
 #  DSP0280 implementation definitions.
 ##############################################################################
 
-from scapy.fields import *  # pylint: disable=unused-import, unused-wildcard-import
+from scapy.fields import *
 from scapy.packet import Packet
 
 
 # DSP0280 - Section 2.1.5
+DSP0280_COMPLIANCE_VERSION = int.from_bytes([1, 0, 0, 0], 'big')
 VERSION_COMPLIANCE = 0x10   # Compliant to spec DSP0280 version 1.0
 
 # DSP0280 - Section 10.1.1.1 and DSP0239 - Section 5
@@ -41,16 +42,16 @@ COMMAND_CODES = {
 
 # DSP0280 - Section 10.1.2
 MESSAGE_RESPONSE_CODES = {
-    0:  "SUCCESS",
-    1:  "TIMEOUT",
-    2:  "INVALID_PROTOCOL",
-    3:  "TRANSPORT_ERROR",
-    4:  "PHYSICAL_ERROR",
-    5:  "AUTHENTICATION_ERROR",
-    6:  "PRIVILEGE_ERROR",
-    7:  "INTEGRITY_CHECK_ERROR",
-    8:  "INCOMPATIBLE_VERSION",
-    9:  "INVALID_DUT_CONNECTION_",
+    0: "SUCCESS",
+    1: "TIMEOUT",
+    2: "INVALID_PROTOCOL",
+    3: "TRANSPORT_ERROR",
+    4: "PHYSICAL_ERROR",
+    5: "AUTHENTICATION_ERROR",
+    6: "PRIVILEGE_ERROR",
+    7: "INTEGRITY_CHECK_ERROR",
+    8: "INCOMPATIBLE_VERSION",
+    9: "INVALID_DUT_CONNECTION_ID",
     10: "OUTSTANDING_MESSAGE"
 }
 
@@ -92,7 +93,7 @@ class TestServiceWrapper(Packet):
     fields_desc = [
         XByteField("Version", VERSION_COMPLIANCE),
         XByteEnumField("ProtocolType", 0x00, PROTOCOL_TYPE),
-        BitField("Reserved", 0x00, 14),
+        BitField("Reserved_0", 0x00, 6),
         BitEnumField(
             "Direction",
             0,
@@ -104,6 +105,7 @@ class TestServiceWrapper(Packet):
                 3: "TC to TS Response"
             },
         ),
+        BitField("Reserved_1", 0x00, 8),
         XLEIntField("TestClientID", 0x00000000)
     ]
 
@@ -161,10 +163,17 @@ class Connect_Response(Packet):
     CommandValue = Connect_Request.CommandValue
 
     fields_desc = [
-        XByteEnumField("CommandCode",  CommandValue, COMMAND_CODES),
+        XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         XByteEnumField("ResponseCode", 0x00, MESSAGE_RESPONSE_CODES),
-        XByteField("TestServiceVersion", VERSION_COMPLIANCE),
-        XLEIntField("TestClientID", 0x00000000)
+
+        ConditionalField(
+            XByteField("TestServiceVersion", VERSION_COMPLIANCE),
+            lambda pkt: pkt.ResponseCode == 0
+        ),
+        ConditionalField(
+            XLEIntField("TestClientID", 0x00000000),
+            lambda pkt: pkt.ResponseCode == 0
+        )
     ]
 
 
@@ -175,7 +184,7 @@ class Disconnect_Request(Packet):
     CommandValue = 0x01
 
     fields_desc = [
-        XByteEnumField("CommandCode",  CommandValue, COMMAND_CODES)
+        XByteEnumField("CommandCode", CommandValue, COMMAND_CODES)
     ]
 
 
@@ -198,7 +207,7 @@ class QueryCapabilities_Request(Packet):
     CommandValue = 0x10
 
     fields_desc = [
-        XByteEnumField("CommandCode",  CommandValue, COMMAND_CODES)
+        XByteEnumField("CommandCode", CommandValue, COMMAND_CODES)
     ]
 
 
@@ -226,18 +235,28 @@ class QueryCapabilities_Response(Packet):
     fields_desc = [
         XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         XByteEnumField("ResponseCode", 0x00, MESSAGE_RESPONSE_CODES),
-        XByteField("Reserved", 0x00),
-        FieldLenField(
-            "NumberOfCapabilitiesFields",
-            None,
-            count_of="TestServiceCapabilities",
-            fmt="<H"
+
+        ConditionalField(
+            XByteField("Reserved", 0x00),
+            lambda pkt: pkt.ResponseCode == 0x0000
         ),
-        PacketListField(
-            "TestServiceCapabilities",
-            [],
-            TestServiceCapabilityEntry,
-            count_from=lambda pkt: pkt.NumberOfCapabilitiesFields
+        ConditionalField(
+            FieldLenField(
+                "NumberOfCapabilitiesFields",
+                None,
+                count_of="TestServiceCapabilities",
+                fmt="<H"
+            ),
+            lambda pkt: pkt.ResponseCode == 0
+        ),
+        ConditionalField(
+            PacketListField(
+                "TestServiceCapabilities",
+                [],
+                TestServiceCapabilityEntry,
+                count_from=lambda pkt: pkt.NumberOfCapabilitiesFields
+            ),
+            lambda pkt: pkt.ResponseCode == 0
         )
     ]
 
@@ -249,7 +268,7 @@ class QueryStatus_Request(Packet):
     CommandValue = 0x11
 
     fields_desc = [
-        XByteEnumField("CommandCode",  CommandValue, COMMAND_CODES),
+        XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         ByteEnumField(
             "QueryType",
             0,
@@ -307,15 +326,22 @@ class QueryStatus_Response(Packet):
     fields_desc = [
         XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         XByteEnumField("ResponseCode", 0x00, MESSAGE_RESPONSE_CODES),
-        ByteEnumField(
-            "QueryType",
-            0,
-            {
-                0: "Ping",
-                1: "Device List"
-            }
+
+        ConditionalField(
+            ByteEnumField(
+                "QueryType",
+                0,
+                {
+                    0: "Ping",
+                    1: "Device List"
+                }
+            ),
+            lambda pkt: pkt.ResponseCode == 0
         ),
-        LEIntField("QueryResponseDataLength", 0),
+        ConditionalField(
+            LEIntField("QueryResponseDataLength", 0),
+            lambda pkt: pkt.ResponseCode == 0
+        ),
         ConditionalField(
             FieldLenField(
                 "DeviceCount",
@@ -323,7 +349,7 @@ class QueryStatus_Response(Packet):
                 count_of=lambda pkt: pkt.QueryStatusDeviceData,
                 fmt="B"
             ),
-            lambda pkt: pkt.QueryType == 1
+            lambda pkt: pkt.QueryType == 1 and pkt.ResponseCode == 0
         ),
         ConditionalField(
             PacketListField(
@@ -332,7 +358,7 @@ class QueryStatus_Response(Packet):
                 QueryStatusDeviceEntry,
                 count_from=lambda pkt: pkt.DeviceCount
             ),
-            lambda pkt: pkt.QueryType == 1
+            lambda pkt: pkt.QueryType == 1 and pkt.ResponseCode == 0
         )
     ]
 
@@ -344,7 +370,7 @@ class QuerySystemInventory_Request(Packet):
     CommandValue = 0x12
 
     fields_desc = [
-        XByteEnumField("CommandCode",  CommandValue, COMMAND_CODES)
+        XByteEnumField("CommandCode", CommandValue, COMMAND_CODES)
     ]
 
 
@@ -357,7 +383,11 @@ class QuerySystemInventory_Response(Packet):
     fields_desc = [
         XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         XByteEnumField("ResponseCode", 0x00, MESSAGE_RESPONSE_CODES),
-        StrField("SystemInventory", None)
+
+        ConditionalField(
+            StrField("SystemInventory", None),
+            lambda pkt: pkt.ResponseCode == 0
+        )
     ]
 
 
@@ -403,7 +433,7 @@ class ConfigureDeviceUnderTest_Request(Packet):
     CommandValue = 0x21
 
     fields_desc = [
-        XByteEnumField("CommandCode",  CommandValue, COMMAND_CODES),
+        XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         XLEIntField("TargetIdentifier", 0x00000000),
         FieldLenField(
             "IdentifierCount",
@@ -429,18 +459,29 @@ class ConfigureDeviceUnderTest_Response(Packet):
     fields_desc = [
         XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         XByteEnumField("ResponseCode", 0x00, MESSAGE_RESPONSE_CODES),
-        XLEIntField("DUTConnectionID", 0x00000000),
-        FieldLenField(
-            "IdentifierCount",
-            0,
-            "IdentifierList",
-            "B",
+
+
+        ConditionalField(
+            XLEIntField("DUTConnectionID", 0x00000000),
+            lambda pkt: pkt.ResponseCode == 0
         ),
-        FieldListField(
-            "IdentifierList",
-            [],
-            XLEIntField("", 0x00000000),
-            length_from=lambda pkt: pkt.IdentifierCount
+        ConditionalField(
+            FieldLenField(
+                "IdentifierCount",
+                0,
+                "IdentifierList",
+                "B",
+            ),
+            lambda pkt: pkt.ResponseCode == 0
+        ),
+        ConditionalField(
+            FieldListField(
+                "IdentifierList",
+                [],
+                XLEIntField("", 0x00000000),
+                length_from=lambda pkt: pkt.IdentifierCount
+            ),
+            lambda pkt: pkt.ResponseCode == 0
         )
     ]
 
@@ -452,7 +493,7 @@ class RegisterToProtocol_Request(Packet):
     CommandValue = 0x22
 
     fields_desc = [
-        XByteEnumField("CommandCode",  CommandValue, COMMAND_CODES),
+        XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         ByteEnumField("ProtocolType", 0, PROTOCOL_TYPE),
         XLEIntField("DUTConnectionID", 0x00000000),
         FieldLenField(
@@ -479,7 +520,11 @@ class RegisterToProtocol_Response(Packet):
     fields_desc = [
         XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         XByteEnumField("ResponseCode", 0x00, MESSAGE_RESPONSE_CODES),
-        XLEIntField("DUTConnectionID", 0x00000000)
+
+        ConditionalField(
+            XLEIntField("DUTConnectionID", 0x00000000),
+            lambda pkt: pkt.ResponseCode == 0
+        )
     ]
 
 
@@ -490,7 +535,7 @@ class RegisterAsyncMessageRecipient_Request(Packet):
     CommandValue = 0x23
 
     fields_desc = [
-        XByteEnumField("CommandCode",  CommandValue, COMMAND_CODES),
+        XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         ByteEnumField("ProtocolType", 0, PROTOCOL_TYPE),
         XLEIntField("DUTConnectionID", 0x00000000),
         FieldLenField(
@@ -517,7 +562,11 @@ class RegisterAsyncMessageRecipient_Response(Packet):
     fields_desc = [
         XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         XByteEnumField("ResponseCode", 0x00, MESSAGE_RESPONSE_CODES),
-        XLEIntField("DUTConnectionID", 0x00000000),
+
+        ConditionalField(
+            XLEIntField("DUTConnectionID", 0x00000000),
+            lambda pkt: pkt.ResponseCode == 0
+        )
     ]
 
 
@@ -528,14 +577,14 @@ class LogEvent_Request(Packet):
     CommandValue = 0x30
 
     fields_desc = [
-        XByteEnumField("CommandCode",  CommandValue, COMMAND_CODES),
+        XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         ByteEnumField(
             "ReasonCode",
             0,
             {
-                    1: "CorruptMessage",
-                    2: "ClientTimeout",
-                    3: "WatchdogTimeout",
+                1: "CorruptMessage",
+                2: "ClientTimeout",
+                3: "WatchdogTimeout",
             }
         ),
         ByteEnumField(
@@ -622,8 +671,15 @@ class TestMessage_Response(Packet):
 
     fields_desc = [
         XByteEnumField("ResponseCode", 0x00, MESSAGE_RESPONSE_CODES),
-        XLEIntField("DUTConnectionID", 0x00000000),
-        XLEIntField("ElapsedTime", 0),
+
+        ConditionalField(
+            XLEIntField("DUTConnectionID", 0x00000000),
+            lambda pkt: pkt.ResponseCode == 0
+        ),
+        ConditionalField(
+            XLEIntField("ElapsedTime", 0),
+            lambda pkt: pkt.ResponseCode == 0
+        ),
     ]
 
 

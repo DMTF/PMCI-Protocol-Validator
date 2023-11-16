@@ -13,7 +13,7 @@ from ncsi.rbt import RBT
 
 @pytest.mark.parametrize("class_type", RBT())
 def test_RBT_class(class_type):
-    "Verify RBT class structure and initialization"
+    """Verify RBT class structure and initialization"""
 
     assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
 
