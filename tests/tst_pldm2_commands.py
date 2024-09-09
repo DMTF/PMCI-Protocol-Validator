@@ -9,17 +9,19 @@
 
 from testframework.utilities import common_send_receive
 from pldm.type2 import *
+from pldm.pdrs import *
 
 
 def VerifyCommonFields(RecvPacket, SendPacket):
-    """Validate PLDM fields"""
+    """ Validate PLDM fields """
 
     ### TODO: Implement
     pass
+    return
 
 
 def test_GetPDRRepositoryInfo(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get PDR Repository Info request"""
+    """ Test DSP0248 Get PDR Repository Info request """
 
     # Assemble the full PLDM request packet
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPDRRepositoryInfo_Request()
@@ -34,15 +36,15 @@ def test_GetPDRRepositoryInfo(testFixture, lowerLayerHeaders):
     # Validate response fields
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetPDRRepositoryInfo_Response.CommandValue)
     assert (RecvPacket[GetPDRRepositoryInfo_Response].CompletionCode == 0x00)
-    assert (RecvPacket[GetPDRRepositoryInfo_Response].RecordCount > 0x00)
-    assert (RecvPacket[GetPDRRepositoryInfo_Response].RepositorySize > 0x00)
-    assert (RecvPacket[GetPDRRepositoryInfo_Response].LargestRecordSize > 0x00)
+    assert (RecvPacket[GetPDRRepositoryInfo_Response].RepoInfo.RecordCount > 0x00)
+    assert (RecvPacket[GetPDRRepositoryInfo_Response].RepoInfo.RepositorySize > 0x00)
+    assert (RecvPacket[GetPDRRepositoryInfo_Response].RepoInfo.LargestRecordSize > 0x00)
 
     return RecvPacket
 
 
 def test_GetPDRRepositorySignature(testFixture, lowerLayerHeaders):
-    """Test DSP0248 GetPDRRepositorySignature request"""
+    """ Test DSP0248 GetPDRRepositorySignature request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPDRRepositorySignature_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -59,7 +61,7 @@ def test_GetPDRRepositorySignature(testFixture, lowerLayerHeaders):
 
 
 def test_GetTerminusUID(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get Terminus UID Request"""
+    """ Test DSP0248 Get Terminus UID request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetTerminusUID_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -75,7 +77,7 @@ def test_GetTerminusUID(testFixture, lowerLayerHeaders):
 
 
 def test_SetEventReceiver(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Set Event Receiver Request"""
+    """ Test DSP0248 Set Event Receiver request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetEventReceiver_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -91,7 +93,7 @@ def test_SetEventReceiver(testFixture, lowerLayerHeaders):
 
 
 def test_GetEventReceiver(testFixture, lowerLayerHeaders):
-    """Test DSP0248 GetEventReceiver_Request"""
+    """ Test DSP0248 GetEventReceiver_request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetEventReceiver_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -107,7 +109,7 @@ def test_GetEventReceiver(testFixture, lowerLayerHeaders):
 
 
 def test_PlatformEventMessage(testFixture, lowerLayerHeaders):
-    """Test DSP0248 PlatformEventMessage_Request"""
+    """ Test DSP0248 PlatformEventMessage_request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / PlatformEventMessage_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -124,7 +126,7 @@ def test_PlatformEventMessage(testFixture, lowerLayerHeaders):
 
 
 def test_PollForPlatformEventMessage(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Poll For Platform Event Message Request"""
+    """ Test DSP0248 Poll For Platform Event Message request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / PollForPlatformEventMessage_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -142,7 +144,7 @@ def test_PollForPlatformEventMessage(testFixture, lowerLayerHeaders):
 
 
 def test_EventMessageSupported(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Event Message Supported Request"""
+    """ Test DSP0248 Event Message Supported request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / EventMessageSupported_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -161,7 +163,7 @@ def test_EventMessageSupported(testFixture, lowerLayerHeaders):
 
 
 def test_EventMessageBufferSize(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Event Message Buffer Size Request"""
+    """ Test DSP0248 Event Message Buffer Size request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / EventMessageBufferSize_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -177,7 +179,7 @@ def test_EventMessageBufferSize(testFixture, lowerLayerHeaders):
 
 
 def test_SetNumericSensorEnable(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Set Numeric Sensor Enable Request"""
+    """ Test DSP0248 Set Numeric Sensor Enable request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetNumericSensorEnable_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -193,7 +195,7 @@ def test_SetNumericSensorEnable(testFixture, lowerLayerHeaders):
 
 
 def test_GetSensorReading(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get Sensor Reading Request"""
+    """ Test DSP0248 Get Sensor Reading request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetSensorReading_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -216,7 +218,7 @@ def test_GetSensorReading(testFixture, lowerLayerHeaders):
 
 
 def test_GetSensorThresholds(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get Sensor Thresholds Request"""
+    """ Test DSP0248 Get Sensor Thresholds request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetSensorThresholds_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -233,7 +235,7 @@ def test_GetSensorThresholds(testFixture, lowerLayerHeaders):
 
 
 def test_SetSensorThresholds(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Set Sensor Thresholds Request"""
+    """ Test DSP0248 Set Sensor Thresholds request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetSensorThresholds_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -249,7 +251,7 @@ def test_SetSensorThresholds(testFixture, lowerLayerHeaders):
 
 
 def test_RestoreSensorThresholds(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Restore Sensor Thresholds Request"""
+    """ Test DSP0248 Restore Sensor Thresholds request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RestoreSensorThresholds_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -265,7 +267,7 @@ def test_RestoreSensorThresholds(testFixture, lowerLayerHeaders):
 
 
 def test_GetSensorHysteresis(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get Sensor Hysteresis Request"""
+    """ Test DSP0248 Get Sensor Hysteresis request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetSensorHysteresis_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -282,7 +284,7 @@ def test_GetSensorHysteresis(testFixture, lowerLayerHeaders):
 
 
 def test_SetSensorHysteresis(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Set Sensor Hysteresis Request"""
+    """ Test DSP0248 Set Sensor Hysteresis request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetSensorHysteresis_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -298,7 +300,7 @@ def test_SetSensorHysteresis(testFixture, lowerLayerHeaders):
 
 
 def test_InitNumericSensor_Request(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Init Numeric Sensor Request"""
+    """ Test DSP0248 Init Numeric Sensor request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / InitNumericSensor_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -314,7 +316,7 @@ def test_InitNumericSensor_Request(testFixture, lowerLayerHeaders):
 
 
 def test_SetStateSensorEnables_Request(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Set State Sensor Enables Request"""
+    """ Test DSP0248 Set State Sensor Enables request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetStateSensorEnables_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -330,7 +332,7 @@ def test_SetStateSensorEnables_Request(testFixture, lowerLayerHeaders):
 
 
 def test_GetStateSensorReadings(testFixture, lowerLayerHeaders):
-    """Test DSP0248 GetStateSensorReadings_Request"""
+    """ Test DSP0248 GetStateSensorReadings_request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetStateSensorReadings_Requestxx()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -349,7 +351,7 @@ def test_GetStateSensorReadings(testFixture, lowerLayerHeaders):
 
 
 def test_InitStateSensor(testFixture, lowerLayerHeaders):
-    """Test DSP0248 InitStateSensor_Request"""
+    """ Test DSP0248 InitStateSensor_request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / InitStateSensor_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -365,7 +367,7 @@ def test_InitStateSensor(testFixture, lowerLayerHeaders):
 
 
 def test_SetNumericEffecterEnable(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Set Numeric Effecter Enable Request"""
+    """ Test DSP0248 Set Numeric Effecter Enable request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetNumericEffecterEnable_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -381,7 +383,7 @@ def test_SetNumericEffecterEnable(testFixture, lowerLayerHeaders):
 
 
 def test_SetNumericEffecterValue(testFixture, lowerLayerHeaders):
-    """Test DSP0248 xxx"""
+    """ Test DSP0248 Set Numeric Effecter Value request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetNumericEffecterValue_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -397,7 +399,7 @@ def test_SetNumericEffecterValue(testFixture, lowerLayerHeaders):
 
 
 def test_GetNumericEffecterValue(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get Numeric Effecter Value Request"""
+    """ Test DSP0248 Get Numeric Effecter Value request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetNumericEffecterValue_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -415,7 +417,7 @@ def test_GetNumericEffecterValue(testFixture, lowerLayerHeaders):
 
 
 def test_SetStateEffecterEnables_Request(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Set State Effecter Enables Request"""
+    """ Test DSP0248 Set State Effecter Enables request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetStateEffecterEnables_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -431,7 +433,7 @@ def test_SetStateEffecterEnables_Request(testFixture, lowerLayerHeaders):
 
 
 def test_SetStateEffecterStates(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Set State Effecter States Request"""
+    """ Test DSP0248 Set State Effecter States request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetStateEffecterStates_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -447,7 +449,7 @@ def test_SetStateEffecterStates(testFixture, lowerLayerHeaders):
 
 
 def test_GetStateEffecterStates(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get State Effecter States Request"""
+    """ Test DSP0248 Get State Effecter States request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetStateEffecterStates_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -465,7 +467,7 @@ def test_GetStateEffecterStates(testFixture, lowerLayerHeaders):
 
 
 def test_GetPLDMEventLogInfo(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get PLDM Event Log Info Request"""
+    """ Test DSP0248 Get PLDM Event Log Info request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPLDMEventLogInfo_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -483,7 +485,7 @@ def test_GetPLDMEventLogInfo(testFixture, lowerLayerHeaders):
 
 
 def test_EnablePLDMEventLogging(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Enable PLDM Event Logging"""
+    """ Test DSP0248 Enable PLDM Event Logging"""
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / EnablePLDMEventLogging_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -500,7 +502,7 @@ def test_EnablePLDMEventLogging(testFixture, lowerLayerHeaders):
 
 
 def test_ClearPLDMEventLog(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Clear PLDM Event Log Request"""
+    """ Test DSP0248 Clear PLDM Event Log request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / ClearPLDMEventLog_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -517,7 +519,7 @@ def test_ClearPLDMEventLog(testFixture, lowerLayerHeaders):
 
 
 def test_GetPLDMEventLogTimestamp(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get PLDM EventLog Timestamp Request"""
+    """ Test DSP0248 Get PLDM EventLog Timestamp request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPLDMEventLogTimestamp_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -528,29 +530,12 @@ def test_GetPLDMEventLogTimestamp(testFixture, lowerLayerHeaders):
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetPLDMEventLogTimestamp_Request.CommandValue)
     assert (RecvPacket[GetPLDMEventLogTimestamp_Response].CompletionCode == 0)
-
-    return RecvPacket
-
-
-def test_GetPLDMEventLogTimestamp(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get PLDMEvent Log Timestamp Request"""
-
-    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPLDMEventLogTimestamp_Request()
-    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
-
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
-
-    VerifyCommonFields(RecvPacket, SendPacket)
-
-    assert (RecvPacket[PLDM_HEADER].CommandCode == GetPLDMEventLogTimestamp_Request.CommandValue)
-    assert (RecvPacket[GetPLDMEventLogTimestamp_Response].CompletionCode == 0)
-    assert (RecvPacket[GetPLDMEventLogTimestamp_Response].LogUpdateEvent <= 1)
 
     return RecvPacket
 
 
 def test_SetPLDMEventLogTimestamp(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Set PLDM EventLog Timestamp Request"""
+    """ Test DSP0248 Set PLDM EventLog Timestamp request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetPLDMEventLogTimestamp_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -566,7 +551,7 @@ def test_SetPLDMEventLogTimestamp(testFixture, lowerLayerHeaders):
 
 
 def test_ReadPLDMEventLog(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Read PLDM Event Log Request"""
+    """ Test DSP0248 Read PLDM Event Log request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / ReadPLDMEventLog_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -583,7 +568,7 @@ def test_ReadPLDMEventLog(testFixture, lowerLayerHeaders):
 
 
 def test_GetPLDMEventLogPolicyInfo(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get PLDM Event Log Policy Info Request"""
+    """ Test DSP0248 Get PLDM Event Log Policy Info request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPLDMEventLogPolicyInfo_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -600,7 +585,7 @@ def test_GetPLDMEventLogPolicyInfo(testFixture, lowerLayerHeaders):
 
 
 def test_SetPLDMEventLogPolicy(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Set PLDM EventLog Policy Request"""
+    """ Test DSP0248 Set PLDM EventLog Policy request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetPLDMEventLogPolicy_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -616,7 +601,7 @@ def test_SetPLDMEventLogPolicy(testFixture, lowerLayerHeaders):
 
 
 def test_FindPLDMEventLogEntry(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Find PLDM Event Log Entry Request"""
+    """ Test DSP0248 Find PLDM Event Log Entry request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / FindPLDMEventLogEntry_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -627,5 +612,21 @@ def test_FindPLDMEventLogEntry(testFixture, lowerLayerHeaders):
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == FindPLDMEventLogEntry_Request.CommandValue)
     assert (RecvPacket[FindPLDMEventLogEntry_Response].CompletionCode == 0)
+
+    return RecvPacket
+
+
+def test_GetPDR(testFixture, lowerLayerHeaders):
+    """ Test DSP0248 Get PDR request """
+
+    SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPDR_Request(RequestCount=150, TransferOperationFlag=1)
+    SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
+
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+
+    VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[PLDM_HEADER].CommandCode == GetPDR_Request.CommandValue)
+    assert (RecvPacket[GetPDR_Response].CompletionCode == 0)
 
     return RecvPacket

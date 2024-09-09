@@ -26,14 +26,14 @@ from pldm.type0 import (
 
 
 def VerifyCommonFields(RecvPacket, SendPacket):
-    """Validate PLDM fields"""
+    """ Validate PLDM header fields """
 
     ### TODO: Implement
     pass
 
 
 def test_SetTID(testFixture, lowerLayerHeaders):
-    """Test DSP0240 SetTID request"""
+    """ Test DSP0240 SetTID request """
 
     # Assemble the full PLDM request packet
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetTID_Request()
@@ -54,7 +54,7 @@ def test_SetTID(testFixture, lowerLayerHeaders):
 
 
 def test_GetTID(testFixture, lowerLayerHeaders):
-    """Test DSP0240 PLDM Get TID request"""
+    """ Test DSP0240 PLDM Get TID request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetTID_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -71,7 +71,7 @@ def test_GetTID(testFixture, lowerLayerHeaders):
 
 
 def test_GetPldmVersion(testFixture, lowerLayerHeaders):
-    """"Test DSP0240 PLDM Get Pldm Version request"""
+    """" Test DSP0240 PLDM Get Pldm Version request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPldmVersion_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -89,7 +89,7 @@ def test_GetPldmVersion(testFixture, lowerLayerHeaders):
 
 
 def test_GetPldmTypes(testFixture, lowerLayerHeaders):
-    """Test DSP0240 PLDM GetPldmTypes request"""
+    """ Test DSP0240 PLDM GetPldmTypes request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPldmTypes_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -105,7 +105,7 @@ def test_GetPldmTypes(testFixture, lowerLayerHeaders):
 
 
 def test_GetPldmCommands(testFixture, lowerLayerHeaders):
-    """Test DSP0240 PLDM Get PLDM Commands request"""
+    """ Test DSP0240 PLDM Get PLDM Commands request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPldmCommands_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -123,7 +123,7 @@ def test_GetPldmCommands(testFixture, lowerLayerHeaders):
 
 
 def test_SelectPLDMVersion(testFixture, lowerLayerHeaders):
-    """Test DSP0240 Select PLDM Version request"""
+    """ Test DSP0240 Select PLDM Version request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SelectPLDMVersion_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()

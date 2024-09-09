@@ -11,6 +11,7 @@ import struct
 from scapy.fields import *  # pylint: disable=unused-import, unused-wildcard-import
 from scapy.packet import Packet
 from scapy.all import bind_layers, checksum
+from ncsi.dmtf_enums import STANDARD_RESPONSE_CODE_VALUES, STANDARD_REASON_CODE_VALUES
 
 from pldm.dmtf import PLDM_HEADER
 from ncsi.dmtf import (
@@ -30,7 +31,7 @@ class NcsiOtherPayloadReversePadField(ReversePadField):
     in the packet, so it can be used in calculating the length of the packet
     later in the process. VERY important to have this at end of a NC-SI
     packet class definition, unless that packet does not have a checksum -
-    such as Intel OEM commands, in which case the payload.packet_len field
+    such as OEM commands, in which case the payload.packet_len field
     must be set some place else. The payload.packet_len field is key to
     building the NC-SI header, checksum and padding. This one also includes
     the length of the payload
@@ -260,40 +261,52 @@ class NcsiPldm_Response(NCSI_PLDM_PAYLOAD):
 
 
 class QueryPendingNcPldm_Request(NCSI_PLDM_PAYLOAD):  # This is NOT PLDM
+    """Query Pending NC PLDM Request"""
+
     name = "Query Pending NC PLDM Request"
     CommandValue = 0x56
 
 
 class QueryPendingNcPldm_Response(NCSI_PLDM_PAYLOAD):
-### TODO: this Response needs work
+    """Query Pending NC PLDM Response"""
 
     name = "Query Pending NC PLDM Response"
     CommandValue = QueryPendingNcPldm_Request.CommandValue | 0x80
 
+    fields_desc = [
+        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
+        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES)
+    ]
+
+
 class SendNcPldmReply_Request(NCSI_PLDM_PAYLOAD):  # This is NOT PLDM
-    name = "Query Pending NC PLDM Request"
+    """Send NC PLDM Reply"""
+
+    name = "Send NC PLDM Reply"
     CommandValue = 0x57
 
 
 class SendNcPldmReply_Response(NCSI_PLDM_PAYLOAD):
-### TODO: this Response needs work
+    """Send NC PLDM Reply Response"""
 
-    name = "Query Pending NC PLDM Response"
+    name = "Send NC PLDM Reply Response"
     CommandValue = SendNcPldmReply_Request.CommandValue | 0x80
 
-
-class QueryPendingNcPldm_Request(NCSI_PLDM_PAYLOAD):  # This is NOT PLDM
-    name = "Query Pending NC PLDM Request"
-    CommandValue = 0x56
-
-
-class QueryPendingNcPldm_Response(NCSI_PLDM_PAYLOAD):
-    # TODO: this Response needs work
-
-    name = "Query Pending NC PLDM Response"
-    CommandValue = 0xD6
-
-
+    fields_desc = [
+        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
+        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
+        X3BytesField("Reserved", 0x000000),
+        BitField("ReservedBits", 0, 7),
+        BitEnumField(
+            "PendingRequest",
+            0,
+            1,
+            {
+                0: "No additional pending PLDM command from NC to MC.",
+                1: "The NC has an additional pending PLDM command to the MC."
+            }
+        )
+    ]
 
 
 # Register the classes, and bind to NC-SI Header layer

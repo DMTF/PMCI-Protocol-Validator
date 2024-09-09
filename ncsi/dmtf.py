@@ -171,7 +171,7 @@ class NcsiReversePadField(ReversePadField):
     in the packet, so it can be used in calculating the length of the packet
     later in the process.  VERY important to have this at end of a NC-SI
     packet class defintion, unless that packet does not have a checksum -
-    such as Intel OEM commands, in which case the payload.packet_len field
+    such as OEM commands, in which case the payload.packet_len field
     must be set someplace else.  the payload.packet_len field is key to
     building the NC-SI header, checksum and padding.
     """
@@ -328,10 +328,10 @@ class NCSI_PAYLOAD(Packet):
     __slots__ = ["payload_len"]
     name = "NC-SI Payload"
 
-    fields_desc = []  # TODO Can I remove this?
+    fields_desc = []
 
     def getChecksumLen(self):
-        """Checksum length is always 4 except for old Intel OEM"""
+        """Checksum length is always 4 except for old OEM"""
         return 4
 
 

@@ -4,8 +4,7 @@
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
 #  File Abstract:
-#  Contains the MCTP over PCIe VDM (DSP0238) and MCTP over SMBus (DSP0237)
-#   wrappers
+#  Verifies structure of PLDM Platform Descriptor Records (PDRs)
 ##############################################################################
 
 import pytest
@@ -727,7 +726,7 @@ def test_RedfishResourceOEMNames(class_type):
 def test_CompactNumericSensorPDR(class_type):
     """Verify CompactNumericSensorPDR initialization"""
 
-    assert (len(class_type.fields_desc) == 22), "Incorrect number of fields"
+    assert (len(class_type.fields_desc) == 23), "Incorrect number of fields"
     assert (class_type.PLDMTerminusHandle == 0)
     assert (class_type.SensorID == 0)
     assert (class_type.EntityType == 0)
@@ -753,6 +752,8 @@ def test_CompactNumericSensorPDR(class_type):
     assert (class_type.CriticalLow == 0)
     assert (class_type.FatalHigh == 0)
     assert (class_type.FatalLow == 0)
+
+    assert (class_type.sensorNameString == b"")
     return
 
 
@@ -787,9 +788,10 @@ def test_RedfishResourcePDR(class_type):
 def test_RedfishEntityAssociationPDR(class_type):
     """Verify RedfishEntityAssociationPDR initialization"""
 
-    assert (len(class_type.fields_desc) == 4), "Incorrect number of fields"
+    assert (len(class_type.fields_desc) == 5), "Incorrect number of fields"
     assert (class_type.ContainingResourceID == 0)
     assert (class_type.ProposedContainingResourceLengthBytes == 0)
+    assert (class_type.ProposedContainingResourceName == b"")
     assert (class_type.ContainedEntityCount == 0)
     assert (class_type.ContainedEntity == [])
     return
