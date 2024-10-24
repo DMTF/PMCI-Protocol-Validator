@@ -236,7 +236,7 @@ class NumericSensorPDR(Packet):
         ByteEnumField("AuxRateUnit", 0, RateUnit),
         ByteEnumField("Relationship", 0, {0: "dividedBy", 1: "multipliedBy"}),
         XByteField("AuxOEMUnitHandle", 0x00),
-        ByteField("IsLinear", 0),  # TODO: check bool8
+        ByteField("IsLinear", 0),  # bool8
         ByteEnumField("SensorDataSize", 0, {**dataSize, 6: "real32"}),
         XLEIntField("Resolution", 0x00000000),  # real32
         XLEIntField("Offset", 0x00000000),  # real32
@@ -909,7 +909,7 @@ class NumericEffecterPDR(Packet):
         ByteField("AuxUnitModifier", 0x00),
         ByteEnumField("AuxRateUnit", 0, RateUnit),
         XByteField("AuxOEMUnitHandle", 0x00),
-        ByteField("IsLinear", 0),  # TODO: check bool8
+        ByteField("IsLinear", 0),  # bool8
         ByteEnumField("EffecterDataSize", 0, dataSize),
         XLEIntField("Resolution", 0x00000000),
         XLEIntField("Offset", 0x00000000),
@@ -1392,7 +1392,6 @@ class OEMEntityIDPDR(Packet):
         XLEIntField("VendorIANA", 0x00000000),
         XLEShortField("VendorEntityID", 0x0000),  # MSB is reserved
         XByteField("StringCount", 0x00),
-        # TODO: to check
         PacketListField(
             "EntityIDStrings",
             OEMEntityIDStrings(),
@@ -1435,7 +1434,6 @@ class InterruptAssociationPDR(Packet):
         XLEShortField("InterruptTargetEntityInstanceNumber", 0x0000),
         XLEShortField("InterruptTargetEntityContainerID", 0x0000),
         XByteField("InterruptSourceEntityCount", 0x0000),
-        # TODO: to check
         PacketListField(
             "SourceEntityIdentificationInformation",
             InterruptAssociationFields(),
@@ -1563,8 +1561,12 @@ class CompactNumericSensorPDR(Packet):
         XLEIntField("CriticalHigh", 0x00000000),
         XLEIntField("CriticalLow", 0x00000000),
         XLEIntField("FatalHigh", 0x00000000),
-        XLEIntField("FatalLow", 0x00000000)
-### TODO: sensorNameString
+        XLEIntField("FatalLow", 0x00000000),
+        StrLenField(
+            "sensorNameString",
+            b"",
+            length_from=lambda pkt: pkt.SensorNameStringByteLength,
+        )
     ]
 
     def extract_padding(self, s):
@@ -1703,13 +1705,16 @@ class RedfishEntityAssociationPDR(Packet):
     fields_desc = [
         XLEIntField("ContainingResourceID", 0x00000000),
         XLEShortField("ProposedContainingResourceLengthBytes", 0x0000),
-        # TODO: ProposedContainingResourceName
+        StrLenField(
+            "ProposedContainingResourceName",
+            b"",
+            length_from=lambda pkt: pkt.SensorNameStringByteLength,
+        ),
         XByteField("ContainedEntityCount", 0x0000),
-        # TODO: to check
         FieldListField(
             "ContainedEntity",
             [],
-            XByteField("", 0x00),
+            XIntField("", 0x00000000),
             count_from=lambda pkt: pkt.ContainedEntityCount,
         )
     ]

@@ -90,7 +90,11 @@ RecordDescriptorTypes = {
     0x0103: "PCIRevisionID",            # 1 Byte
     0x0104: "PnPProductIdentifier",     # 4 Bytes
     0x0105: "ACPIProductIdentifier",    # 4 Bytes
-    # TODO: add new Descriptor Types
+    0x0106: "ASCIIModelNumberLong",	    # 40 bytes
+    0x0107: "ASCIIModelNumberShort",    # 10 bytes
+    0x0108: "SCSIProductID",		    # 16 bytes
+    0x0109: "UBMControllerDeviceCode",  # 4 bytes
+    0xFFFF: "VendorDefined"		        # Variable
 }
 
 ComponentClassificationValues = {
@@ -429,8 +433,8 @@ class PLDM_PAYLOAD(Packet):
     MctpPayloadType = 0x01
     PayloadType = 0x00
 
-   # this has no padding, but may have something following it
-   # (like an array of things, so override behavior)
+    # this has no padding, but may have something following it
+    # (like an array of things, so override behavior)
     def extract_padding(self, s):
         return ("", s, )
 

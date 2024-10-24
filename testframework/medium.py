@@ -13,8 +13,8 @@ import queue
 from scapy.all import wrpcap
 
 
-def GetCurrMS():
-    """Get number of mseconds since epoc """
+def GetCurrMS() -> int:
+    """ Get number of mseconds since epoc """
 
     return int(round(time.time() * 1000))
 
@@ -24,7 +24,7 @@ AppStartTime = GetCurrMS()
 
 
 class physicalMedium:
-    """Base class for interface to send and receive manageability packets"""
+    """ Base class for interface to send and receive manageability packets """
 
     # Return codes for Read() function
     ERROR_SUCCESS = 0
@@ -42,15 +42,17 @@ class physicalMedium:
     }
 
     @staticmethod
-    def ResponseToStr(resp):
-        """Returns an error description for the specified error code"""
+    def ResponseToStr(resp: int) -> str:
+        """ Returns an error description for the specified error code """
 
         try:
             return physicalMedium.ErrorStrings[resp]
         except:
             return "Unknown"
 
-    def __init__(self, instance, timeout):
+    def __init__(self, instance, timeout: int) -> None:
+        """ Class constructor """
+
         self.__inst = instance
         self.__received = queue.Queue()
         self._timeout = timeout
@@ -58,34 +60,43 @@ class physicalMedium:
         self.__firstFileWrite = True
         self.__readThread = None
 
-    def __del__(self):
-        self.Close()
+        return
 
-    def SetPcapFile(self, fileName=None):
-        """specify a pcap file to save packets for tracability """
+    def __del__(self) -> None:
+        """ Class desctructor """
+
+        self.Close()
+        return
+
+    def SetPcapFile(self, fileName: str = None) -> None:
+        """ Specify a pcap file to save packets for tracing """
+
         self.__pcapFile = fileName
         self.__firstFileWrite = True
+        return
 
-    def __writeToPcap(self, packet):
-        """Store packet to PCAP file """
+    def __writeToPcap(self, packet: bytes) -> None:
+        """ Store packet to PCAP file """
 
         if self.__pcapFile is not None:
             if self.__firstFileWrite is True:
                 appendFlag = False
                 self.__firstFileWrite = False
-
             else:
                 appendFlag = True
 
             wrpcap(self.__pcapFile, packet, append=appendFlag)
 
-    def Close(self):
-        """Clean up before exiting"""
+        return
+
+    def Close(self) -> None:
+        """ Clean up before exiting """
 
         self.__inst._close()
+        return
 
-    def Write(self, payload):
-        """Write packet to the underlying physical medium """
+    def Write(self, payload: bytes) -> int:
+        """ Write packet to the underlying physical medium """
 
         _error_code = self.__inst._write(payload)
         writeTime = GetCurrMS() - AppStartTime
@@ -99,7 +110,7 @@ class physicalMedium:
 
         return _error_code
 
-    def Read(self, timeoutOverride=None):
+    def Read(self, timeoutOverride: int = None) -> tuple:
         """
         Called by framework to read data from a rx queue returns a tuple of
         READ_STATUS, READ_DATA where READ_STATUS is defined in physicalMedium
@@ -140,10 +151,12 @@ class physicalMedium:
             print(str(Ex))
             return (self.ERROR_UNKNOWN_ERROR, None)
 
-    def _addReadPacket(self, arrivedPkt):
-        """Save data in receive queue """
+    def _addReadPacket(self, arrivedPkt: bytes) -> None:
+        """ Save data in receive queue """
 
         assert (arrivedPkt is not None), "Received NULL packet"
 
         ReceiveTimeStamp = (GetCurrMS() - AppStartTime)
         self.__received.put_nowait((ReceiveTimeStamp, arrivedPkt))
+
+        return

@@ -126,7 +126,7 @@ class PLDM_TYPE_2_PAYLOAD(PLDM_PAYLOAD):
     # DSP0218, Table 3
     schemaClass = {
         0: "MAJOR",
-        1: "Event",
+        1: "EVENT",
         2: "ANNOTATION",
         3: "COLLECTION_MEMBER_TYPE",
         4: "ERROR",
@@ -427,7 +427,7 @@ class HeartbeatTimerElapsedEventData(Packet):
 class bejEncoding(Packet):
     name = "bejEncoding"
     fields_desc = [
-        XLEIntField("BEJVersion", 0xF1F1F000),  # TODO to check
+        XLEIntField("BEJVersion", 0xF1F1F000),
         XLEShortField("Reserved", 0x00),
         ByteEnumField("SchemaClass", 0, PLDM_TYPE_2_PAYLOAD.schemaClass)
     ]
@@ -533,7 +533,7 @@ class PldmPDRRepositoryChgEventData(Packet):
 
 
 class OemEventData(Packet):
-    """TODO: this is the OEM event data format - undefined"""
+    """This is the OEM event data format. It is NOT define by DMTF."""
 
     name = "OemEventData"
     fields_desc = []
@@ -608,7 +608,6 @@ class PlatformEventMessage_Request(PLDM_TYPE_2_PAYLOAD):
             ),
             lambda pkt: pkt.EventClass == 0x06,
         ),  # heartbeat timer elapsed  event data
-        # TODO: OEM Event data not defined
         ConditionalField(
             PacketField("OemEventData", OemEventData(), OemEventData),
             lambda pkt: pkt.EventClass in range(0xF0, 0xFE + 1),
@@ -698,7 +697,6 @@ class PollForPlatformEventMessage_Response(PLDM_TYPE_2_PAYLOAD):
             XLEIntField("EventDataSize", 0x00000000),
             lambda pkt: pkt.CompletionCode == 0
         ),
-        # TODO: check var chunk !!!!
         ConditionalField(
             PacketField("SensorEventData", SensorEventData(), SensorEventData),
             lambda pkt: pkt.EventClass == 0x00 and pkt.CompletionCode == 0
@@ -1313,7 +1311,7 @@ class InitNumericSensor_Request(PLDM_TYPE_2_PAYLOAD):
         XByteField(
             "SetNumericReading", 0x00
         )   # True directs receiver to accept the following numericReadingSetting
-            # TODO - numericReadingSetting field (DSP0248 - Table 36)
+            # numericReadingSetting[] (DSP0248 - Table 36)
     ]
 
 
@@ -1416,17 +1414,9 @@ class GetStateSensorField(Packet):
             0x00,
             PLDM_TYPE_2_PAYLOAD.sensorOperationalState
         ),
-        XByteField("PresentState", 0x00),  # TODO to check
-        ByteEnumField(
-            "PreviousState",
-            0,
-            PLDM_TYPE_2_PAYLOAD.sensorOperationalState
-        ),  # TODO to check
-        ByteEnumField(
-            "EventState",
-            0,
-            PLDM_TYPE_2_PAYLOAD.sensorOperationalState
-        ),  # TODO to check
+        XByteField("PresentState", 0x00),
+        XByteField("PreviousState", 0x00),
+        XByteField("EventState", 0x00)
     ]
 
     def extract_padding(self, s):
@@ -1472,7 +1462,7 @@ class InitStateSensorField(Packet):
                 2: "unavailable"
             }
         ),
-        XByteField("SensorPresentState", 0x00),  # TODO State sets (DSP0249)
+        XByteField("SensorPresentState", 0x00),
         XByteEnumField(
             "EventMsgEnable",
             0x00,
@@ -1715,7 +1705,7 @@ class SetStateEffecterStates_Request(PLDM_TYPE_2_PAYLOAD):
         ),
         XByteField(
             "EffecterState", 0x00
-        ),  # TODO values dependent on effecter state set (DSP0249)
+        ),  # Values dependent on effecter state set (DSP0249)
     ]
 
 
@@ -1755,8 +1745,8 @@ class GetStateEffecterStatesFields(Packet):
             0,
             PLDM_TYPE_2_PAYLOAD.effecterOperationalState
         ),
-        XByteField("PendingState", 0x00),  # TODO - ByteEnumField (DSP0249)
-        XByteField("PresentState", 0x00),  # TODO - ByteEnumField (DSP0249)
+        XByteField("PendingState", 0x00),  # See DSP0249
+        XByteField("PresentState", 0x00),  # See DSP0249
     ]
 
 
@@ -1903,7 +1893,6 @@ class FindPDR_Request(PLDM_TYPE_2_PAYLOAD):
         XLEShortField("RequestCount", 0x0000),
         XLEShortField("PDRType", 0x0000),  # 0x0000 = match any PDRType
         XByteField("ParameterFormatNumber", 0x00),  # Table 71 DSP0248
-        # BitField("Wildcards", 0, 16)  # TODO - bitfield check
         BitEnumField("Wildcard_8", 0, 1, PLDM_TYPE_2_PAYLOAD.wildcards_enum),
         BitEnumField("Wildcard_7", 0, 1, PLDM_TYPE_2_PAYLOAD.wildcards_enum),
         BitEnumField("Wildcard_6", 0, 1, PLDM_TYPE_2_PAYLOAD.wildcards_enum),
@@ -1920,7 +1909,7 @@ class FindPDR_Request(PLDM_TYPE_2_PAYLOAD):
         BitEnumField("Wildcard_11", 0, 1, PLDM_TYPE_2_PAYLOAD.wildcards_enum),
         BitEnumField("Wildcard_10", 0, 1, PLDM_TYPE_2_PAYLOAD.wildcards_enum),
         BitEnumField("Wildcard_9", 0, 1, PLDM_TYPE_2_PAYLOAD.wildcards_enum),
-        # TODO: findParameters
+        # findParameters values
     ]
 
 
@@ -2243,7 +2232,6 @@ class ReadPLDMEventLog_Response(PLDM_TYPE_2_PAYLOAD):
             lambda pkt: pkt.CompletionCode == 0
         ),
         ConditionalField(
-            # TODO to check: PLDMEventLogData
             XByteField("TransferredDataSize", 0x00),
             lambda pkt: pkt.CompletionCode == 0
         ),
@@ -2277,11 +2265,38 @@ class GetPLDMEventLogPolicyInfo_Response(PLDM_TYPE_2_PAYLOAD):
 
     class Data(Packet):
         fields_desc = [
-            # BitField("ConfigurableParameterSupport", 0, 8),  # TODO check for bitenumfield
             BitField("Reserved", 0, 3),
-            BitField("MPercentageConfgurable", 0, 2),
-            BitField("NPercentageConfgurable", 0, 2),
-            BitField("AgePercentageConfgurable", 0, 1),
+            BitEnumField(
+                "MPercentageConfgurable",
+                0,
+                2,
+                {
+                    0: "M and MPercentage are not configurable",
+                    1: "M is configurable",
+                    2: "MPercentage is configurable",
+                    3: "reserved",
+                }
+            ),
+            BitEnumField(
+                "NPercentageConfgurable",
+                0,
+                2,
+                {
+                    0: "N and NPercentage are not configurable",
+                    1: "N is configurable",
+                    2: "NPercentage is configurable",
+                    3: "reserved",
+                }
+            ),
+            BitEnumField(
+                "AgePercentageConfgurable",
+                0,
+                1,
+                {
+                    0: "Age is not configurable",
+                    1: "Age is configurable",
+                },
+            ),
             XLEIntField("NMin", 0x00000000),  # special value 0x00000000
             XLEIntField("NMax", 0x00000000),  # special value 0x00000000
             XByteField("NPercentageMin", 0x00),  # special value 0x00

@@ -129,10 +129,9 @@ class bejEncoding(Packet):
     name = "bejEncoding"
 
     fields_desc = [
-        XLEIntField("BEJVersion", 0xF1F1F000),  # TODO to check
+        XLEIntField("BEJVersion", 0xF1F1F000),
         XLEShortField("Reserved", 0x00),
         ByteEnumField("SchemaClass", 0, schemaClass),
-        # TODO: BaseBejTuple: comment it if want get pure raw data
         PacketField("BejTuple", BejTuple(), BejTuple),
     ]
 
@@ -160,7 +159,6 @@ class DictionaryEntry(Packet):
         LEShortField("SequenceNumber", 0),
         LEShortField("ChildPointerOffset", 0),
         LEShortField("ChildCount", 0),
-        # TODO: to check NameLengthStr
         ByteField("NameLength", 0),
         FieldLenField("NameLengthStr", None, "Name", "B"),  # length of 'Name'
         LEShortField("NameOffset", None),
@@ -569,7 +567,6 @@ class RDEOperationInit_Request(PLDM_TYPE_6_PAYLOAD):
         XLEIntField("SendDataTransferHandle", 0),
         XByteField("OperationLocatorLength", 0x00),
         LEIntField("RequestPayloadLength", 0),
-        # TODO: OperationLocator
         ConditionalField(
             PacketListField("OperationLocator", bejLocator(), bejLocator),
             lambda pkt: pkt.OperationLocatorLength > 0,
@@ -676,7 +673,6 @@ class SupplyCustomRequestParameters_Request(PLDM_TYPE_6_PAYLOAD):
             0,
             {0: "ETAG_IGNORE", 1: "ETAG_IF_MATCH", 2: "ETAG_IF_NONE_MATCH"},
         ),
-        # TODO to check
         XByteField("ETagCount", 0x00),
         PacketListField(
             "Etags",
@@ -684,7 +680,6 @@ class SupplyCustomRequestParameters_Request(PLDM_TYPE_6_PAYLOAD):
             SupplyCustomRequestParametersETags,
             count_from=lambda pkt: pkt.ETagCount,
         ),
-        # TODO to check
         XByteField("HeaderCount", 0x00),
         PacketListField(
             "Headers",

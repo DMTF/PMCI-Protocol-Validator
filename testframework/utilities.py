@@ -25,8 +25,9 @@ def common_send_receive(commObject, SendPacket, fctShowPacket=None):
 
     ErrorCode = commObject.Write(SendPacket)
 
-    assert (ErrorCode == physicalMedium.ERROR_SUCCESS), \
-        "%s" % physicalMedium.ResponseToStr(ErrorCode)
+    if ErrorCode is not None:
+        assert (ErrorCode == physicalMedium.ERROR_SUCCESS), \
+            "%s" % physicalMedium.ResponseToStr(ErrorCode)
 
     (ErrorCode, RecvPacket) = commObject.Read()
 

@@ -9,8 +9,10 @@
 
 import sys
 import binascii
-from scapy.packet import Raw, raw
-from pldm.type2 import *  # pylint: disable=unused-import, unused-wildcard-import
+from scapy.packet import Raw
+
+from pldm.dmtf import PLDM_HEADER
+from pldm.type2 import *
 
 
 test_pldm2_commands = [
@@ -61,7 +63,7 @@ test_pldm2_commands = [
 
 
 def get_class_instance(name):
-    """Create a class instance given the class name"""
+    """ Create a class instance given the class name """
 
     try:
         identifier = getattr(sys.modules[__name__], name)
@@ -72,27 +74,30 @@ def get_class_instance(name):
     return identifier
 
 
-def dump_class(cls_name, uheaders=None):
-    """Print the Request and Response packet formats"""
+def dump_class(cls_name):
+    """ Print the Request and Response packet formats """
 
-    request_pkt = get_class_instance(cls_name + "_Request")()
-    response_pkt = get_class_instance(cls_name + "_Response")()
+    request = get_class_instance(cls_name + "_Request")
+    response = get_class_instance(cls_name + "_Response")
+
+    request_pkt = PLDM_HEADER() / request()
+    response_pkt = PLDM_HEADER() / response()
 
     print("### " + cls_name + " Request ###")
     request_pkt.show2()
 
     display = Raw(request_pkt)
-    print("   Raw: " + str(binascii.b2a_hex(raw(display), " ")) + "\n")
+    print("   Raw: " + str(binascii.b2a_hex(display.fields['load'], " ")) + "\n")
 
     print("### " + cls_name + " Response ###")
     response_pkt.show2()
 
     display = Raw(response_pkt)
-    print("   Raw: " + str(binascii.b2a_hex(raw(display), " ")) + "\n")
+    print("   Raw: " + str(binascii.b2a_hex(display.fields['load'], " ")) + "\n")
 
 
 def dump_packets():
-    """Iterates list of commands/responses and prints the packet data"""
+    """ Iterates list of commands/responses and prints the packet data """
 
     for cmd in test_pldm2_commands:
         dump_class(cmd)

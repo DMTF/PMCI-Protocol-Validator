@@ -4,8 +4,7 @@
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
 #  File Abstract:
-#  Contains the MCTP over PCIe VDM (DSP0238) and MCTP over SMBus (DSP0237)
-#   wrappers
+#  Contains PLDM class structure tests
 ##############################################################################
 
 import pytest

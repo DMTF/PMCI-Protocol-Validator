@@ -15,7 +15,7 @@ from scapy.packet import Raw
 from ncsi.dmtf import NCSI_HEADER
 from ncsi.pldm_payload import NcsiPldm_Request
 from pldm.dmtf import PLDM_HEADER
-from pldm.type2 import *  # pylint: disable=unused-import, unused-wildcard-import
+from pldm.type2 import *
 
 test_data = [0]
 

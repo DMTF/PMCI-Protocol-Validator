@@ -1101,7 +1101,7 @@ def test_GetPLDMEventLogTimestamp_Response(class_type):
     assert (len(class_type.fields_desc) == 4), "Incorrect number of fields"
     assert (class_type.CompletionCode == 0x00)
     assert (class_type.EntryTimestampUTCOffset == 0)
-    # TODO assert (class_type.EntryTimestampSeconds)
+    assert (class_type.EntryTimestampSeconds is not None)
     assert (class_type.EntryTimestamp100s == 0)
     return
 
@@ -1114,7 +1114,7 @@ def test_SetPLDMEventLogTimestamp_Request(class_type):
     assert (len(class_type.fields_desc) == 4), "Incorrect number of fields"
 
     assert (class_type.EntryTimestampUTCOffset == 0)
-    # TODO assert (class_type.EntryTimestampSeconds)
+    assert (class_type.EntryTimestampSeconds is not None)
     assert (class_type.EntryTimestamp100s == 0)
     assert (class_type.LogUpdateEvent == 0)
     return
@@ -1128,7 +1128,7 @@ def test_SetPLDMEventLogTimestamp_Response(class_type):
     assert (len(class_type.fields_desc) == 5), "Incorrect number of fields"
     assert (class_type.CompletionCode == 0x00)
     assert (class_type.EntryTimestampUTCOffset == 0)
-    # TODO assert (class_type.EntryTimestampSeconds)
+    assert (class_type.EntryTimestampSeconds is not None)
     assert (class_type.EntryTimestamp100s == 0)
     assert (class_type.TimestampResolution == 0)
     return
@@ -1238,7 +1238,7 @@ def test_FindPLDMEventLogEntry_Request(class_type):
     assert (class_type.SearchType == 0)
     assert (class_type.StartingPoint == 0)
     assert (class_type.CompareTimestampUTCOffset == 0)
-    # TODO assert (class_type.CompareTimestampSeconds)
+    assert (class_type.CompareTimestampSeconds is not None)
     assert (class_type.CompareTimestamp100s == 0)
     return
 

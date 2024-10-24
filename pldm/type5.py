@@ -971,7 +971,6 @@ class PassComponentTable_Request(PLDM_TYPE_5_PAYLOAD):
             {
                 **ComponentClassificationValues,
                 0xFFFF: "Downstream Device"
-                # TODO add Reserved for Vendor Defined values to dict
             },
         ),
         XLEShortField("ComponentIdentifier", 0x0000),

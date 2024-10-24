@@ -14,7 +14,7 @@ from scapy.packet import Raw
 from ncsi.dmtf import NCSI_HEADER
 from ncsi.pldm_payload import NcsiPldm_Request
 from pldm.dmtf import PLDM_HEADER
-from pldm.type0 import *  # pylint: disable=unused-import, unused-wildcard-import
+from pldm.type0 import *
 
 
 test_pldm0_commands = [
@@ -43,7 +43,7 @@ def test_command(pldm_command, InstanceID):
     command_request = get_class_instance(pldm_command + "_Request")
 
     requestPacket = NCSI_HEADER(ChannelID=3) / NcsiPldm_Request()
-    requestPacket = requestPacket / PLDM_HEADER(PldmType=0,InstanceID=InstanceID)
+    requestPacket = requestPacket / PLDM_HEADER(PldmType=0, InstanceID=InstanceID)
     requestPacket = requestPacket / command_request()
 
     requestPacket.show2()

@@ -358,7 +358,7 @@ class QueryStatus_Response(Packet):
                 QueryStatusDeviceEntry,
                 count_from=lambda pkt: pkt.DeviceCount
             ),
-            lambda pkt: pkt.QueryType == 1 and pkt.ResponseCode == 0
+            lambda pkt: pkt.QueryType == 1 and pkt.ResponseCode == 0 and pkt.DeviceCount > 0
         )
     ]
 
@@ -445,7 +445,7 @@ class ConfigureDeviceUnderTest_Request(Packet):
             "IdentifierList",
             [],
             XLEIntField("", 0x00000000),
-            length_from=lambda pkt: pkt.IdentifierCount
+            count_from=lambda pkt: pkt.IdentifierCount
         )
     ]
 
@@ -479,7 +479,7 @@ class ConfigureDeviceUnderTest_Response(Packet):
                 "IdentifierList",
                 [],
                 XLEIntField("", 0x00000000),
-                length_from=lambda pkt: pkt.IdentifierCount
+                count_from=lambda pkt: pkt.IdentifierCount
             ),
             lambda pkt: pkt.ResponseCode == 0
         )
@@ -500,13 +500,13 @@ class RegisterToProtocol_Request(Packet):
             "TypeCount",
             0,
             "TypeList",
-            "B",
+            fmt="B",
         ),
         FieldListField(
             "TypeList",
             [],
-            XLEIntField("", 0x00),
-            length_from=lambda pkt: pkt.TypeCount
+            ByteField("", 0x00),
+            count_from=lambda pkt: pkt.TypeCount
         )
     ]
 
@@ -541,14 +541,14 @@ class RegisterAsyncMessageRecipient_Request(Packet):
         FieldLenField(
             "TypeCount",
             0,
-            "Types",
-            "B",
+            "TypesList",
+            fmt="B",
         ),
         FieldListField(
-            "TypesList",
+            "TypeList",
             [],
             XByteField("", 0x00),
-            length_from=lambda pkt: pkt.TypeCount
+            count_from=lambda pkt: pkt.TypeCount
         )
     ]
 
@@ -679,7 +679,7 @@ class TestMessage_Response(Packet):
         ConditionalField(
             XLEIntField("ElapsedTime", 0),
             lambda pkt: pkt.ResponseCode == 0
-        ),
+        )
     ]
 
 

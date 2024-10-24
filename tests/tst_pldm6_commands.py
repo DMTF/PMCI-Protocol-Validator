@@ -12,7 +12,7 @@ from pldm.type6 import *    # noqa:F403
 
 
 def VerifyCommonFields(RecvPacket, SendPacket):
-    """Validate PLDM fields"""
+    """Validate PLDM header fields"""
 
     ### TODO: Implement
     pass
@@ -20,7 +20,7 @@ def VerifyCommonFields(RecvPacket, SendPacket):
 
 
 def test_NegotiateRedfishParameters(testFixture, lowerLayerHeaders):
-    """Test DSP0218 Negotiate Redfish Parameters request"""
+    """ Test DSP0218 Negotiate Redfish Parameters request """
 
     # Assemble the full PLDM request packet
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / NegotiateRedfishParameters_Request()
@@ -43,7 +43,7 @@ def test_NegotiateRedfishParameters(testFixture, lowerLayerHeaders):
 
 
 def test_NegotiateMediumParameters(testFixture, lowerLayerHeaders):
-    """Test DSP0218 Negotiate Medium Parameters request"""
+    """ Test DSP0218 Negotiate Medium Parameters request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / NegotiateMediumParameters_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -60,7 +60,7 @@ def test_NegotiateMediumParameters(testFixture, lowerLayerHeaders):
 
 
 def test_GetSchemaDictionary(testFixture, lowerLayerHeaders):
-    """Test DSP0218 Get Schema Dictionary request"""
+    """ Test DSP0218 Get Schema Dictionary request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetSchemaDictionary_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -76,7 +76,7 @@ def test_GetSchemaDictionary(testFixture, lowerLayerHeaders):
 
 
 def test_GetSchemaURI(testFixture, lowerLayerHeaders):
-    """Test DSP0218 Get SchemaURI Request"""
+    """ Test DSP0218 Get SchemaURI request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetSchemaURI_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -95,7 +95,7 @@ def test_GetSchemaURI(testFixture, lowerLayerHeaders):
 
 
 def test_GetResourceETag(testFixture, lowerLayerHeaders):
-    """Test DSP0218 GetResource ETag Request"""
+    """ Test DSP0218 GetResource ETag request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetResourceETag_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -112,7 +112,7 @@ def test_GetResourceETag(testFixture, lowerLayerHeaders):
 
 
 def test_GetOEMCount(testFixture, lowerLayerHeaders):
-    """Test DSP0218 Get OEM Count Request"""
+    """ Test DSP0218 Get OEM Count request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetOEMCount_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -128,7 +128,7 @@ def test_GetOEMCount(testFixture, lowerLayerHeaders):
 
 
 def test_GetOEMName(testFixture, lowerLayerHeaders):
-    """Test DSP0218 Get OEM Name Request"""
+    """ Test DSP0218 Get OEM Name request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetOEMName_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -145,7 +145,7 @@ def test_GetOEMName(testFixture, lowerLayerHeaders):
 
 
 def test_GetRegistryCount(testFixture, lowerLayerHeaders):
-    """Test DSP0218 Get Registry Count Request"""
+    """ Test DSP0218 Get Registry Count request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetRegistryCount_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -161,7 +161,7 @@ def test_GetRegistryCount(testFixture, lowerLayerHeaders):
 
 
 def test_GetRegistryDetails(testFixture, lowerLayerHeaders):
-    """Test DSP0218 Get Registry Details Request"""
+    """ Test DSP0218 Get Registry Details request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetRegistryDetails_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -181,7 +181,7 @@ def test_GetRegistryDetails(testFixture, lowerLayerHeaders):
 
 
 def test_SelectRegistryVersion(testFixture, lowerLayerHeaders):
-    """Test DSP0218 Select Registry Version Request"""
+    """ Test DSP0218 Select Registry Version request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SelectRegistryVersion_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -197,7 +197,7 @@ def test_SelectRegistryVersion(testFixture, lowerLayerHeaders):
 
 
 def test_GetMessageRegistry(testFixture, lowerLayerHeaders):
-    """Test DSP0218 Get Message Registry_ Request"""
+    """ Test DSP0218 Get Message Registry_ request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetMessageRegistry_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -213,7 +213,7 @@ def test_GetMessageRegistry(testFixture, lowerLayerHeaders):
 
 
 def test_GetSchemaFile(testFixture, lowerLayerHeaders):
-    """Test DSP0218 Get Schema File Request"""
+    """ Test DSP0218 Get Schema File request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetSchemaFile_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -229,7 +229,7 @@ def test_GetSchemaFile(testFixture, lowerLayerHeaders):
 
 
 def test_RDEOperationInit(testFixture, lowerLayerHeaders):
-    """Test DSP0218 RDE Operation Init Request"""
+    """ Test DSP0218 RDE Operation Init request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RDEOperationInit_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -248,7 +248,7 @@ def test_RDEOperationInit(testFixture, lowerLayerHeaders):
 
 
 def test_SupplyCustomRequestParameters(testFixture, lowerLayerHeaders):
-    """Test DSP0218 Supply Custom Request Parameters Request"""
+    """ Test DSP0218 Supply Custom Request Parameters request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SupplyCustomRequestParameters_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -267,7 +267,7 @@ def test_SupplyCustomRequestParameters(testFixture, lowerLayerHeaders):
 
 
 def test_RetrieveCustomResponseParameters(testFixture, lowerLayerHeaders):
-    """Test DSP0218 Retrieve Custom Response Parameters Request"""
+    """ Test DSP0218 Retrieve Custom Response Parameters request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RetrieveCustomResponseParameters_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -283,7 +283,7 @@ def test_RetrieveCustomResponseParameters(testFixture, lowerLayerHeaders):
 
 
 def test_RDEOperationComplete(testFixture, lowerLayerHeaders):
-    """Test DSP0218 RDE Operation Complete Request"""
+    """ Test DSP0218 RDE Operation Complete request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RDEOperationComplete_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -299,7 +299,7 @@ def test_RDEOperationComplete(testFixture, lowerLayerHeaders):
 
 
 def test_RDEOperationStatus(testFixture, lowerLayerHeaders):
-    """Test DSP0218 RDE Operation Status Request"""
+    """ Test DSP0218 RDE Operation Status request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RDEOperationStatus_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -318,7 +318,7 @@ def test_RDEOperationStatus(testFixture, lowerLayerHeaders):
 
 
 def test_RDEOperationKill(testFixture, lowerLayerHeaders):
-    """Test DSP0218 RDE Operation Kill Request"""
+    """ Test DSP0218 RDE Operation Kill request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RDEOperationKill_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -334,7 +334,7 @@ def test_RDEOperationKill(testFixture, lowerLayerHeaders):
 
 
 def test_RDEOperationEnumerate(testFixture, lowerLayerHeaders):
-    """Test DSP0218 RDE Operation Enumerate Request"""
+    """ Test DSP0218 RDE Operation Enumerate request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RDEOperationEnumerate_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -350,4 +350,3 @@ def test_RDEOperationEnumerate(testFixture, lowerLayerHeaders):
         assert (RecvPacket[RDEOperationEnumerate_Response].Resources.OperationType <= 6)
 
     return RecvPacket
-

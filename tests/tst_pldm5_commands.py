@@ -46,7 +46,7 @@ from pldm.type5 import (
 
 
 def VerifyCommonFields(RecvPacket, SendPacket):
-    """Validate PLDM fields"""
+    """ Validate PLDM header fields """
 
     ### TODO: Implement
     pass
@@ -54,7 +54,7 @@ def VerifyCommonFields(RecvPacket, SendPacket):
 
 
 def test_QueryDeviceIdentifiers(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Query Device Identifiers request"""
+    """ Test DSP0248 Query Device Identifiers request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / QueryDeviceIdentifiers_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -70,7 +70,7 @@ def test_QueryDeviceIdentifiers(testFixture, lowerLayerHeaders):
 
 
 def test_GetFirmwareParameters(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get Firmware Parameters request"""
+    """ Test DSP0248 Get Firmware Parameters request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetFirmwareParameters_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -91,7 +91,7 @@ def test_GetFirmwareParameters(testFixture, lowerLayerHeaders):
 
 
 def test_QueryDownstreamDevices(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Query Downstream Devices request"""
+    """ Test DSP0248 Query Downstream Devices request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / QueryDownstreamDevices_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -110,7 +110,7 @@ def test_QueryDownstreamDevices(testFixture, lowerLayerHeaders):
 
 
 def test_QueryDownstreamIdentifiers(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Query Downstream Identifiers request"""
+    """ Test DSP0248 Query Downstream Identifiers request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / QueryDownstreamIdentifiers_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -127,7 +127,7 @@ def test_QueryDownstreamIdentifiers(testFixture, lowerLayerHeaders):
 
 
 def test_GetDownstreamFirmwareParameters(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get Downstream Firmware Parameters request"""
+    """ Test DSP0248 Get Downstream Firmware Parameters request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetDownstreamFirmwareParameters_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -148,7 +148,7 @@ def test_GetDownstreamFirmwareParameters(testFixture, lowerLayerHeaders):
 
 
 def test_RequestUpdate(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Request Update request"""
+    """ Test DSP0248 Request Update request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RequestUpdate_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -165,7 +165,7 @@ def test_RequestUpdate(testFixture, lowerLayerHeaders):
 
 
 def test_GetDeviceMetaData(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get Device Meta Data request"""
+    """ Test DSP0248 Get Device Meta Data request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetDeviceMetaData_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -182,7 +182,7 @@ def test_GetDeviceMetaData(testFixture, lowerLayerHeaders):
 
 
 def test_PassComponentTable(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Pass Component Table request"""
+    """ Test DSP0248 Pass Component Table request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / PassComponentTable_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -200,7 +200,7 @@ def test_PassComponentTable(testFixture, lowerLayerHeaders):
 
 
 def test_UpdateComponent(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Update Component request"""
+    """ Test DSP0248 Update Component request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / UpdateComponent_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -220,7 +220,7 @@ def test_UpdateComponent(testFixture, lowerLayerHeaders):
 
 
 def test_ActivateFirmware(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Activate Firmware request"""
+    """ Test DSP0248 Activate Firmware request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / ActivateFirmware_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -236,7 +236,7 @@ def test_ActivateFirmware(testFixture, lowerLayerHeaders):
 
 
 def test_GetStatus(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Get Get Status request"""
+    """ Test DSP0248 Get Get Status request """
 
     # Assemble the full PLDM request packet
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetStatus_Request()
@@ -256,7 +256,7 @@ def test_GetStatus(testFixture, lowerLayerHeaders):
 
 
 def test_CancelUpdateComponent(testFixture, lowerLayerHeaders):
-    """Test DSP0248 CancelUpdateComponent request"""
+    """ Test DSP0248 CancelUpdateComponent request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / CancelUpdateComponent_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -273,7 +273,7 @@ def test_CancelUpdateComponent(testFixture, lowerLayerHeaders):
 
 
 def test_CancelUpdate(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Cancel Update request"""
+    """ Test DSP0248 Cancel Update request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / CancelUpdate_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -290,7 +290,7 @@ def test_CancelUpdate(testFixture, lowerLayerHeaders):
 
 
 def test_ActivatePendingComponentImageSet(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Activate Pending Component Image Set request"""
+    """ Test DSP0248 Activate Pending Component Image Set request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / ActivatePendingComponentImageSet_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -306,7 +306,7 @@ def test_ActivatePendingComponentImageSet(testFixture, lowerLayerHeaders):
 
 
 def test_ActivatePendingComponentImage(testFixture, lowerLayerHeaders):
-    """Test DSP0248 ActivatePendingComponentImage request"""
+    """ Test DSP0248 ActivatePendingComponentImage request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / ActivatePendingComponentImage_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
@@ -322,7 +322,7 @@ def test_ActivatePendingComponentImage(testFixture, lowerLayerHeaders):
 
 
 def test_RequestDownstreamDeviceUpdate(testFixture, lowerLayerHeaders):
-    """Test DSP0248 Request Downstream Device Update request"""
+    """ Test DSP0248 Request Downstream Device Update request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RequestDownstreamDeviceUpdate_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()

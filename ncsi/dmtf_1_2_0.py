@@ -2780,7 +2780,7 @@ class GetInventoryInformation_Response(NCSI_PAYLOAD):
 
 
 # DSP0222 -  Table 258
-class GetPackageUUID_Request(NCSI_PAYLOAD):  # TODO to check
+class GetPackageUUID_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Package UUID Request"""
 
     name = "Get Package UUID Request"
@@ -2792,7 +2792,7 @@ class GetPackageUUID_Request(NCSI_PAYLOAD):  # TODO to check
 
 
 # DSP0222 -  Table 259
-class GetPackageUUID_Response(NCSI_PAYLOAD):  # TODO to check
+class GetPackageUUID_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Package UUID Response"""
 
     name = "Get Package UUID Response"
@@ -2932,7 +2932,7 @@ class TransportSpecificAENEnable_Response(NCSI_PAYLOAD):
 
 
 # DSP0222 -  Table 250
-class SendNCPLDMReply_Request(NCSI_PAYLOAD):  # TODO to check
+class SendNCPLDMReply_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Send NC PLDM Reply Request"""
 
     name = "Send NC PLDM Reply Request"
@@ -2951,7 +2951,7 @@ class SendNCPLDMReply_Request(NCSI_PAYLOAD):  # TODO to check
 
 
 # DSP0222 -  Table 251
-class SendNCPLDMReply_Response(NCSI_PAYLOAD):  # TODO to check
+class SendNCPLDMReply_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Send NC PLDM Reply Response"""
 
     name = "Send NC PLDM Reply Response"

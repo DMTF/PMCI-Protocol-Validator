@@ -1,1 +1,4 @@
-__all__ = ["binding", "dmtf"]
+__all__ = [
+    "binding",
+    "dmtf"
+]
