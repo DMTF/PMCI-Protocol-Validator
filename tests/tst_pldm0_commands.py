@@ -25,26 +25,19 @@ from pldm.type0 import (
 )
 
 
-def VerifyCommonFields(RecvPacket, SendPacket):
-    """ Validate PLDM header fields """
-
-    ### TODO: Implement
-    pass
-
-
-def test_SetTID(testFixture, lowerLayerHeaders):
+def test_SetTID(testFixture, lowerLayerHeaders, TID=0):
     """ Test DSP0240 SetTID request """
 
     # Assemble the full PLDM request packet
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SetTID_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
-    SendPacket[SetTID_Request].TID = 5
+    SendPacket[SetTID_Request].TID = TID
 
     # Send the request and wait for the response
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
     # Validate fields
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == SetTID_Response.CommandValue)
     assert (RecvPacket[SetTID_Response].CompletionCode == 0x00)
@@ -61,7 +54,7 @@ def test_GetTID(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetTID_Response.CommandValue)
     assert (RecvPacket[GetTID_Response].CompletionCode == 0x00)
@@ -79,7 +72,7 @@ def test_GetPldmVersion(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetPldmVersion_Response.CommandValue)
     assert (RecvPacket[GetPldmVersion_Response].CompletionCode == 0x00)
@@ -96,7 +89,7 @@ def test_GetPldmTypes(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetPldmTypes_Response.CommandValue)
     assert (RecvPacket[GetPldmTypes_Response].CompletionCode == 0x00)
@@ -104,7 +97,7 @@ def test_GetPldmTypes(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetPldmCommands(testFixture, lowerLayerHeaders, requestVersion=0xF1F1F000):
+def test_GetPldmCommands(testFixture, lowerLayerHeaders, pldmType=0, requestVersion=0xF1F1F000):
     """ Test DSP0240 PLDM Get PLDM Commands request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPldmCommands_Request()
@@ -114,7 +107,7 @@ def test_GetPldmCommands(testFixture, lowerLayerHeaders, requestVersion=0xF1F1F0
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetPldmCommands_Response.CommandValue)
     assert (RecvPacket[GetPldmCommands_Response].CompletionCode == 0x00)
@@ -122,17 +115,17 @@ def test_GetPldmCommands(testFixture, lowerLayerHeaders, requestVersion=0xF1F1F0
     return RecvPacket
 
 
-def test_SelectPLDMVersion(testFixture, lowerLayerHeaders, requestVersion=0xF1F1F000):
+def test_SelectPLDMVersion(testFixture, lowerLayerHeaders, pldmType=0, requestVersion=0xF1F1F000):
     """ Test DSP0240 Select PLDM Version request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SelectPLDMVersion_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
-    SendPacket[SelectPLDMVersion_Request].PldmType = 0
+    SendPacket[SelectPLDMVersion_Request].PldmType = pldmType
     SendPacket[SelectPLDMVersion_Request].Version = requestVersion
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetPldmCommands_Response.CommandValue)
     assert (RecvPacket[SelectPLDMVersion_Response].CompletionCode == 0x00)

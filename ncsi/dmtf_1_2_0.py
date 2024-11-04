@@ -125,6 +125,36 @@ class GetNcCapabilitiesSettings_Response(NCSI_PAYLOAD):
     ]
 
 
+# DSP0222 - Table 116
+class SetNcConfiguration_Request(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Set NC Configuration Request"""
+
+    name = "Set NC Configuration Request"
+    CommandValue = 0x26
+
+    fields_desc = [
+        ByteField("EnablePorts", 0),
+        ByteField("EnablePCIeEndpoints", 0),
+        ByteField("EnablePFs", 0),
+        ByteField("Reserved", 0),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
+# DSP0222 - Table 117
+class SetNcConfiguration_Response(NCSI_PAYLOAD):
+    """DSP0222 v1.2.0 Set NC Configuration Response"""
+
+    name = "Set NC Configuration Response"
+    CommandValue = SetNcConfiguration_Request.CommandValue | 0x80
+
+    fields_desc = [
+        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
+        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
+        NcsiReversePadField(XIntField("Checksum", None), 4)
+    ]
+
+
 # DSP0222 - Table 118
 class GetPfAssignment_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get PF Assignment Request"""

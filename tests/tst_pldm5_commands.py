@@ -45,14 +45,6 @@ from pldm.type5 import (
 )
 
 
-def VerifyCommonFields(RecvPacket, SendPacket):
-    """ Validate PLDM header fields """
-
-    ### TODO: Implement
-    pass
-    return
-
-
 def test_QueryDeviceIdentifiers(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Query Device Identifiers request """
 
@@ -61,7 +53,7 @@ def test_QueryDeviceIdentifiers(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == QueryDeviceIdentifiers_Response.CommandValue)
     assert (RecvPacket[QueryDeviceIdentifiers_Response].CompletionCode == 0x00)
@@ -77,7 +69,7 @@ def test_GetFirmwareParameters(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetFirmwareParameters_Response.CommandValue)
     assert (RecvPacket[GetFirmwareParameters_Response].CompletionCode == 0x00)
@@ -98,7 +90,7 @@ def test_QueryDownstreamDevices(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == QueryDownstreamDevices_Response.CommandValue)
     assert (RecvPacket[QueryDownstreamDevices_Response].CompletionCode == 0x00)
@@ -117,7 +109,7 @@ def test_QueryDownstreamIdentifiers(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == QueryDownstreamIdentifiers_Response.CommandValue)
     assert (RecvPacket[QueryDownstreamIdentifiers_Response].CompletionCode == 0x00)
@@ -134,7 +126,7 @@ def test_GetDownstreamFirmwareParameters(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetDownstreamFirmwareParameters_Response.CommandValue)
     assert (RecvPacket[GetDownstreamFirmwareParameters_Response].CompletionCode == 0x00)
@@ -155,7 +147,7 @@ def test_RequestUpdate(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == RequestUpdate_Response.CommandValue)
     assert (RecvPacket[RequestUpdate_Response].CompletionCode == 0x00)
@@ -172,7 +164,7 @@ def test_GetDeviceMetaData(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetDeviceMetaData_Response.CommandValue)
     assert (RecvPacket[GetDeviceMetaData_Response].CompletionCode == 0x00)
@@ -189,7 +181,7 @@ def test_PassComponentTable(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == PassComponentTable_Response.CommandValue)
     assert (RecvPacket[PassComponentTable_Response].CompletionCode == 0x00)
@@ -207,7 +199,7 @@ def test_UpdateComponent(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == UpdateComponent_Response.CommandValue)
     assert (RecvPacket[UpdateComponent_Response].CompletionCode == 0x00)
@@ -227,7 +219,7 @@ def test_ActivateFirmware(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == ActivateFirmware_Response.CommandValue)
     assert (RecvPacket[ActivateFirmware_Response].CompletionCode == 0x00)
@@ -246,7 +238,7 @@ def test_GetStatus(testFixture, lowerLayerHeaders):
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
     # Validate header fields
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     # Validate response fields
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetStatus_Response.CommandValue)
@@ -263,7 +255,7 @@ def test_CancelUpdateComponent(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == CancelUpdateComponent_Response.CommandValue)
     assert (RecvPacket[CancelUpdateComponent_Response].CompletionCode == 0x80)  # ERROR not in update mode
@@ -280,7 +272,7 @@ def test_CancelUpdate(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == CancelUpdate_Response.CommandValue)
     assert (RecvPacket[CancelUpdate_Response].CompletionCode == 0x80)
@@ -297,7 +289,7 @@ def test_ActivatePendingComponentImageSet(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == ActivatePendingComponentImageSet_Response.CommandValue)
     assert (RecvPacket[ActivatePendingComponentImageSet_Response].CompletionCode == 0x00)
@@ -313,7 +305,7 @@ def test_ActivatePendingComponentImage(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == ActivatePendingComponentImage_Response.CommandValue)
     assert (RecvPacket[ActivatePendingComponentImage_Response].CompletionCode == 0x00)
@@ -329,7 +321,7 @@ def test_RequestDownstreamDeviceUpdate(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == RequestDownstreamDeviceUpdate_Response.CommandValue)
     assert (RecvPacket[RequestDownstreamDeviceUpdate_Response].CompletionCode == 0x00)

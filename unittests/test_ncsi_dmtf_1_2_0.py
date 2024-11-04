@@ -61,6 +61,35 @@ def test_GetNcCapabilitiesSettings_Response(class_type):
     return
 
 
+@pytest.mark.parametrize("class_type", SetNcConfiguration_Request())
+def test_SetNcConfiguration_Request(class_type):
+    """ Verify SetNcConfiguration_Request class structure and initialization """
+
+    assert (class_type.CommandValue == 0x26), "Incorrect command code"
+    assert (len(class_type.fields_desc) == 5), "Incorrect number of fields"
+
+    assert (class_type.EnablePorts == 0)
+    assert (class_type.EnablePCIeEndpoints == 0)
+    assert (class_type.EnablePFs == 0)
+    assert (class_type.Reserved == 0)
+
+    assert (class_type.Checksum is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", SetNcConfiguration_Response())
+def test_SetNcConfiguration_Response(class_type):
+    """Verify SetNcConfiguration_Response class structure and initialization"""
+
+    assert (class_type.CommandValue == SetNcConfiguration_Request.CommandValue | 0x80), "Incorrect command code"
+    assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
+
+    assert (class_type.ResponseCode == 0x00)
+    assert (class_type.ReasonCode == 0x00)
+    assert (class_type.Checksum is None)
+    return
+
+
 @pytest.mark.parametrize("class_type", GetPfAssignment_Request())
 def test_GetPfAssignment_Request(class_type):
     """Verify GetPfAssignment_Request initialization"""
@@ -129,16 +158,11 @@ def test_ChannelConfigurationEntry(class_type):
     return
 
 
-@pytest.mark.parametrize("class_type", GetChannelConfiguration_Response())
-def test_GetChannelConfiguration_Response(class_type):
-    """Verify GetChannelConfiguration_Response initialization"""
+@pytest.mark.parametrize("class_type", GetChannelConfiguration_Response.Data())
+def test_GetChannelConfigurationData(class_type):
+    """Verify Get Channel Configuration Response data structure"""
 
-    assert (class_type.CommandValue == GetChannelConfiguration_Request.CommandValue | 0x80), \
-        "Incorrect command code"
-    assert (len(class_type.fields_desc) == 13), "Incorrect number of fields"
-
-    assert (class_type.ResponseCode == 0x00)
-    assert (class_type.ReasonCode == 0x00)
+    assert (len(class_type.fields_desc) == 10), "Incorrect number of fields"
 
     assert (class_type.FabricType == 0)
     assert (class_type.SharedInterface == 0)
@@ -149,8 +173,20 @@ def test_GetChannelConfiguration_Response(class_type):
     assert (class_type.MaxMTU == 0)
     assert (class_type.Reserved_1 == 0)
     assert (class_type.NumEnabledPartitions is None)
-    assert (class_type.Bandwidth is not None)
+    return
 
+
+@pytest.mark.parametrize("class_type", GetChannelConfiguration_Response())
+def test_GetChannelConfiguration_Response(class_type):
+    """Verify Get Channel Configuration Response initialization"""
+
+    assert (class_type.CommandValue == GetChannelConfiguration_Request.CommandValue | 0x80), \
+        "Incorrect command code"
+
+    assert (len(class_type.fields_desc) == 4), "Incorrect number of fields"
+    assert (class_type.ResponseCode == 0x00)
+    assert (class_type.ReasonCode == 0x00)
+    assert (class_type.CfgData is not None)
     assert (class_type.Checksum is None)
     return
 
@@ -188,7 +224,7 @@ def test_SetChannelConfiguration_Response(class_type):
 
 @pytest.mark.parametrize("class_type", GetPartitionConfiguration_Request())
 def test_GetPartitionConfiguration_Request(class_type):
-    "Verify GetPartitionConfiguration_Request initialization"
+    """Verify GetPartitionConfiguration_Request initialization"""
 
     assert (class_type.CommandValue == 0x2B), "Incorrect command code"
     assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
@@ -201,7 +237,7 @@ def test_GetPartitionConfiguration_Request(class_type):
 
 @pytest.mark.parametrize("class_type", AddressTlvEntry())
 def test_AddressTlvEntry(class_type):
-    "Verify AddressTlvEntry initialization"
+    """Verify AddressTlvEntry initialization"""
 
     assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
     assert (class_type.AddressType == 0)
@@ -1079,49 +1115,6 @@ def test_GetTransceiverTemperature_Response(class_type):
     return
 
 
-@pytest.mark.parametrize("class_type", GetChannelConfiguration_Request())
-def test_GetChannelConfiguration_Request(class_type):
-    """Verify Get Channel Configuration Request initialization"""
-
-    assert (class_type.CommandValue == 0x29), "Incorrect command code"
-    assert (len(class_type.fields_desc) == 1), "Incorrect number of fields"
-    assert (class_type.Checksum is None)
-    return
-
-
-@pytest.mark.parametrize("class_type", GetChannelConfiguration_Response.Data())
-def test_GetChannelConfigurationData(class_type):
-    """Verify Get Channel Configuration Response data structure"""
-
-    assert (len(class_type.fields_desc) == 10), "Incorrect number of fields"
-
-    assert (class_type.FabricType == 0)
-    assert (class_type.SharedInterface == 0)
-    assert (class_type.Reserved_0 == 0)
-    assert (class_type.SFFcage == 0)
-    assert (class_type.BaseT == 0)
-    assert (class_type.Backplane == 0)
-    assert (class_type.MaxMTU == 0)
-    assert (class_type.Reserved_1 == 0)
-    assert (class_type.NumEnabledPartitions is None)
-    return
-
-
-@pytest.mark.parametrize("class_type", GetChannelConfiguration_Response())
-def test_GetChannelConfiguration_Response(class_type):
-    """Verify Get Channel Configuration Response initialization"""
-
-    assert (class_type.CommandValue == GetChannelConfiguration_Request.CommandValue | 0x80), \
-        "Incorrect command code"
-
-    assert (len(class_type.fields_desc) == 4), "Incorrect number of fields"
-    assert (class_type.ResponseCode == 0x00)
-    assert (class_type.ReasonCode == 0x00)
-    assert (class_type.CfgData is not None)
-    assert (class_type.Checksum is None)
-    return
-
-
 @pytest.mark.parametrize("class_type", GetModuleManagementData_Request())
 def test_GetModuleManagementData_Request(class_type):
     """Verify Get Module Management Data Request initialization"""
@@ -1212,20 +1205,3 @@ def test_SendNCPLDMReply_Response(class_type):
     assert (class_type.Flags == 0)
     assert (class_type.Checksum is None)
     return
-
-"""
-@pytest.mark.parametrize("class_type", TransportSpecificAENEnable_Request())
-def test_TransportSpecificAENEnable_Request(class_type):
-    ""Verify TransportSpecificAENEnable_Request initialization""
-
-    assert (class_type.CommandValue == 0x55), "Incorrect command code"
-    assert (len(class_type.fields_desc) == 6), "Incorrect number of fields"
-
-    assert (class_type.Reserved_0 == 0)
-    assert (class_type.Reserved_1 == 0)
-    assert (class_type.PendingSPDMRequestAEN == 0)
-    assert (class_type.PendingPLDMRequestAEN == 0)
-    assert (class_type.MediumChangeAENControl == 0)
-    assert (class_type.Checksum is None)
-    return
-"""

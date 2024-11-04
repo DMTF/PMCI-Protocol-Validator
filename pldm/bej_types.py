@@ -136,6 +136,7 @@ class BejString(Packet):
     def extract_padding(self, s):
         return ("", s)
 
+
 class BejResourceLink(Packet):
     fields_desc = [
         *bejTupleL,

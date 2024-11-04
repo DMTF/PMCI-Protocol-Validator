@@ -269,15 +269,18 @@ def test_SetLink_Request(class_type):
     """Verify SetLink_Request initialization"""
 
     assert (class_type.CommandValue == 0x09), "Incorrect command code"
-    assert (len(class_type.fields_desc) == 29), "Incorrect number of fields"
+    assert (len(class_type.fields_desc) == 32), "Incorrect number of fields"
 
     assert (class_type.SetLinkReserved_2 == 0)
     assert (class_type.ParallelDetect == 0)
     assert (class_type.LinkTraining == 0)
     assert (class_type.EnergyEfficientEthernet == 0)
+    assert (class_type.FecReserved == 0)
+    assert (class_type.FecRS_FEC == 0)
+    assert (class_type.FecBASE_R_FEC == 0)
 
-    assert (class_type.FecAlgorithm == 0)
-    assert (class_type.ModulationScheme == 0)
+    assert (class_type.Enable_PAM_4 == 0)
+    assert (class_type.Enable_NRZ == 0)
     assert (class_type.SetLinkReserved_1 == 0)
     assert (class_type.Enable800Gbps == 0)
     assert (class_type.Enable400Gbps == 0)
@@ -289,7 +292,7 @@ def test_SetLink_Request(class_type):
     assert (class_type.Enable50Gbps == 0)
     assert (class_type.EnableOEM == 0)
     assert (class_type.EnableAsymmetricPause == 0)
-    assert (class_type.EnablePause == 0)
+    assert (class_type.PauseCapability == 0)
     assert (class_type.EnableFullDuplex == 0)
     assert (class_type.EnableHalfDuplex == 0)
 
@@ -303,6 +306,7 @@ def test_SetLink_Request(class_type):
     assert (class_type.AutoNegotiation == 0)
 
     assert (class_type.OEM_Settings == 0)
+    assert (class_type.Checksum is None)
     return
 
 

@@ -23,6 +23,7 @@ from pldm.dmtf import (
 
 DSP0240_COMPLIANCE_VERSION = int.from_bytes([1, 1, 0, 0], 'big')
 
+
 class PLDM_TYPE_0_PAYLOAD(PLDM_PAYLOAD):
     name = "PLDM Payload"
     PldmPayloadType = 0x00
@@ -133,15 +134,16 @@ class GetPldmVersion_Response(PLDM_TYPE_0_PAYLOAD):
         Packet.__init__(self, _pkt, *args, **kwargs)
 
     def addChecksum(self, pkt):
-        """tack on checksum to end of packet
-        TODO: verify this is the right checksum algorithm
+        """
+        Append checksum to end of packet
         """
         chkSumVal = checksum(pkt[:-4])
         chksum = struct.pack("!i", chkSumVal)
         return pkt[:-4] + chksum
 
     def do_build(self):
-        """overridden to know how many version fields
+        """
+        Overridden to know how many version fields
         there are, and stored in instance variable
         """
         self.NumVersions = len(self.Version)
@@ -150,7 +152,7 @@ class GetPldmVersion_Response(PLDM_TYPE_0_PAYLOAD):
         return pkt
 
     def pre_dissect(self, s):
-        """need to calculate the # of versions in the payload"""
+        """ Need to calculate the # of versions in the payload """
         self.NumVersions = (len(s) - 10) / 4
         return super().pre_dissect(s)
 
@@ -251,7 +253,7 @@ class GetPldmCommands_Response(PLDM_TYPE_0_PAYLOAD):
             fields_desc.append(BitField("Command_{}".format(i + cmd * 8), 0, 1))
 
 
-# Added new PLDM0 commands from DSP0240 ver. 1.1.0
+# Added new PLDM commands from DSP0240 ver. 1.1.0
 
 class SelectPLDMVersion_Request(PLDM_TYPE_0_PAYLOAD):
     name = "Select PLDM Version Request"

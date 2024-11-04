@@ -203,7 +203,7 @@ class NcsiPldm_Request(NCSI_PAYLOAD):
 
         chksum = struct.pack("!I", complementedChecksum)
 
-        while False and len(pay) % 4 > 0:  # Add padding
+        while len(pay) % 4 > 0:  # Add padding
             pay = pay + b"\x00"
 
         retPkt = (
@@ -246,7 +246,7 @@ class NcsiPldm_Request(NCSI_PAYLOAD):
         return s[:-4], s[-4:]  # last 4 bytes are Checksum
 
 
-class NcsiPldm_Response(NCSI_PLDM_PAYLOAD):
+class NcsiPldm_Response(NCSI_PAYLOAD):
     """The NC-IS PLDM payload Response class,
     all of the work is done in the parent class,
     this one is for registration with NC-SI header
@@ -317,3 +317,4 @@ register_pldm_over_ncsi(QueryPendingNcPldm_Response)
 
 bind_layers(NCSI_PLDM_PAYLOAD, PLDM_HEADER)
 bind_layers(NcsiPldm_Request, PLDM_HEADER)
+bind_layers(NcsiPldm_Response, PLDM_HEADER)
