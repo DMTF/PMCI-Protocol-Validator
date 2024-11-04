@@ -4,7 +4,7 @@
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
 #  File Abstract:
-#  DSP0280 implementation definitions.
+#  DSP0280 v1.1.0 implementation definitions.
 ##############################################################################
 
 from scapy.fields import *
@@ -12,8 +12,8 @@ from scapy.packet import Packet
 
 
 # DSP0280 - Section 2.1.5
-DSP0280_COMPLIANCE_VERSION = int.from_bytes([1, 0, 0, 0], 'big')
-VERSION_COMPLIANCE = 0x10   # Compliant to spec DSP0280 version 1.0
+DSP0280_COMPLIANCE_VERSION = int.from_bytes([1, 1, 0, 0], 'big')
+VERSION_COMPLIANCE = 0x11   # Compliant to spec DSP0280 version 1.0
 
 # DSP0280 - Section 10.1.1.1 and DSP0239 - Section 5
 PROTOCOL_TYPE = {
@@ -85,14 +85,14 @@ def register_ptti_handler(cls, protocol=0xFF):
 
 
 class TestServiceWrapper(Packet):
-    """DSP0280 - Section 10.1.1 Test Service Wrapper"""
+    """DSP0280 v1.1.0 Test Service Wrapper"""
 
     __test__ = False    # pytest: ignore class
     name = "PTTI Test Service Wrapper"
 
     fields_desc = [
         XByteField("Version", VERSION_COMPLIANCE),
-        XByteEnumField("ProtocolType", 0x00, PROTOCOL_TYPE),
+        XByteEnumField("ProtocolType", 0xFF, PROTOCOL_TYPE),
         BitField("Reserved_0", 0x00, 6),
         BitEnumField(
             "Direction",
@@ -106,7 +106,9 @@ class TestServiceWrapper(Packet):
             },
         ),
         BitField("Reserved_1", 0x00, 8),
-        XLEIntField("TestClientID", 0x00000000)
+        XLEIntField("TestClientID", 0x00000000),
+        LEShortField("TransferLength", 0x0000),
+        NBytesField("Reserved_3", 0, 6)
     ]
 
     def guess_payload_class(self, payload):
@@ -131,6 +133,11 @@ class TestServiceWrapper(Packet):
                 return TestMessage_Response
 
         return None
+
+    def post_build(self, p, pay):
+        """ Insert the payload length in the TSW """
+
+        return p[:8] + struct.pack("<H", len(pay)) + p[10:] + pay
 
 
 class Connect_Request(Packet):

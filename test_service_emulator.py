@@ -223,7 +223,6 @@ class c_TestServiceBase():
                     if rsp_packet != None:
                         tsw_rsp = TestServiceWrapper()
 
-                        tsw_rsp.Version = 0x10
                         tsw_rsp.ProtocolType = rsp_proto_type
                         tsw_rsp.Direction = 1
                         tsw_rsp.TestClientID = tsw_req.TestClientID
