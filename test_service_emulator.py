@@ -19,12 +19,14 @@ CONNECTION_PORT = 49155
 ERROR_OEM_INVALID_PARAMETER = 0xF0
 ERROR_OEM_UNSUPPORTED = 0xF1
 
-#
-# This class implements the minimum functionality for a Test Service.
-# It provides valid -though not meaningful- responses for all protocol
-# messages defined in DSP0280 version 1.0.
+
 class c_TestServiceBase():
-    """ Example DSP0280 Test Server Application """
+    """
+    Example DSP0280 Test Server Application.
+    This class implements the minimum functionality for a Test Service.
+    It provides valid -though not meaningful- responses for all protocol
+    messages defined in DSP0280 version 1.1.0.
+   """
 
     def __init__(self):
         """ c_TestServiceBase class constructor """
@@ -47,25 +49,34 @@ class c_TestServiceBase():
 
         return
 
-    def _socket_recv_ex(self, socket, read_size):
-        """ Custom socket read function """
+    def _socket_recv_msg(self):
+        """ Method to receive a full PTTI message from the Test Client """
 
-        try:    # TODO Add additional error handling
-            _chunk = socket.recv(read_size)
-            return ((len(_chunk) > 0), _chunk)
+        try:
+            # Read packet header
+            _chunk = self._client_socket.recv(16)
+            if len(_chunk) >= 16:
+
+                # Read the remainder of the packet
+                _len = int.from_bytes(_chunk[8:9], byteorder='little')
+                _chunk = _chunk + self._client_socket.recv(_len)
+
+                # Return message
+                return ((len(_chunk) > 0), _chunk)
+
         except:
             pass
 
         return (False, None)
 
     def log(self, message):
-        """Local log function"""
+        """Local message logging function"""
 
         print(message)
         return
 
     def _Connect(self, request):
-        """DSP0280 section 10.2.2 Connect message"""
+        """ DSP0280 section 10.2.2 Connect message """
 
         if request.SecurityParameterLength > 0:
             self._session_connected = True
@@ -103,7 +114,7 @@ class c_TestServiceBase():
     def _QuerySystemInventory(self):
         """ DSP0280 section 10.2.6 Query System Inventory """
 
-        response =  QuerySystemInventory_Response()
+        response = QuerySystemInventory_Response()
         response.SystemInventory = "{ ""SchemaDefinition"": ""SystemInventory.v1_0_0"" }"
         return response
 
@@ -120,7 +131,7 @@ class c_TestServiceBase():
         return RegisterToProtocol_Response(DUTConnectionID=conn_id)
 
     def _RegisterAsyncMessageRecipient(self, conn_id):
-        """DSP0280 section 10.2.11 Register Async Message Recipient """
+        """ DSP0280 section 10.2.11 Register Async Message Recipient """
         return RegisterAsyncMessageRecipient_Response(DUTConnectionID=conn_id)
 
     def _LogEvent(self, request):
@@ -200,7 +211,7 @@ class c_TestServiceBase():
 
             # Process session requests
             while 1:
-                (rc, req_raw_data) = self._socket_recv_ex(self._client_socket, 255)
+                (rc, req_raw_data) = self._socket_recv_msg()
 
                 if rc == True:
                     tsw_req = TestServiceWrapper(req_raw_data)
