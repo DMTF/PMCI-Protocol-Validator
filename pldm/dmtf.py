@@ -307,7 +307,8 @@ COMPONENT_CLASSIFICATION_VALUES.update(
 
 
 def register_pldm_class(cls):
-    """helper to register a PLDM_PAYLOAD class. If the name of the
+    """
+    Helper to register a PLDM_PAYLOAD class. If the name of the
     class has '_Request' in it then it will be registered as a Request
     else as a Response
     """
@@ -332,11 +333,13 @@ def register_pldm_class(cls):
 
     DMTF_PLDM_COMMANDS[key] = cls
 
-    ## quick check to make sure it is a valid packet
+    # Quick check to make sure it is a valid packet
     validateRegisteredClass(cls)
 
 
 class PLDM_HEADER(Packet):
+    """ PLDM Header """
+
     PayloadType = 0x01  # PLDM over MCTP, used for PLDM over MCTP binding
 
     name = "PLDM Header"
@@ -351,7 +354,8 @@ class PLDM_HEADER(Packet):
     ]
 
     def _updateCommandAndRq(self, pkt):
-        """the Some of the fields in the MCTP Control header need to be filled
+        """
+        Some of the fields in the MCTP Control header need to be filled
         out based upon the information that comes from the payload
         such as if it is a request, Payload Type and the command
         """
@@ -385,7 +389,8 @@ class PLDM_HEADER(Packet):
         return pkt
 
     def guess_payload_class(self, payload):
-        """not 1 key to differentiate payloads, so this routine
+        """
+        Not 1 key to differentiate payloads, so this routine
         is called to make more complicted determination
         """
         # can make a unique key with request bit, pldm type and command code
@@ -401,9 +406,9 @@ class PLDM_HEADER(Packet):
             pass
 
     def post_build(self, pkt, pay):
-        """called by SCAPY framework, this is where
-        I get the command from the payload and put
-        into the header
+        """
+        Called by SCAPY framework, this is where I get the command from
+        the payload and put into the header
         """
         if self.payload.name != "NoPayload":
             pkt = self._updateCommandAndRq(pkt)
@@ -427,7 +432,7 @@ class PLDM_HEADER(Packet):
 
 
 class PLDM_PAYLOAD(Packet):
-    """base class for PLDM Payloads """
+    """ Base class for PLDM Payloads """
 
     name = "PLDM Payload"
     MctpPayloadType = 0x01
@@ -440,7 +445,7 @@ class PLDM_PAYLOAD(Packet):
 
 
 class PLDM_UUID(Packet):
-    """this is the PLDM V1.0 format, per DSP0240"""
+    """ UUID in the PLDM V1.0 format, per DSP0240 """
 
     name = "UUID"
     UUID_NODE_LEN = 6
@@ -463,6 +468,8 @@ class PLDM_UUID(Packet):
 
 
 class VAR_STRING(Packet):
+    """ Var String class """
+
     name = "Var String"
 
     fields_desc = [
@@ -471,14 +478,12 @@ class VAR_STRING(Packet):
         StrLenField("stringData", b"", length_from=lambda pkt: pkt.stringLengthBytes),
     ]
 
-   # this has no padding, but may have something following it
-   # (like an array of things, so override behavior)
     def extract_padding(self, s):
         return ("", s, )
 
 
 class PLDM_TIMESTAMP104(Packet):
-    """this is the PLDM V1.0 format, per DSP0240"""
+    """ PLDM Timestamp class in the PLDM V1.0 format, per DSP0240 """
 
     name = "Timestamp104"
 
@@ -494,7 +499,5 @@ class PLDM_TIMESTAMP104(Packet):
         ByteField("Resolution", 0x00),  # change to bitfield
     ]
 
-    # this has no padding, but may have something following it
-    # (like an array of things, so override behavior)
     def extract_padding(self, s):
         return ("", s,)

@@ -12,14 +12,6 @@ from pldm.type2 import *
 from pldm.pdrs import *
 
 
-def VerifyCommonFields(RecvPacket, SendPacket):
-    """ Validate PLDM fields """
-
-    ### TODO: Implement
-    pass
-    return
-
-
 def test_GetPDRRepositoryInfo(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Get PDR Repository Info request """
 
@@ -31,7 +23,7 @@ def test_GetPDRRepositoryInfo(testFixture, lowerLayerHeaders):
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
     # Validate header fields
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     # Validate response fields
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetPDRRepositoryInfo_Response.CommandValue)
@@ -51,7 +43,7 @@ def test_GetPDRRepositorySignature(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetPDRRepositorySignature_Response.CommandValue)
     assert (RecvPacket[GetPDRRepositorySignature_Response].CompletionCode == 0x00)
@@ -68,7 +60,7 @@ def test_GetTerminusUID(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetTerminusUID_Request.CommandValue)
     assert (RecvPacket[GetTerminusUID_Response].CompletionCode == 0)
@@ -84,7 +76,7 @@ def test_SetEventReceiver(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == SetEventReceiver_Request.CommandValue)
     assert (RecvPacket[SetEventReceiver_Response].CompletionCode == 0)
@@ -100,7 +92,7 @@ def test_GetEventReceiver(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetEventReceiver_Request.CommandValue)
     assert (RecvPacket[GetEventReceiver_Response].CompletionCode == 0)
@@ -116,7 +108,7 @@ def test_PlatformEventMessage(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == PlatformEventMessage_Request.CommandValue)
     assert (RecvPacket[PlatformEventMessage_Response].CompletionCode == 0)
@@ -133,7 +125,7 @@ def test_PollForPlatformEventMessage(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == PollForPlatformEventMessage_Request.CommandValue)
     assert (RecvPacket[PollForPlatformEventMessage_Response].CompletionCode == 0)
@@ -151,7 +143,7 @@ def test_EventMessageSupported(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == EventMessageSupported_Request.CommandValue)
     assert (RecvPacket[EventMessageSupported_Response].CompletionCode == 0)
@@ -170,7 +162,7 @@ def test_EventMessageBufferSize(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == EventMessageBufferSize_Request.CommandValue)
     assert (RecvPacket[EventMessageBufferSize_Response].CompletionCode == 0)
@@ -186,7 +178,7 @@ def test_SetNumericSensorEnable(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == SetNumericSensorEnable_Request.CommandValue)
     assert (RecvPacket[SetNumericSensorEnable_Response].CompletionCode == 0)
@@ -202,7 +194,7 @@ def test_GetSensorReading(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetSensorReading_Request.CommandValue)
     assert (RecvPacket[GetSensorReading_Response].CompletionCode == 0)
@@ -225,7 +217,7 @@ def test_GetSensorThresholds(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetSensorThresholds_Request.CommandValue)
     assert (RecvPacket[GetSensorThresholds_Response].CompletionCode == 0)
@@ -242,7 +234,7 @@ def test_SetSensorThresholds(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == SetSensorThresholds_Request.CommandValue)
     assert (RecvPacket[SetSensorThresholds_Response].CompletionCode == 0)
@@ -258,7 +250,7 @@ def test_RestoreSensorThresholds(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == RestoreSensorThresholds_Request.CommandValue)
     assert (RecvPacket[RestoreSensorThresholds_Response].CompletionCode == 0)
@@ -274,7 +266,7 @@ def test_GetSensorHysteresis(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetSensorHysteresis_Request.CommandValue)
     assert (RecvPacket[GetSensorHysteresis_Response].CompletionCode == 0)
@@ -291,7 +283,7 @@ def test_SetSensorHysteresis(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == SetSensorHysteresis_Request.CommandValue)
     assert (RecvPacket[SetSensorHysteresis_Response].CompletionCode == 0)
@@ -307,7 +299,7 @@ def test_InitNumericSensor_Request(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == InitNumericSensor_Request.CommandValue)
     assert (RecvPacket[InitNumericSensor_Response].CompletionCode == 0)
@@ -323,7 +315,7 @@ def test_SetStateSensorEnables_Request(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == SetStateSensorEnables_Request.CommandValue)
     assert (RecvPacket[SetStateSensorEnables_Response].CompletionCode == 0)
@@ -339,7 +331,7 @@ def test_GetStateSensorReadings(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetStateSensorReadings_Request.CommandValue)
     assert (RecvPacket[GetStateSensorReadings_Response].CompletionCode == 0)
@@ -358,7 +350,7 @@ def test_InitStateSensor(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == InitStateSensor_Request.CommandValue)
     assert (RecvPacket[InitStateSensor_Response].CompletionCode == 0)
@@ -374,7 +366,7 @@ def test_SetNumericEffecterEnable(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == SetNumericEffecterEnable_Request.CommandValue)
     assert (RecvPacket[SetNumericEffecterEnable_Response].CompletionCode == 0)
@@ -390,7 +382,7 @@ def test_SetNumericEffecterValue(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == SetNumericEffecterValue_Request.CommandValue)
     assert (RecvPacket[SetNumericEffecterValue_Response].CompletionCode == 0)
@@ -406,7 +398,7 @@ def test_GetNumericEffecterValue(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetNumericEffecterValue_Request.CommandValue)
     assert (RecvPacket[GetNumericEffecterValue_Response].CompletionCode == 0)
@@ -424,7 +416,7 @@ def test_SetStateEffecterEnables_Request(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == SetStateEffecterEnables_Request.CommandValue)
     assert (RecvPacket[SetStateEffecterEnables_Response].CompletionCode == 0)
@@ -440,7 +432,7 @@ def test_SetStateEffecterStates(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == SetStateEffecterStates_Request.CommandValue)
     assert (RecvPacket[SetStateEffecterStates_Response].CompletionCode == 0)
@@ -456,7 +448,7 @@ def test_GetStateEffecterStates(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetStateEffecterStates_Request.CommandValue)
     assert (RecvPacket[GetStateEffecterStates_Response].CompletionCode == 0)
@@ -474,7 +466,7 @@ def test_GetPLDMEventLogInfo(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetPLDMEventLogInfo_Request.CommandValue)
     assert (RecvPacket[GetPLDMEventLogInfo_Response].CompletionCode == 0)
@@ -492,7 +484,7 @@ def test_EnablePLDMEventLogging(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == EnablePLDMEventLogging_Request.CommandValue)
     assert (RecvPacket[EnablePLDMEventLogging_Response].CompletionCode == 0)
@@ -509,7 +501,7 @@ def test_ClearPLDMEventLog(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == ClearPLDMEventLog_Request.CommandValue)
     assert (RecvPacket[ClearPLDMEventLog_Response].CompletionCode == 0)
@@ -526,7 +518,7 @@ def test_GetPLDMEventLogTimestamp(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetPLDMEventLogTimestamp_Request.CommandValue)
     assert (RecvPacket[GetPLDMEventLogTimestamp_Response].CompletionCode == 0)
@@ -542,7 +534,7 @@ def test_SetPLDMEventLogTimestamp(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == SetPLDMEventLogTimestamp_Request.CommandValue)
     assert (RecvPacket[SetPLDMEventLogTimestamp_Response].CompletionCode == 0)
@@ -558,7 +550,7 @@ def test_ReadPLDMEventLog(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == ReadPLDMEventLog_Request.CommandValue)
     assert (RecvPacket[ReadPLDMEventLog_Response].CompletionCode == 0)
@@ -575,7 +567,7 @@ def test_GetPLDMEventLogPolicyInfo(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetPLDMEventLogPolicyInfo_Request.CommandValue)
     assert (RecvPacket[GetPLDMEventLogPolicyInfo_Response].CompletionCode == 0)
@@ -592,7 +584,7 @@ def test_SetPLDMEventLogPolicy(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == SetPLDMEventLogPolicy_Request.CommandValue)
     assert (RecvPacket[SetPLDMEventLogPolicy_Response].CompletionCode == 0)
@@ -608,7 +600,7 @@ def test_FindPLDMEventLogEntry(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == FindPLDMEventLogEntry_Request.CommandValue)
     assert (RecvPacket[FindPLDMEventLogEntry_Response].CompletionCode == 0)
@@ -624,7 +616,7 @@ def test_GetPDR(testFixture, lowerLayerHeaders):
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
 
-    VerifyCommonFields(RecvPacket, SendPacket)
+    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
     assert (RecvPacket[PLDM_HEADER].CommandCode == GetPDR_Request.CommandValue)
     assert (RecvPacket[GetPDR_Response].CompletionCode == 0)

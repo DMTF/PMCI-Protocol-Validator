@@ -39,5 +39,5 @@ class c_PTTI_fixture(c_FixtureBase):
         assert (rsp_pkt[TestServiceWrapper].ProtocolType == req_pkt[TestServiceWrapper].ProtocolType), "Protocol mismatch"
         assert (rsp_pkt[TestServiceWrapper].Reserved_0 == 0), "Reserved field NOT zero"
         assert (rsp_pkt[TestServiceWrapper].Reserved_1 == 0), "Reserved field NOT zero"
-        assert (rsp_pkt[TestServiceWrapper].TestClientID == self.testClientID),  "Incorrect Test Client ID"
+        assert (rsp_pkt[TestServiceWrapper].TestClientID == self.testClientID), "Incorrect Test Client ID"
         return

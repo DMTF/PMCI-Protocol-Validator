@@ -616,19 +616,20 @@ class SetLink_Request(NCSI_PAYLOAD):
         # Link Settings
         # Byte 3
         BitField("SetLinkReserved_2", 0, 1),
-        BitEnumField("ParallelDetect", 0, 1, ENABLE_DISABLE),  # optional for NC-SI 1.2
-        BitEnumField("LinkTraining", 0, 1, ENABLE_DISABLE),  # optional for NC-SI 1.2
-        BitEnumField(
-            "EnergyEfficientEthernet", 0, 1, ENABLE_DISABLE
-        ),  # optional for NC-SI 1.2
+        BitEnumField("ParallelDetect", 0, 1, ENABLE_DISABLE),  # NC-SI 1.2
+        BitEnumField("LinkTraining", 0, 1, ENABLE_DISABLE),    # NC-SI 1.2
+        BitEnumField("EnergyEfficientEthernet", 0, 1, ENABLE_DISABLE),  # NC-SI 1.2
+        BitField("FecReserved", 0, 2),    # NC-SI 1.2
+        BitField("FecRS_FEC", 0, 1),      # NC-SI 1.2
+        BitField("FecBASE_R_FEC", 0, 1),  # NC-SI 1.2
 
-        # Byte 2
-        BitField("FecAlgorithm", 0, 4),  # optional for NC-SI 1.2
-        BitField("ModulationScheme", 0, 2),  # optional for NC-SI 1.2
+        #Byte 2
+        BitField("Enable_PAM_4", 0, 1),  # NC-SI 1.2
+        BitField("Enable_NRZ", 0, 1),    # NC-SI 1.2
         BitField("SetLinkReserved_1", 0, 2),
-        BitEnumField("Enable800Gbps", 0, 1, ENABLE_DISABLE),  # optional for NC-SI 1.2
-        BitEnumField("Enable400Gbps", 0, 1, ENABLE_DISABLE),  # optional for NC-SI 1.2
-        BitEnumField("Enable200Gbps", 0, 1, ENABLE_DISABLE),  # optional for NC-SI 1.2
+        BitEnumField("Enable800Gbps", 0, 1, ENABLE_DISABLE),  # NC-SI 1.2
+        BitEnumField("Enable400Gbps", 0, 1, ENABLE_DISABLE),  # NC-SI 1.2
+        BitEnumField("Enable200Gbps", 0, 1, ENABLE_DISABLE),  # NC-SI 1.2
         BitEnumField("Enable5Gbps", 0, 1, ENABLE_DISABLE),
 
         # Byte 1
@@ -637,7 +638,7 @@ class SetLink_Request(NCSI_PAYLOAD):
         BitEnumField("Enable50Gbps", 0, 1, ENABLE_DISABLE),
         BitEnumField("EnableOEM", 0, 1, ENABLE_DISABLE),
         BitEnumField("EnableAsymmetricPause", 0, 1, ENABLE_DISABLE),
-        BitEnumField("EnablePause", 0, 1, {0: "Enable", 1: "Disable"}),
+        BitEnumField("PauseCapability", 0, 1, {0: "Enable", 1: "Disable"}),
         BitEnumField("EnableFullDuplex", 0, 1, ENABLE_DISABLE),
         BitEnumField("EnableHalfDuplex", 0, 1, ENABLE_DISABLE),
 
