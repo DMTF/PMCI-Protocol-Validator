@@ -82,3 +82,17 @@ STATS_TYPE = {
     0x08: "RDMA",
     0x10: "IB"
 }
+CAPABLE_NOT_CAPABLE = {
+    0: "Not capable",
+    1: "Capable"
+}
+
+COMPLETE_NOT_COMPLETE = {
+    0: "Not complete",
+    1: "Complete"
+}
+
+VALID_NOT_VALID = {
+    0: "Not valid",
+    1: "Valid"
+}

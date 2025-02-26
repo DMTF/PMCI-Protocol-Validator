@@ -11,7 +11,7 @@ import pytest
 from scapy.fields import *  # pylint: disable=unused-import, unused-wildcard-import
 from ptti.dmtf import *  # pylint: disable=unused-import, unused-wildcard-import
 
-EXPECTED_VERSION_COMPLIANCE = 0x10
+EXPECTED_VERSION_COMPLIANCE = 0x11
 
 
 @pytest.mark.parametrize("class_type", TestServiceWrapper())
@@ -19,7 +19,7 @@ def test_TestServiceWrapper(class_type):
     """ Validate TestServiceWrapper class initialization """
 
     # Verify the class contains the required number and types of fields
-    assert (len(class_type.fields_desc) == 6)
+    assert (len(class_type.fields_desc) == 8)
 
     assert (isinstance(class_type.fields_desc[0], XByteField))      # Version
     assert (isinstance(class_type.fields_desc[1], XByteEnumField))  # ProtocolType
@@ -27,14 +27,18 @@ def test_TestServiceWrapper(class_type):
     assert (isinstance(class_type.fields_desc[3], BitEnumField))    # Direction
     assert (isinstance(class_type.fields_desc[4], BitField))        # Reserved_1
     assert (isinstance(class_type.fields_desc[5], XLEIntField))     # TestClientID
+    assert (isinstance(class_type.fields_desc[6], LEShortField))    # TransferLength
+    assert (isinstance(class_type.fields_desc[7], NBytesField))     # Reserved_3
 
     # Verify the class field names and initial values
     assert (class_type.Version == EXPECTED_VERSION_COMPLIANCE)
-    assert (class_type.ProtocolType == 0)
+    assert (class_type.ProtocolType == 0xFF)
     assert (class_type.Reserved_0 == 0)
     assert (class_type.Direction == 0)
     assert (class_type.Reserved_1 == 0)
     assert (class_type.TestClientID == 0)
+    assert (class_type.TransferLength == 0)
+    assert (class_type.Reserved_3 == 0)
     return
 
 
@@ -74,7 +78,7 @@ def test_Connect_Response(class_type):
 
     assert (class_type.CommandCode == 0)
     assert (class_type.ResponseCode == 0)
-    assert (class_type.TestServiceVersion == 0x10)
+    assert (class_type.TestServiceVersion == EXPECTED_VERSION_COMPLIANCE)
     assert (class_type.TestClientID == 0)
     return
 

@@ -121,7 +121,7 @@ class RecordDescriptor(Packet):
             lambda kt: kt.DescriptorType == 0x0002,
         ),
         ConditionalField(
-            LEX3BytesField(RecordDescriptorTypes[0x03], 0),
+            XLE3BytesField(RecordDescriptorTypes[0x03], 0),
             lambda kt: kt.DescriptorType == 0x0003,
         ),
         ConditionalField(
@@ -129,7 +129,7 @@ class RecordDescriptor(Packet):
             lambda kt: kt.DescriptorType == 0x0004,
         ),
         ConditionalField(
-            LEX3BytesField(RecordDescriptorTypes[0x05], 0),
+            XLE3BytesField(RecordDescriptorTypes[0x05], 0),
             lambda kt: kt.DescriptorType == 0x0005,
         ),
         ConditionalField(

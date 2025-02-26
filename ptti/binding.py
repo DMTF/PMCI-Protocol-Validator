@@ -1,5 +1,5 @@
 # Copyright Notice:
-# Copyright 2023-2024 DMTF. All rights reserved.
+# Copyright 2023-2025 DMTF. All rights reserved.
 # License: BSD 3-Clause License. For full text see link:
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
@@ -16,7 +16,7 @@ from ptti.dmtf import TestServiceWrapper
 
 
 class PTTIMedium(physicalMedium):
-    """ Socket connection to Test Server supporting DSP0280 specification """
+    """ Connection to Test Server supporting DSP0280 specification """
 
     DEFAULT_TIMEOUT = 2  # in seconds
 
@@ -24,10 +24,7 @@ class PTTIMedium(physicalMedium):
         """ Initialize PTTIMedium class and underlying base class """
 
         # Initialize the base class
-        super().__init__(self, self.DEFAULT_TIMEOUT)
-
-        # Initialize local variables
-        self.__ExceptionOcurred = None
+        super().__init__(self.DEFAULT_TIMEOUT)
 
         # Open the network connection
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -41,31 +38,26 @@ class PTTIMedium(physicalMedium):
         return
 
     def _close(self):
-        """ Gracefully shutdown the communications interface """
+        """ Override base class method """
 
         self.__TerminateReadThread = True
         return
 
-    def _write(self, payload, rsp_expected=True):
-        """ Output a protocol packet to the communications interface """
+    def _write(self, payload):
+        """ Override base class method """
 
         if self.__TerminateReadThread is False:
             self._socket.sendall(raw(payload))
 
-        return
-
-    def _checkStatus(self):
-        """ Check the operational status of the communications interface """
-
-        return self.__ExceptionOcurred
+        return self.ERROR_SUCCESS
 
     def _packetize(self, rawData):
-        """ Create a protocol packet from received raw binary data """
+        """ Override base class method """
 
         return TestServiceWrapper(rawData)
 
     def __readFn(self):
-        """ Thread to receive network packets """
+        """ private: Thread to process received messages """
 
         while self.__TerminateReadThread is False:
             try:

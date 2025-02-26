@@ -1,20 +1,19 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
+# Copyright 2023-2025 DMTF. All rights reserved.
 # License: BSD 3-Clause License. For full text see link:
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
 #  File Abstract:
-#  Base class to represent physical medium to send and receive manageability
-#  packets
+#  Base class defining a common communications interface object.
 ##############################################################################
 
 import time
 import queue
-from scapy.all import wrpcap
+from scapy.all import wrpcap, Packet
 
 
 def GetCurrMS() -> int:
-    """ Get number of mseconds since epoc """
+    """ Get number of milliseconds since epoc """
 
     return int(round(time.time() * 1000))
 
@@ -26,137 +25,152 @@ AppStartTime = GetCurrMS()
 class physicalMedium:
     """ Base class for interface to send and receive manageability packets """
 
-    # Return codes for Read() function
+    # Common class return codes
     ERROR_SUCCESS = 0
     ERROR_READ_TIMEOUT = 1
     ERROR_WRITE_FAILED = 2
     ERROR_INVALID_MEDIUM = 3
     ERROR_UNKNOWN_ERROR = 4
+    LAST_ERROR_CODE = ERROR_UNKNOWN_ERROR
 
-    ErrorStrings = {
-        ERROR_SUCCESS:        "SUCCESS",
-        ERROR_READ_TIMEOUT:   "Timeout - a timeout of some kind ocurred",
-        ERROR_WRITE_FAILED:   "Write failed",
-        ERROR_INVALID_MEDIUM: "Invalid Medium - The PDI was either invalid, or has not been initialized",
-        ERROR_UNKNOWN_ERROR:  "Unknown error"
-    }
-
-    @staticmethod
-    def ResponseToStr(resp: int) -> str:
-        """ Returns an error description for the specified error code """
+    def ResponseToStr(self, resp: int) -> str:
+        """ public: Returns a text description of the specified error code """
 
         try:
-            return physicalMedium.ErrorStrings[resp]
+            _text = self.ErrorStrings[resp]
         except:
-            return "Unknown"
+            _text = "Unknown error code"
 
-    def __init__(self, instance, timeout: int) -> None:
+        return _text
+
+    def __init__(self, timeout: int) -> None:
         """ Class constructor """
 
-        self.__inst = instance
-        self.__received = queue.Queue()
-        self._timeout = timeout
-        self.__pcapFile = None
-        self.__firstFileWrite = True
-        self.__readThread = None
+        self._timeout = timeout          # Read/write timeout in seconds
+        self.__recvPktQ = queue.Queue()  # Raw received packet queue
+        self.__pcapFileName = None       # Name of PCAP file if logging packets
+        self.__pcapFileAppend = False    # Flags PCAP log file write operations
+
+        self.ErrorStrings = {
+            self.ERROR_SUCCESS:        "SUCCESS",
+            self.ERROR_READ_TIMEOUT:   "Timeout",
+            self.ERROR_WRITE_FAILED:   "Write failed",
+            self.ERROR_INVALID_MEDIUM: "Invalid medium",
+            self.ERROR_UNKNOWN_ERROR:  "Unknown error"
+        }
 
         return
 
     def __del__(self) -> None:
-        """ Class desctructor """
+        """ Class destructor """
 
         self.Close()
         return
 
     def SetPcapFile(self, fileName: str = None) -> None:
-        """ Specify a pcap file to save packets for tracing """
+        """ public: Specify a PCAP file for packet tracing """
 
-        self.__pcapFile = fileName
-        self.__firstFileWrite = True
-        return
-
-    def __writeToPcap(self, packet: bytes) -> None:
-        """ Store packet to PCAP file """
-
-        if self.__pcapFile is not None:
-            if self.__firstFileWrite is True:
-                appendFlag = False
-                self.__firstFileWrite = False
-            else:
-                appendFlag = True
-
-            wrpcap(self.__pcapFile, packet, append=appendFlag)
-
+        self.__pcapFileName = fileName
+        self.__pcapFileAppend = False
         return
 
     def Close(self) -> None:
-        """ Clean up before exiting """
+        """ public: Close communications session """
 
-        self.__inst._close()
+        self._close()
         return
 
     def Write(self, payload: bytes) -> int:
-        """ Write packet to the underlying physical medium """
+        """ public: Write a raw packet to the underlying medium """
 
-        _error_code = self.__inst._write(payload)
-        writeTime = GetCurrMS() - AppStartTime
-
+        _error_code = self._write(payload)
         self.__writeToPcap(payload)
-
-        try:
-            payload.SendTimeStamp = writeTime
-        except:
-            pass
-
         return _error_code
 
     def Read(self, timeoutOverride: int = None) -> tuple:
-        """
-        Called by framework to read data from a rx queue returns a tuple of
-        READ_STATUS, READ_DATA where READ_STATUS is defined in physicalMedium
-        and READ_DATA will be a scapy packet in medium specific packet format.
+        """ public: Read a received packet """
 
-        Some commands may want a longer timeout (such as GetSystemInventory)
-        so we have a way to change the timeout value.
-        """
         try:
-            status = self.__inst._checkStatus()
-            if status is not None:
-                return (status, None)
+            _retPkt = None
+            _status = self._checkStatus()
 
-            if timeoutOverride is None:
-                timeoutValue = self._timeout
-            else:
-                timeoutValue = timeoutOverride
+            if _status == self.ERROR_SUCCESS:
+                if timeoutOverride is None:
+                    _timeoutValue = self._timeout
+                else:
+                    _timeoutValue = timeoutOverride
 
-            timeStamp, rawData = self.__received.get(block=True, timeout=timeoutValue)
+                _status, _rawData, _timestamp = self._read(_timeoutValue)
 
-            try:
-                retPkt = self.__inst._packetize(rawData)
-            except Exception as Ex:
-                print("Error Packetizing received Data " + str(Ex))
+                if _status == self.ERROR_SUCCESS:
+                    _retPkt = self._packetize(_rawData)
+                    self.__writeToPcap(_rawData)
+                    _retPkt.ReceiveTimeStamp = _timestamp
+        except:
+            _status = self.ERROR_UNKNOWN_ERROR
 
-            try:
-                retPkt.ReceiveTimeStamp = timeStamp
+        return _status, _retPkt
 
-            except Exception as ex:
-                print("*********** " + str(ex))
+    def _read(self, readTimeout: float) -> tuple:
+        """ protected virtual: Read a raw packet data from comm interface """
 
-            return (self.ERROR_SUCCESS, retPkt)
+        _timestamp = None
+        _rawData = None
 
+        try:
+            _timestamp, _rawData = self.__recvPktQ.get(block=True, timeout=readTimeout)
+            _status = self.ERROR_SUCCESS
         except queue.Empty:
-            return (self.ERROR_READ_TIMEOUT, None)
+            _status = self.ERROR_READ_TIMEOUT
+        except:
+            _status = self.ERROR_UNKNOWN_ERROR
 
-        except Exception as Ex:
-            print(str(Ex))
-            return (self.ERROR_UNKNOWN_ERROR, None)
+        return _status, _rawData, _timestamp
 
-    def _addReadPacket(self, arrivedPkt: bytes) -> None:
-        """ Save data in receive queue """
+    def _packetize(self, rawData: bytes) -> Packet:
+        """ protected pure virtual: Create a packet from raw binary data """
 
-        assert (arrivedPkt is not None), "Received NULL packet"
+        raise Exception("physicalMedium: ERROR: Derived class MUST implement this method")
+        return Packet(rawData)
 
-        ReceiveTimeStamp = (GetCurrMS() - AppStartTime)
-        self.__received.put_nowait((ReceiveTimeStamp, arrivedPkt))
+    def _addReadPacket(self, rawPkt: bytes) -> None:
+        """ protected virtual: Add a raw packet to the receive queue """
+
+        _recvTimestamp = (GetCurrMS() - AppStartTime)
+        self.__recvPktQ.put_nowait((_recvTimestamp, rawPkt))
+
+        return
+
+    def _close(self) -> None:
+        """
+        protected virtual: Tear down communication session.
+        Derived classes SHOULD implement this method.
+        """
+
+        return
+
+    def _write(self, payload: bytes) -> int:
+        """ protected pure virtual: Send a message """
+
+        raise Exception("physicalMedium: ERROR: Derived class MUST implement this method")
+        return self.ERROR_WRITE_FAILED
+
+    def _checkStatus(self) -> int:
+        """
+        protected virtual: Check the interface status
+        Derived classes SHOULD implement this method.
+        """
+
+        return self.ERROR_SUCCESS
+
+    def __writeToPcap(self, packet: bytes) -> None:
+        """ private: Log packet to PCAP trace file """
+
+        if self.__pcapFileName is not None:
+            try:
+                wrpcap(self.__pcapFileName, packet, append=self.__pcapFileAppend, linktype=12)
+                self.__pcapFileAppend = True
+            except:
+                pass
 
         return

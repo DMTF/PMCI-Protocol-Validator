@@ -696,7 +696,7 @@ def test_GetParameters_Request(class_type):
 def test_GetParametersResponseData(class_type):
     """Verify GetParameters_Response data structure"""
 
-    assert (len(class_type.fields_desc) == 34), "Incorrect number of fields"
+    assert (len(class_type.fields_desc) == 63), "Incorrect number of fields"
 
     assert (class_type.MACAddressCount == 0)
     assert (class_type.Reserved_1 == 0)
@@ -704,7 +704,41 @@ def test_GetParametersResponseData(class_type):
     assert (class_type.VLANTagCount == 0)
     assert (class_type.Reserved_2 == 0)
     assert (class_type.VLANTagFlags == 0)
-    assert (class_type.LinkSettings == 0)
+
+    assert (class_type.SetLinkReserved_2 == 0)
+    assert (class_type.ParallelDetect == 0)
+    assert (class_type.LinkTraining == 0)
+    assert (class_type.EnergyEfficientEthernet == 0)
+    assert (class_type.FecReserved == 0)
+    assert (class_type.FecRS_FEC == 0)
+    assert (class_type.FecBASE_R_FEC == 0)
+
+    assert (class_type.Enable_PAM_4 == 0)
+    assert (class_type.Enable_NRZ == 0)
+    assert (class_type.SetLinkReserved_1 == 0)
+    assert (class_type.Enable800Gbps == 0)
+    assert (class_type.Enable400Gbps == 0)
+    assert (class_type.Enable200Gbps == 0)
+    assert (class_type.Enable5Gbps == 0)
+
+    assert (class_type.Enable2_5Gbps == 0)
+    assert (class_type.Enable100Gbps == 0)
+    assert (class_type.Enable50Gbps == 0)
+    assert (class_type.EnableOEM == 0)
+    assert (class_type.EnableAsymmetricPause == 0)
+    assert (class_type.PauseCapability == 0)
+    assert (class_type.EnableFullDuplex == 0)
+    assert (class_type.EnableHalfDuplex == 0)
+
+    assert (class_type.Enable40Gbps == 0)
+    assert (class_type.Enable25Gbps == 0)
+    assert (class_type.Enable20Gbps == 0)
+    assert (class_type.Enable10Gbps == 0)
+    assert (class_type.Enable1Gbps == 0)
+    assert (class_type.Enable100Mbps == 0)
+    assert (class_type.Enable10Mbps == 0)
+    assert (class_type.AutoNegotiation == 0)
+
     assert (class_type.BroadcastPacketFilterSettings == 0)
     assert (class_type.Reserved_3 == 0)
     assert (class_type.GlobalMulticastPacketFilterStatus == 0)
