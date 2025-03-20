@@ -701,26 +701,84 @@ class GetLinkStatus_Response(NCSI_PAYLOAD):
 
         fields_desc = [
             # Link Status field
-            BitField("ExtendedSpeedAndDuplex", 0, 8),
-            BitField("ModulationScheme", 0, 2),  # for NC-SI 1.2
-            BitField("OemLinkSpeedValid", 0, 1),
-            BitField("SerDesLink", 0, 1),
-            BitField("LinkPartnerAdvertisedFlowControl", 0, 2),
-            BitField("RxFlowControlFlag", 0, 1),
-            BitField("TxFlowControlFlag", 0, 1),  # bit 16
-            BitField("LinkPartnerAdvertisedSpeedAndDuplex10THD", 0, 1),
-            BitField("LinkPartnerAdvertisedSpeedAndDuplex10TFD", 0, 1),
-            BitField("LinkPartnerAdvertisedSpeedAndDuplex100TXHD", 0, 1),
-            BitField("LinkPartnerAdvertisedSpeedAndDuplex100TXFD", 0, 1),
-            BitField("LinkPartnerAdvertisedSpeedAndDuplex100T4", 0, 1),
-            BitField("LinkPartnerAdvertisedSpeedAndDuplex1000THD", 0, 1),
-            BitField("LinkPartnerAdvertisedSpeedAndDuplex1000TFD", 0, 1),
+            BitEnumField(
+                "ExtendedSpeedAndDuplex",
+                0,
+                8,
+                {
+                    0x00: "Auto-negotiation not complete",
+                    0x01: "10BASE-T half-duplex",
+                    0x02: "10BASE-T full-duplex",
+                    0x03: "100BASE-TX half-duplex",
+                    0x04: "100BASE-T4",
+                    0x05: "100BASE-TX full-duplex",
+                    0x06: "1000BASE-T half-duplex",
+                    0x07: "1000BASE-T full-duplex",
+                    0x08: "10G-BASE-T support or 10 Gbps",
+                    0x09: "20 Gbps",
+                    0x0A: "25 Gbps",
+                    0x0B: "40 Gbps",
+                    0x0C: "50 Gbps",
+                    0x0D: "100 Gbps",
+                    0x0E: "2.5 Gbps",
+                    0x0F: "5 Gbps",
+                    0x10: "1 Gbps (for non Base-T)",
+                    0x11: "200 Gbps",
+                    0x12: "400 Gbps",
+                    0x13: "800 Gbps"
+                },
+            ),
+            BitEnumField("ModulationScheme", 0, 2, {1: "NRZ", 2: "PAM-4"}),
+            BitEnumField("OemLinkSpeedValid", 0, 1, VALID_NOT_VALID),
+            BitEnumField("SerDesLink", 0, 1, {0: "SerDes is not used", 1: "SerDes is not used"}),
+            BitEnumField(
+                "LinkPartnerAdvertisedFlowControl",
+                0,
+                2,
+                {
+                    0: "Link partner is not pause capable or this is not an Ethernet link",
+                    1: "Link partner supports symmetric pause",
+                    2: "Link partner supports asymmetric pause toward link partner",
+                    3: "Link partner supports both symmetric and asymmetric pause"
+                }
+            ),
+            BitEnumField("RxFlowControlFlag", 0, 1, ENABLE_DISABLE),
+            BitEnumField("TxFlowControlFlag", 0, 1, ENABLE_DISABLE),
+            BitEnumField("LinkPartnerAdvertisedSpeedAndDuplex10THD", 0, 1, CAPABLE_NOT_CAPABLE),
+            BitEnumField("LinkPartnerAdvertisedSpeedAndDuplex10TFD", 0, 1, CAPABLE_NOT_CAPABLE),
+            BitEnumField("LinkPartnerAdvertisedSpeedAndDuplex100TXHD", 0, 1, CAPABLE_NOT_CAPABLE),
+            BitEnumField("LinkPartnerAdvertisedSpeedAndDuplex100TXFD", 0, 1, CAPABLE_NOT_CAPABLE),
+            BitEnumField("LinkPartnerAdvertisedSpeedAndDuplex100T4", 0, 1, CAPABLE_NOT_CAPABLE),
+            BitEnumField("LinkPartnerAdvertisedSpeedAndDuplex1000THD", 0, 1, CAPABLE_NOT_CAPABLE),
+            BitEnumField("LinkPartnerAdvertisedSpeedAndDuplex1000TFD", 0, 1, CAPABLE_NOT_CAPABLE),
             BitField("LinkStatusReserved_1", 0, 1),  # bit 8
-            BitField("ParallelDetectionFlag", 0, 1),
-            BitField("AutoNegotiateComplete", 0, 1),
+            BitEnumField("ParallelDetectionFlag", 0, 1, {0: "Not used to obtain link", 1: "Used to obtain link", }),
+            BitEnumField("AutoNegotiateComplete", 0, 1, COMPLETE_NOT_COMPLETE),
             BitEnumField("AutoNegotiateFlag", 0, 1, ENABLE_DISABLE),
-            BitField("SpeedAndDuplex", 0, 4),
-            BitField("LinkFlag", 0, 1),
+            BitEnumField(
+                "SpeedAndDuplex",
+                0,
+                4,
+                {
+                    0x00: "Auto-negotiate not complete",
+                    0x01: "10BASE-T half-duplex",
+                    0x02: "10BASE-T full-duplex",
+                    0x03: "100BASE-TX half-duplex",
+                    0x04: "100BASE-T4",
+                    0x05: "100BASE-TX full-duplex",
+                    0x06: "1000BASE-T half-duplex",
+                    0x07: "1000BASE-T full-duplex",
+                    0x08: "10G-BASE-T support or 10 Gbps",
+                    0x09: "20 Gbps (optional for NC-SI 1.1, Reserved for NC-SI 1.0)",
+                    0x0A: "25 Gbps (optional for NC-SI 1.1, Reserved for NC-SI 1.0)",
+                    0x0B: "40 Gbps (optional for NC-SI 1.1, Reserved for NC-SI 1.0)",
+                    0x0C: "50 Gbps (optional for NC-SI 1.1, Reserved for NC-SI 1.0)",
+                    0x0D: "100 Gbps (optional for NC-SI 1.1, Reserved for NC-SI 1.0)",
+                    0x0E: "2.5 Gbps (optional for NC-SI 1.1, Reserved for NC-SI 1.0)",
+                    0x0F: "Use values defined in Extended Speed and Duplex field"
+                }
+            ),
+            BitEnumField("LinkFlag", 0, 1, {0: "Link down", 1: "Link up"}),
 
             # Other Indications field
             BitField("GetLinkStatusOtherReserved_1", 0, 27),
@@ -728,7 +786,7 @@ class GetLinkStatus_Response(NCSI_PAYLOAD):
             BitEnumField("ParallelDetect", 0, 1, ENABLE_DISABLE),
             BitEnumField("LinkTraining", 0, 1, ENABLE_DISABLE),
             BitEnumField("EnergyEfficientEthernet", 0, 1, ENABLE_DISABLE),
-            BitField("HostDriverStatusIndication", 0, 1),
+            BitEnumField("HostDriverStatusIndication", 0, 1, {0: "Not Operational", 1: "Operational"}),
 
             # OEM Link Status
             XIntField("OemLinkStatus", 0x00000000),
@@ -1212,7 +1270,36 @@ class GetParameters_Response(NCSI_PAYLOAD):
             XByteField("Reserved_2", 0x00),
             BitField("VLANTagFlags", 0, 16),    # Table 92 DSP0222
 
-            IntEnumField("LinkSettings", 0x0000, LINK_SETTINGS_REASON_CODES),
+            BitField("SetLinkReserved_2", 0, 1),
+            BitEnumField("ParallelDetect", 0, 1, ENABLE_DISABLE),  # NC-SI 1.2
+            BitEnumField("LinkTraining", 0, 1, ENABLE_DISABLE),    # NC-SI 1.2
+            BitEnumField("EnergyEfficientEthernet", 0, 1, ENABLE_DISABLE),  # NC-SI 1.2
+            BitField("FecReserved", 0, 2),    # NC-SI 1.2
+            BitField("FecRS_FEC", 0, 1),      # NC-SI 1.2
+            BitField("FecBASE_R_FEC", 0, 1),  # NC-SI 1.2
+            BitField("Enable_PAM_4", 0, 1),  # NC-SI 1.2
+            BitField("Enable_NRZ", 0, 1),    # NC-SI 1.2
+            BitField("SetLinkReserved_1", 0, 2),
+            BitEnumField("Enable800Gbps", 0, 1, ENABLE_DISABLE),  # NC-SI 1.2
+            BitEnumField("Enable400Gbps", 0, 1, ENABLE_DISABLE),  # NC-SI 1.2
+            BitEnumField("Enable200Gbps", 0, 1, ENABLE_DISABLE),  # NC-SI 1.2
+            BitEnumField("Enable5Gbps", 0, 1, ENABLE_DISABLE),
+            BitEnumField("Enable2_5Gbps", 0, 1, ENABLE_DISABLE),
+            BitEnumField("Enable100Gbps", 0, 1, ENABLE_DISABLE),
+            BitEnumField("Enable50Gbps", 0, 1, ENABLE_DISABLE),
+            BitEnumField("EnableOEM", 0, 1, ENABLE_DISABLE),
+            BitEnumField("EnableAsymmetricPause", 0, 1, ENABLE_DISABLE),
+            BitEnumField("PauseCapability", 0, 1, {0: "Enable", 1: "Disable"}),
+            BitEnumField("EnableFullDuplex", 0, 1, ENABLE_DISABLE),
+            BitEnumField("EnableHalfDuplex", 0, 1, ENABLE_DISABLE),
+            BitEnumField("Enable40Gbps", 0, 1, ENABLE_DISABLE),
+            BitEnumField("Enable25Gbps", 0, 1, ENABLE_DISABLE),
+            BitEnumField("Enable20Gbps", 0, 1, ENABLE_DISABLE),
+            BitEnumField("Enable10Gbps", 0, 1, ENABLE_DISABLE),
+            BitEnumField("Enable1Gbps", 0, 1, ENABLE_DISABLE),
+            BitEnumField("Enable100Mbps", 0, 1, ENABLE_DISABLE),
+            BitEnumField("Enable10Mbps", 0, 1, ENABLE_DISABLE),
+            BitEnumField("AutoNegotiation", 0, 1, ENABLE_DISABLE),
 
             XIntField("BroadcastPacketFilterSettings", 0x00000000),
 

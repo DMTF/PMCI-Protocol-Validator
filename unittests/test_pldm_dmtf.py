@@ -54,7 +54,7 @@ def test_PLDM_UUID_class(class_type):
     assert (class_type.TimeHighAndVersion == 0)
     assert (class_type.ClockSeqHighAndReserved == 0)
     assert (class_type.ClockSeqLow == 0)
-    assert (class_type.Node is not None)
+    assert (class_type.Node is None)
     return
 
 

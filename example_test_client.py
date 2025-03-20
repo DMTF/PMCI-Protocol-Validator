@@ -37,7 +37,7 @@ def main():
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=0)
     SendPacket = SendPacket / Connect_Request()
 
-    SendPacket[Connect_Request].SecurityParameter=RawVal(b'\x31\x32\x33\x34\x35\x36')
+    SendPacket[Connect_Request].SecurityParameter = RawVal(b'\x31\x32\x33\x34\x35\x36')
     SendPacket[Connect_Request].SecurityParameterLength = len(SendPacket[Connect_Request].SecurityParameter)
 
     try:

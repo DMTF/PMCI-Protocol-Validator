@@ -188,7 +188,7 @@ class GetPfAssignment_Response(NCSI_PAYLOAD):
 class SetPfAssignment_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set PF Assignment Request"""
 
-    name = "Get PF Assignment Request"
+    name = "Set PF Assignment Request"
     CommandValue = 0x28
 
     fields_desc = [
@@ -203,7 +203,7 @@ class SetPfAssignment_Request(NCSI_PAYLOAD):
 class SetPfAssignment_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set PF Assignment Response"""
 
-    name = "Get PF Assignment Response"
+    name = "Set PF Assignment Response"
     CommandValue = SetPfAssignment_Request.CommandValue | 0x80
 
     fields_desc = [
@@ -2452,11 +2452,11 @@ class GetAsicTemperature_Response(NCSI_PAYLOAD):
         XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
         ConditionalField(
-            XShortField("MaximumTemperature", 0x00),
+            ShortField("MaximumTemperature", 0),
             lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
         ),
         ConditionalField(
-            XShortField("CurrentTemperature", 0x00),
+            ShortField("CurrentTemperature", 0),
             lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
         ),
         NcsiReversePadField(XIntField("Checksum", None), 4)
@@ -2480,7 +2480,7 @@ class GetAmbientTemperature_Request(NCSI_PAYLOAD):
 class GetAmbientTemperature_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Ambient Temperature Response"""
 
-    name = "Get ASIC Temperature Response"
+    name = "Get Ambient Temperature Response"
     CommandValue = GetAmbientTemperature_Request.CommandValue | 0x80
 
     fields_desc = [
@@ -2488,19 +2488,19 @@ class GetAmbientTemperature_Response(NCSI_PAYLOAD):
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
 
         ConditionalField(
-            XByteField("TemperatureValue_3", 0x00),
+            ByteField("TemperatureValue_3", 0),
             lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
         ),
         ConditionalField(
-            XByteField("TemperatureValue_2", 0x00),
+            ByteField("TemperatureValue_2", 0),
             lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
         ),
         ConditionalField(
-            XByteField("TemperatureValue_1", 0x00),
+            ByteField("TemperatureValue_1", 0),
             lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
         ),
         ConditionalField(
-            ByteField("NumberOfSensors", 0x00),
+            ByteField("NumberOfSensors", 0),
             lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
         ),
 
@@ -2533,15 +2533,15 @@ class GetTransceiverTemperature_Response(NCSI_PAYLOAD):
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
 
         ConditionalField(
-            XShortField("TempHighAlarmThreshold", 0x0000),
+            ShortField("TempHighAlarmThreshold", 0),
              lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
         ),
         ConditionalField(
-            XShortField("TempHighWarningThreshold", 0x0000),
+            ShortField("TempHighWarningThreshold", 0),
             lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
         ),
         ConditionalField(
-            XShortField("TemperatureValue", 0x0000),
+            ShortField("TemperatureValue", 0),
             lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000,
         ),
         ConditionalField(
