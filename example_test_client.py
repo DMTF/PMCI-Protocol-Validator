@@ -1,5 +1,5 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
+# Copyright 2023-2025 DMTF. All rights reserved.
 # License: BSD 3-Clause License. For full text see link:
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
@@ -42,7 +42,15 @@ def main():
 
     try:
         RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.showPacket)
-        fixture.VerifyCommonFields(RecvPacket, SendPacket)
+        
+        if RecvPacket[TestServiceWrapper].Version != VERSION_COMPLIANCE or \
+            RecvPacket[TestServiceWrapper].ProtocolType != 0xFF or \
+            RecvPacket[TestServiceWrapper].Reserved_0 != 0 or \
+            RecvPacket[TestServiceWrapper].Reserved_1 != 0:
+                
+            fixture.logMessage("ERROR: Connect(): Invalid field value")
+            return 2
+        
         fixture.testClientID = RecvPacket[Connect_Response].TestClientID
 
     except Exception as exceptionInfo:
@@ -59,7 +67,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.logMessage("ERROR: QueryStatus_Request(): " + str(exceptionInfo))
-        return 2
+        return 3
 
     # 3. Query Capabilities
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.testClientID)
@@ -71,7 +79,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.logMessage("ERROR: QueryCapabilities_Request(): " + str(exceptionInfo))
-        return 3
+        return 4
 
     # 4. Configure Test Service
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.testClientID)
@@ -91,7 +99,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.logMessage("ERROR: ConfigureTestService_Request(): " + str(exceptionInfo))
-        return 4
+        return 5
 
     # 5. Read back settings
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.testClientID)
@@ -103,7 +111,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.logMessage("ERROR: QueryCapabilities_Request(): " + str(exceptionInfo))
-        return 5
+        return 6
 
     # 6. Query System Inventory
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.testClientID)
@@ -115,7 +123,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.logMessage("ERROR: QuerySystemInventory_Request(): " + str(exceptionInfo))
-        return 6
+        return 7
 
     # 7. Configure DUT
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.testClientID)
@@ -127,7 +135,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.logMessage("ERROR: ConfigureDeviceUnderTest_Request(): " + str(exceptionInfo))
-        return 7
+        return 8
 
     # Save the DUT Connection ID for future tests
     DUTConnectionID = RecvPacket[ConfigureDeviceUnderTest_Response].DUTConnectionID
@@ -150,7 +158,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.logMessage("ERROR: RegisterToProtocol_Request(): " + str(exceptionInfo))
-        return 8
+        return 9
 
     # 9. Register Async Message Recipient
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.testClientID)
@@ -168,7 +176,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.logMessage("ERROR: RegisterAsyncMessageRecipient_Request(): " + str(exceptionInfo))
-        return 9
+        return 10
 
     # 10. Query Status
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.testClientID)
@@ -180,7 +188,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.logMessage("ERROR: QueryStatus_Request(): " + str(exceptionInfo))
-        return 10
+        return 11
 
     # 11. Send a Test Message with a PLDM Get TID request
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.testClientID)
@@ -194,7 +202,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.logMessage("ERROR: TestMessage_Request(): " + str(exceptionInfo))
-        return 11
+        return 12
 
     # 12. Disconnect
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.testClientID)
@@ -206,7 +214,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.logMessage("ERROR: Disconnect(): " + str(exceptionInfo))
-        return 10
+        return 13
 
     return 0
 

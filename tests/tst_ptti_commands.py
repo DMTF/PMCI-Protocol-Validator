@@ -1,5 +1,5 @@
 # Copyright Notice:
-# Copyright 2024 DMTF. All rights reserved.
+# Copyright 2024-2025 DMTF. All rights reserved.
 # License: BSD 3-Clause License. For full text see link:
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
@@ -21,7 +21,11 @@ def test_Connect(testFixture: c_PTTI_fixture, lowerLayerHeaders: TestServiceWrap
     SendPacket[Connect_Request].SecurityParameterLength = len(secPrm)
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
-    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
+
+    assert (RecvPacket[TestServiceWrapper].Version == VERSION_COMPLIANCE), "Incorrect PTTI version"
+    assert (RecvPacket[TestServiceWrapper].ProtocolType == 0xFF), "Protocol mismatch"
+    assert (RecvPacket[TestServiceWrapper].Reserved_0 == 0), "Reserved field NOT zero"
+    assert (RecvPacket[TestServiceWrapper].Reserved_1 == 0), "Reserved field NOT zero"
 
     return RecvPacket
 
