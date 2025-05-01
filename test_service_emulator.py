@@ -1,5 +1,5 @@
 # Copyright Notice:
-# Copyright 2024 DMTF. All rights reserved.
+# Copyright 2024-2025 DMTF. All rights reserved.
 # License: BSD 3-Clause License. For full text see link:
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
@@ -80,7 +80,8 @@ class c_TestServiceBase():
 
         if request.SecurityParameterLength > 0:
             self._session_connected = True
-            response = Connect_Response(TestClientID=0xdeadbeef)
+            self._session_test_client_id = 0xdeadbeef
+            response = Connect_Response(TestClientID=self._session_test_client_id)
         else:
             response = Connect_Response(ResponseCode=ERROR_OEM_INVALID_PARAMETER)
 
@@ -236,7 +237,7 @@ class c_TestServiceBase():
 
                         tsw_rsp.ProtocolType = rsp_proto_type
                         tsw_rsp.Direction = 1
-                        tsw_rsp.TestClientID = tsw_req.TestClientID
+                        tsw_rsp.TestClientID = self._session_test_client_id
 
                         response = tsw_rsp / rsp_packet
                         self._client_socket.sendall(raw(response))
