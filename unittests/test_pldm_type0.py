@@ -72,7 +72,7 @@ def test_GetPldmVersion_Request(class_type):
     assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
 
     assert (class_type.DataTransferHandle == 0)
-    assert (class_type.TransferOperationFlag == 0)
+    assert (class_type.TransferOperationFlag == 1)
     assert (class_type.PldmType == 0)
     return
 

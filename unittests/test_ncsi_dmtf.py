@@ -580,10 +580,10 @@ def test_GetVersionID_VersionData(class_type):
     assert (class_type.FirmwareNameString07_04 == b"")
     assert (class_type.FirmwareNameString03_00 == b"")
 
-    assert (class_type.FirmwareVersionMajor == 0)
-    assert (class_type.FirmwareVersionMinor == 0)
-    assert (class_type.FirmwareVersionUpdate == 0)
-    assert (class_type.FirmwareVersionAlpha == 0)
+    assert (class_type.FirmwareVersionByte3 == 0)
+    assert (class_type.FirmwareVersionByte2 == 0)
+    assert (class_type.FirmwareVersionByte1 == 0)
+    assert (class_type.FirmwareVersionByte0 == 0)
 
     assert (class_type.PCIDID == 0)
     assert (class_type.PCIVID == 0)
@@ -624,7 +624,7 @@ def test_GetCapabilities_Request(class_type):
 def test_GetCapabilitiesResponseData(class_type):
     """Verify GetCapabilities_Response data structure"""
 
-    assert (len(class_type.fields_desc) == 39), "Incorrect number of fields"
+    assert (len(class_type.fields_desc) == 37), "Incorrect number of fields"
 
     assert (class_type.Reserved_1 == 0)
     assert (class_type.DelayedResponseSupport == 0)
@@ -649,8 +649,6 @@ def test_GetCapabilitiesResponseData(class_type):
     assert (class_type.BufferingCapability == 0)
     assert (class_type.OEMSpecificAENControl == 0)
     assert (class_type.Reserved_4 == 0)
-    assert (class_type.TransceiverEventAENControl == 0)
-    assert (class_type.DelayedResponseReadyAENControl == 0)
     assert (class_type.HostNCDriverStatusChangeAENControl == 0)
     assert (class_type.ConfigurationRequiredAENControl == 0)
     assert (class_type.LinkStatusChangeAENControl == 0)

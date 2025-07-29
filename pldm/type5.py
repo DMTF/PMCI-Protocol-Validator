@@ -110,55 +110,55 @@ class RecordDescriptor(Packet):
         ),
         ConditionalField(
             XLEShortField(RecordDescriptorTypes[0x00], 0),
-            lambda kt: kt.DescriptorType == 0x0000,
+            lambda pkt: pkt.DescriptorType == 0x0000,
         ),
         ConditionalField(
             XLEIntField(RecordDescriptorTypes[0x01], 0),
-            lambda kt: kt.DescriptorType == 0x0001,
+            lambda pkt: pkt.DescriptorType == 0x0001,
         ),
         ConditionalField(
             PacketField(RecordDescriptorTypes[0x02], PLDM_UUID(), PLDM_UUID),
-            lambda kt: kt.DescriptorType == 0x0002,
+            lambda pkt: pkt.DescriptorType == 0x0002,
         ),
         ConditionalField(
             XLE3BytesField(RecordDescriptorTypes[0x03], 0),
-            lambda kt: kt.DescriptorType == 0x0003,
+            lambda pkt: pkt.DescriptorType == 0x0003,
         ),
         ConditionalField(
             XLEIntField(RecordDescriptorTypes[0x04], 0),
-            lambda kt: kt.DescriptorType == 0x0004,
+            lambda pkt: pkt.DescriptorType == 0x0004,
         ),
         ConditionalField(
             XLE3BytesField(RecordDescriptorTypes[0x05], 0),
-            lambda kt: kt.DescriptorType == 0x0005,
+            lambda pkt: pkt.DescriptorType == 0x0005,
         ),
         ConditionalField(
             XLELongField(RecordDescriptorTypes[0x06], 0),
-            lambda kt: kt.DescriptorType == 0x0006,
+            lambda pkt: pkt.DescriptorType == 0x0006,
         ),
         ConditionalField(
             XLEShortField(RecordDescriptorTypes[0x0100], 0),
-            lambda kt: kt.DescriptorType == 0x0100,
+            lambda pkt: pkt.DescriptorType == 0x0100,
         ),
         ConditionalField(
             XLEShortField(RecordDescriptorTypes[0x0101], 0),
-            lambda kt: kt.DescriptorType == 0x0101,
+            lambda pkt: pkt.DescriptorType == 0x0101,
         ),
         ConditionalField(
             XLEShortField(RecordDescriptorTypes[0x0102], 0),
-            lambda kt: kt.DescriptorType == 0x0102,
+            lambda pkt: pkt.DescriptorType == 0x0102,
         ),
         ConditionalField(
             XByteField(RecordDescriptorTypes[0x0103], 0),
-            lambda kt: kt.DescriptorType == 0x0103,
+            lambda pkt: pkt.DescriptorType == 0x0103,
         ),
         ConditionalField(
             XLEIntField(RecordDescriptorTypes[0x0104], 0),
-            lambda kt: kt.DescriptorType == 0x0104,
+            lambda pkt: pkt.DescriptorType == 0x0104,
         ),
         ConditionalField(
             XLEIntField(RecordDescriptorTypes[0x0105], 0),
-            lambda kt: kt.DescriptorType == 0x0105,
+            lambda pkt: pkt.DescriptorType == 0x0105,
         )
     ]
 

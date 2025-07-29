@@ -82,6 +82,7 @@ STATS_TYPE = {
     0x08: "RDMA",
     0x10: "IB"
 }
+
 CAPABLE_NOT_CAPABLE = {
     0: "Not capable",
     1: "Capable"

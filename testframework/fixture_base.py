@@ -34,7 +34,7 @@ class c_FixtureBase(object):
     def VerifyCommonFields(self, rsp_pkt: Packet, req_pkt: Packet):
         """ Verify common fields """
 
-        return
+        return True
 
     def logMessage(self, msg_str: str):
         """ Log a message """

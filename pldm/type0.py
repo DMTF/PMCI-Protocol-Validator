@@ -76,7 +76,7 @@ class GetPldmVersion_Request(PLDM_TYPE_0_PAYLOAD):
         XLEIntField("DataTransferHandle", 0x00000000),
         ByteEnumField(
             "TransferOperationFlag",
-            0x00,
+            0x01,
             {
                 0x00: "GetNextPart",
                 0x01: "GetFirstPart",
@@ -253,7 +253,7 @@ class GetPldmCommands_Response(PLDM_TYPE_0_PAYLOAD):
             fields_desc.append(BitField("Command_{}".format(i + cmd * 8), 0, 1))
 
 
-# Added new PLDM commands from DSP0240 ver. 1.1.0
+# Added new PLDM0 commands from DSP0240 ver. 1.1.0
 
 class SelectPLDMVersion_Request(PLDM_TYPE_0_PAYLOAD):
     name = "Select PLDM Version Request"

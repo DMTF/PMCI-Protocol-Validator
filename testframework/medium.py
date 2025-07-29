@@ -84,7 +84,7 @@ class physicalMedium:
         """ public: Write a raw packet to the underlying medium """
 
         _error_code = self._write(payload)
-        self.__writeToPcap(payload)
+        self._writeToPcap(payload)
         return _error_code
 
     def Read(self, timeoutOverride: int = None) -> tuple:
@@ -104,7 +104,7 @@ class physicalMedium:
 
                 if _status == self.ERROR_SUCCESS:
                     _retPkt = self._packetize(_rawData)
-                    self.__writeToPcap(_rawData)
+                    self._writeToPcap(_rawData)
                     _retPkt.ReceiveTimeStamp = _timestamp
         except:
             _status = self.ERROR_UNKNOWN_ERROR
@@ -163,7 +163,7 @@ class physicalMedium:
 
         return self.ERROR_SUCCESS
 
-    def __writeToPcap(self, packet: bytes) -> None:
+    def _writeToPcap(self, packet: bytes) -> None:
         """ private: Log packet to PCAP trace file """
 
         if self.__pcapFileName is not None:
