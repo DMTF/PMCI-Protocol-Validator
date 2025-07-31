@@ -9,7 +9,7 @@
 
 import pytest
 
-from pldm.dmtf import (
+from pmci_protocol_validator.pldm.classes.dsp0240_base import (
     PLDM_HEADER,
     PLDM_PAYLOAD,
     PLDM_UUID,

@@ -8,7 +8,7 @@
 ##############################################################################
 
 import pytest
-from pldm.pdrs import *  # pylint: disable=unused-import, unused-wildcard-import
+from pmci_protocol_validator.pldm.classes.dsp0248_pdrs import *
 
 
 @pytest.mark.parametrize("class_type", PDR_HEADER())

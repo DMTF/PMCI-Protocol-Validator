@@ -8,7 +8,7 @@
 ##############################################################################
 
 import pytest
-from pldm.type7 import *
+from pmci_protocol_validator.pldm.classes.dsp0242 import *
 
 
 @pytest.mark.parametrize("class_type", PLDM_TYPE_7_PAYLOAD())

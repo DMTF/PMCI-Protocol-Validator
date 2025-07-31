@@ -12,7 +12,7 @@ from scapy.all import bind_layers, scapy
 from scapy.packet import Packet
 from scapy.fields import XShortField
 
-from ncsi.dmtf import NCSI_HEADER, getNcsiClassFromRaw
+from pmci_protocol_validator.ncsi.classes.dsp0222 import NCSI_HEADER, getNcsiClassFromRaw
 
 DSP0261_COMPLIANCE_VERSION = int.from_bytes([1, 2, 3, 0], 'big')
 

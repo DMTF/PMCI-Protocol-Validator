@@ -7,12 +7,12 @@
 #  Example of a basic PTTI session.
 ##############################################################################
 
-from testframework.fixture_ptti import c_PTTI_fixture
-from testframework.utilities import common_send_receive
+from pmci_protocol_validator.framework.fixture_ptti import c_PTTI_fixture
+from pmci_protocol_validator.framework.utilities  import common_send_receive
 
-from ptti.dmtf import *
-from pldm.dmtf import PLDM_HEADER
-from pldm.type0 import GetTID_Request
+from pmci_protocol_validator.ptti.classes.dsp0280 import *
+from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
+from pmci_protocol_validator.pldm.classes.dsp0240 import GetTID_Request
 
 # Network parameters for Test Service connection
 CONNECTION_ADDRESS = 'localhost'
@@ -42,15 +42,15 @@ def main():
 
     try:
         RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.showPacket)
-        
+
         if RecvPacket[TestServiceWrapper].Version != VERSION_COMPLIANCE or \
             RecvPacket[TestServiceWrapper].ProtocolType != 0xFF or \
             RecvPacket[TestServiceWrapper].Reserved_0 != 0 or \
             RecvPacket[TestServiceWrapper].Reserved_1 != 0:
-                
+
             fixture.logMessage("ERROR: Connect(): Invalid field value")
             return 2
-        
+
         fixture.testClientID = RecvPacket[Connect_Response].TestClientID
 
     except Exception as exceptionInfo:

@@ -11,8 +11,7 @@ import sys
 import binascii
 from scapy.packet import Raw
 
-from ncsi.dmtf import *  # pylint: disable=unused-import, unused-wildcard-import
-
+from pmci_protocol_validator.ncsi.classes.dsp0222 import *
 
 test_ncsi_commands = [
     "ClearInitialState",

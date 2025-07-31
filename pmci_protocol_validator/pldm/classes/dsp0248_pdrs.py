@@ -8,7 +8,7 @@
 #  and Control)
 ##############################################################################
 
-from scapy.fields import *  # pylint: disable=unused-import, unused-wildcard-import
+from scapy.fields import *
 from scapy.packet import Packet
 
 

@@ -7,13 +7,12 @@
 #  Additional NC-SI commands for DSP0222 v1.2.0 WIP
 ##############################################################################
 
-from scapy.all import *     # pylint: disable=unused-import, unused-wildcard-import
-from scapy.fields import *  # pylint: disable=unused-import, unused-wildcard-import
+from scapy.all import *
+from scapy.fields import *
 from scapy.packet import Packet
 
-from ncsi.dmtf_enums import *  # pylint: disable=unused-import, unused-wildcard-import
-from ncsi.dmtf import NcsiReversePadField, NCSI_PAYLOAD, register_ncsi_class
-
+from pmci_protocol_validator.ncsi.classes.dsp0222_enums import *
+from pmci_protocol_validator.ncsi.classes.dsp0222 import *
 
 # DSP0222 - Table 260
 class NCSI_UUID(Packet):

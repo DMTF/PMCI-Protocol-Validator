@@ -11,8 +11,8 @@ import sys
 import binascii
 from scapy.packet import Raw
 
-from pldm.dmtf import PLDM_HEADER
-from pldm.type0 import *
+from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
+from pmci_protocol_validator.pldm.classes.dsp0240 import *
 
 
 test_pldm0_commands = [

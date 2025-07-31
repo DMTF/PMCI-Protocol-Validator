@@ -8,8 +8,8 @@
 ##############################################################################
 
 import socket
-from scapy.all import *  # pylint: disable=unused-import, unused-wildcard-import
-from ptti.dmtf import *  # pylint: disable=unused-import, unused-wildcard-import
+from scapy.all import *
+from pmci_protocol_validator.ptti.classes.dsp0280 import *
 
 ### Network parameters for client connections ###
 CONNECTION_ADDRESS = 'localhost'

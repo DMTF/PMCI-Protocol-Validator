@@ -11,8 +11,8 @@ import socket
 import threading
 
 from scapy.all import raw
-from testframework.medium import physicalMedium
-from ptti.dmtf import TestServiceWrapper
+from pmci_protocol_validator.framework.medium import physicalMedium
+from pmci_protocol_validator.ptti.classes.dsp0280 import TestServiceWrapper
 
 
 class PTTIMedium(physicalMedium):

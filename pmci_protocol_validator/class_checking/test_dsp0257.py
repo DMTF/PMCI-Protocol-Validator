@@ -8,7 +8,7 @@
 ##############################################################################
 
 import pytest
-from pldm.type4 import *  # pylint: disable=unused-import, unused-wildcard-import
+from pmci_protocol_validator.pldm.classes.dsp0257 import *
 
 
 @pytest.mark.parametrize("class_type", FRU_Field())

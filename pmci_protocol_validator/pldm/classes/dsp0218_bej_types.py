@@ -7,7 +7,7 @@
 #  Contains the PLDM Type 6 (PLDM for Redfish) wrappers from DSP0218
 ##############################################################################
 
-from scapy.fields import *  # pylint: disable=unused-import, unused-wildcard-import
+from scapy.fields import *
 from scapy.packet import Packet
 
 

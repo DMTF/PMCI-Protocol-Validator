@@ -9,10 +9,11 @@
 ##############################################################################
 
 import struct
-from scapy.all import *     # pylint: disable=unused-import, unused-wildcard-import
-from scapy.fields import *  # pylint: disable=unused-import, unused-wildcard-import
+from scapy.all import *
+from scapy.fields import *
 from scapy.packet import Packet
-from ncsi.dmtf_enums import *  # pylint: disable=unused-import, unused-wildcard-import
+
+from pmci_protocol_validator.ncsi.classes.dsp0222_enums import *
 
 
 # Conformant to DSP0222 version 1.1.0

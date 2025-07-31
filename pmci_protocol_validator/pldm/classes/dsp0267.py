@@ -7,10 +7,10 @@
 #  Contains the PLDM Type 5 (PLDM for Firmware Update) wrappers from DSP 0267
 ##############################################################################
 
-from scapy.fields import *  # pylint: disable=unused-import, unused-wildcard-import
+from scapy.fields import *
 from scapy.all import bind_layers, Packet
 
-from pldm.dmtf import (
+from pmci_protocol_validator.pldm.classes.dsp0240_base import (
     PLDM_HEADER,
     PLDM_PAYLOAD,
     PLDM_UUID,

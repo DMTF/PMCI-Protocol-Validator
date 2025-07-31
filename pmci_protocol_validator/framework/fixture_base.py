@@ -8,8 +8,7 @@
 ##############################################################################
 
 from scapy.packet import Packet
-from testframework.medium import physicalMedium
-
+from pmci_protocol_validator.framework.medium import physicalMedium
 
 class c_FixtureBase(object):
     """ Test fixture base class """

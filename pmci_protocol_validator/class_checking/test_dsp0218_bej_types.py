@@ -8,8 +8,8 @@
 ##############################################################################
 
 import pytest
-from scapy.fields import *    # pylint: disable=unused-import, unused-wildcard-import
-from pldm.bej_types import *  # pylint: disable=unused-import, unused-wildcard-import
+from scapy.fields import *
+from pmci_protocol_validator.pldm.classes.dsp0218_bej_types import *
 
 
 # Validate bejTupleS[]

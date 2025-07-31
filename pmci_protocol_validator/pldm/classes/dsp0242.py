@@ -10,7 +10,7 @@
 from scapy.fields import *
 from scapy.all import bind_layers, Packet
 
-from pldm.dmtf import (
+from pmci_protocol_validator.pldm.classes.dsp0240_base import (
     PLDM_HEADER,
     PLDM_PAYLOAD,
     register_pldm_class,

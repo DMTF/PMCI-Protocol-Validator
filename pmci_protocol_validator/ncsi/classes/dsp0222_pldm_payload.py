@@ -8,18 +8,17 @@
 ##############################################################################
 
 import struct
-from scapy.fields import *  # pylint: disable=unused-import, unused-wildcard-import
+from scapy.fields import *
 from scapy.packet import Packet
 from scapy.all import bind_layers, checksum
-from ncsi.dmtf_enums import STANDARD_RESPONSE_CODE_VALUES, STANDARD_REASON_CODE_VALUES
+from pmci_protocol_validator.ncsi.classes.dsp0222_enums import STANDARD_RESPONSE_CODE_VALUES, STANDARD_REASON_CODE_VALUES
 
-from pldm.dmtf import PLDM_HEADER
-from ncsi.dmtf import (
+from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
+from pmci_protocol_validator.ncsi.classes.dsp0222 import (
     register_ncsi_class,
     NCSI_PAYLOAD,
     NCSI_HEADER
 )
-
 
 # Register a PLDM over NC-SI class
 def register_pldm_over_ncsi(cls):

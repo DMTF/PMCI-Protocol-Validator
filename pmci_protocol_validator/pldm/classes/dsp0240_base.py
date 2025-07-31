@@ -10,9 +10,9 @@
 import struct
 import scapy
 
-from scapy.fields import *  # pylint: disable=unused-import, unused-wildcard-import
+from scapy.fields import *
 from scapy.packet import Packet
-from ncsi.dmtf import validateRegisteredClass
+from pmci_protocol_validator.ncsi.classes.dsp0222 import validateRegisteredClass
 
 
 DMTF_PLDM_COMMANDS = {}  # Dictionary with keys for PLDM Commands

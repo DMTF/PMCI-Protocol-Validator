@@ -7,12 +7,12 @@
 #  Contains the PLDM Type 2 (PLDM for Platform Monitoring and Control) wrappers
 ##############################################################################
 
-from scapy.fields import *  # pylint: disable=unused-import, unused-wildcard-import
+from scapy.fields import *
 from scapy.all import bind_layers
 from scapy.packet import Packet
 
-from pldm.pdrs import PDR_HEADER
-from pldm.dmtf import (
+from pmci_protocol_validator.pldm.classes.dsp0248_pdrs import PDR_HEADER
+from pmci_protocol_validator.pldm.classes.dsp0240_base import (
     PLDM_HEADER,
     PLDM_PAYLOAD,
     PLDM_UUID,

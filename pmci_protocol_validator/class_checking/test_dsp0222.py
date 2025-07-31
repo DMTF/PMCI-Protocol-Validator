@@ -8,7 +8,7 @@
 ##############################################################################
 
 import pytest
-from ncsi.dmtf import *  # pylint: disable=unused-import, unused-wildcard-import
+from pmci_protocol_validator.ncsi.classes.dsp0222 import *
 
 
 @pytest.mark.parametrize("class_type", NCSI_HEADER())

@@ -9,11 +9,11 @@
 
 import struct
 
-from scapy.fields import *  # pylint: disable=unused-import, unused-wildcard-import
+from scapy.fields import *
 from scapy.packet import Packet
 from scapy.all import checksum, bind_layers
 
-from pldm.dmtf import (
+from pmci_protocol_validator.pldm.classes.dsp0240_base import (
     PLDM_HEADER,
     PLDM_PAYLOAD,
     PLDM_BASE_CODES,

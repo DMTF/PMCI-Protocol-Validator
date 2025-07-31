@@ -14,7 +14,7 @@ import struct
 from scapy.all import bind_layers
 from scapy.packet import Packet
 from scapy.fields import BitField, XByteField, XShortField, PacketField, ByteField, ConditionalField
-from pmciprotocolvalidator.mctp.dmtf import MCTP_HEADER
+from pmci_protocol_validator.mctp.classes.dsp0236 import MCTP_HEADER
 
 
 DMTF_VENDOR_ID = 0x1AB4

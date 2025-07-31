@@ -7,8 +7,8 @@
 #  Common library functions to support test cases.
 ##############################################################################
 
-from testframework.medium import physicalMedium
 from scapy.packet import Packet, raw
+from pmci_protocol_validator.framework.medium import physicalMedium
 
 
 def common_send_receive(commObject: physicalMedium, sendPacket: Packet, fctShowPacket=None) -> Packet:

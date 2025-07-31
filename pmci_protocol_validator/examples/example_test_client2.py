@@ -7,12 +7,12 @@
 #  Example of a basic PTTI session.
 ##############################################################################
 
-from testframework.fixture_ptti import c_PTTI_fixture
-from ptti.dmtf import TestServiceWrapper, Connect_Response
+from pmci_protocol_validator.framework.fixture_ptti import c_PTTI_fixture
+from pmci_protocol_validator.ptti.classes.dsp0280 import TestServiceWrapper, Connect_Response
 from tests.tst_ptti_commands import *
 
-from pldm.dmtf import PLDM_HEADER
-from pldm.type0 import GetTID_Request
+from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
+from pmci_protocol_validator.pldm.classes.dsp0240 import GetTID_Request
 
 # Network parameters for Test Service connection
 CONNECTION_ADDRESS = 'localhost'

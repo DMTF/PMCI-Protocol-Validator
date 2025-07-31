@@ -8,8 +8,8 @@
 ##############################################################################
 
 import pytest
-from scapy.fields import *  # pylint: disable=unused-import, unused-wildcard-import
-from ptti.dmtf import *  # pylint: disable=unused-import, unused-wildcard-import
+from scapy.fields import *
+from pmci_protocol_validator.ptti.classes.dsp0280 import *
 
 EXPECTED_VERSION_COMPLIANCE = 0x11
 

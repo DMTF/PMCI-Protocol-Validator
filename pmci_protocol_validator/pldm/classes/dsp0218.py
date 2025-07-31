@@ -7,11 +7,11 @@
 #  Contains the PLDM Type 6 (PLDM for Redfish) wrappers from DSP0218
 ##############################################################################
 
-from scapy.fields import *    # pylint: disable=unused-import, unused-wildcard-import
+from scapy.fields import *
 from scapy.all import bind_layers, Packet
 
-from pldm.bej_types import *  # pylint: disable=unused-import, unused-wildcard-import
-from pldm.dmtf import (
+from pmci_protocol_validator.pldm.classes.dsp0218_bej_types import *
+from pmci_protocol_validator.pldm.classes.dsp0240_base import (
     PLDM_HEADER,
     PLDM_PAYLOAD,
     VAR_STRING,

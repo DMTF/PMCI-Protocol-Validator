@@ -8,9 +8,9 @@
 ##############################################################################
 
 from scapy.packet import Packet
-from testframework.fixture_base import c_FixtureBase
-from ptti.binding import PTTIMedium
-from ptti.dmtf import VERSION_COMPLIANCE, TestServiceWrapper
+from pmci_protocol_validator.framework.fixture_base import c_FixtureBase
+from pmci_protocol_validator.ptti.classes.dsp0280 import VERSION_COMPLIANCE, TestServiceWrapper
+from pmci_protocol_validator.ptti.classes.dsp0280_comm import PTTIMedium
 
 
 class c_PTTI_fixture(c_FixtureBase):

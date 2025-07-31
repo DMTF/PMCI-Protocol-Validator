@@ -11,7 +11,7 @@ import sys
 import binascii
 
 from scapy.packet import Raw
-from ptti.dmtf import *
+from pmci_protocol_validator.ptti.classes.dsp0280 import *
 
 show_ptti_packets = [
     "Connect_Request",
