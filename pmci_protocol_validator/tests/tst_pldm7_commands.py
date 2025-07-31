@@ -7,8 +7,8 @@
 #  DSP0242 test cases.
 ##############################################################################
 
-from testframework.utilities import common_send_receive
-from pldm.type7 import *    # noqa:F403
+from pmci_protocol_validator.framework.utilities import common_send_receive
+from pmci_protocol_validator.pldm.classes.dsp0242 import *
 
 
 def test_DfOpen(testFixture, lowerLayer, FileId, OpenWrite=False, OpenExclusive=False, OpenFIFO=False, OpenPushed=False):

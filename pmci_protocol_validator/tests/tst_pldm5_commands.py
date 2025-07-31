@@ -7,8 +7,8 @@
 #  DSP0267 test cases.
 ##############################################################################
 
-from testframework.utilities import common_send_receive
-from pldm.type5 import (
+from pmci_protocol_validator.framework.utilities import common_send_receive
+from pmci_protocol_validator.pldm.classes.dsp0267 import (
     PLDM_HEADER,
     QueryDeviceIdentifiers_Request,
     QueryDeviceIdentifiers_Response,

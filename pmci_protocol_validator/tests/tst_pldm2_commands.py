@@ -4,12 +4,12 @@
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
 #  File Abstract:
-#  DSP0240 basic test cases.
+#  DSP0248 basic test cases.
 ##############################################################################
 
-from testframework.utilities import common_send_receive
-from pldm.type2 import *
-from pldm.pdrs import *
+from pmci_protocol_validator.framework.utilities import common_send_receive
+from pmci_protocol_validator.pldm.classes.dsp0248 import *
+from pmci_protocol_validator.pldm.classes.dsp0248_pdrs import *
 
 
 def test_GetPDRRepositoryInfo(testFixture, lowerLayerHeaders):

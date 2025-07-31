@@ -7,8 +7,8 @@
 #  DSP0222 v1.2.0 runtime test cases.
 ##############################################################################
 
-from testframework.utilities import common_send_receive
-from ncsi.dmtf_1_2_0 import *
+from pmci_protocol_validator.framework.utilities import common_send_receive
+from pmci_protocol_validator.ncsi.classes.dsp0222_1_2_0 import *
 
 
 def test_GetNcCapabilitiesSettings(testFixture, lowerLayer):

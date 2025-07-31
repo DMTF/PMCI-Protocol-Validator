@@ -8,9 +8,8 @@
 ##############################################################################
 
 from pmci_protocol_validator.framework.fixture_ptti import c_PTTI_fixture
-from pmci_protocol_validator.ptti.classes.dsp0280 import TestServiceWrapper, Connect_Response
-from tests.tst_ptti_commands import *
-
+from pmci_protocol_validator.ptti.classes.dsp0280 import *
+from pmci_protocol_validator.tests.tst_ptti_commands import *
 from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
 from pmci_protocol_validator.pldm.classes.dsp0240 import GetTID_Request
 

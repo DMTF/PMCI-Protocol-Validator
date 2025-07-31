@@ -7,11 +7,11 @@
 #  DSP0222 runtime test cases.
 ##############################################################################
 
-from testframework.utilities import common_send_receive
-from tests.tst_ncsi_enums import *
-from ncsi.dmtf import *
-from ncsi.pldm_payload import NcsiPldm_Request, NcsiPldm_Response
-from pldm.dmtf import PLDM_HEADER
+from pmci_protocol_validator.framework.utilities import common_send_receive
+from pmci_protocol_validator.tests.tst_ncsi_enums import *
+from pmci_protocol_validator.ncsi.classes.dsp0222 import *
+from pmci_protocol_validator.ncsi.classes.dsp0222_pldm_payload import NcsiPldm_Request, NcsiPldm_Response
+from pmci_protocol_validator.ncsi.classes.dsp0222 import PLDM_HEADER
 
 
 def test_clear_initial_state(testFixture, lowerLayer):

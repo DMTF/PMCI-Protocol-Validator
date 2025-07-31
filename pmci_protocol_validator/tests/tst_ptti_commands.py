@@ -7,9 +7,9 @@
 #  DSP0280 basic positive test cases.
 ##############################################################################
 
-from testframework.fixture_ptti import c_PTTI_fixture
-from testframework.utilities import common_send_receive
-from ptti.dmtf import *
+from pmci_protocol_validator.framework.fixture_ptti import c_PTTI_fixture
+from pmci_protocol_validator.framework.utilities import common_send_receive
+from pmci_protocol_validator.ptti.classes.dsp0280 import *
 
 
 def test_Connect(testFixture: c_PTTI_fixture, lowerLayerHeaders: TestServiceWrapper, secPrm: bytes):

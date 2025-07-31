@@ -7,8 +7,8 @@
 #  DSP0240 test cases.
 ##############################################################################
 
-from testframework.utilities import common_send_receive
-from pldm.type0 import (
+from pmci_protocol_validator.framework.utilities import common_send_receive
+from pmci_protocol_validator.pldm.classes.dsp0240 import (
     PLDM_HEADER,
     SetTID_Request,
     SetTID_Response,

@@ -7,8 +7,8 @@
 #  DSP0218 test cases.
 ##############################################################################
 
-from testframework.utilities import common_send_receive
-from pldm.type6 import *    # noqa:F403
+from pmci_protocol_validator.framework.utilities import common_send_receive
+from pmci_protocol_validator.pldm.classes.dsp0218 import *
 
 
 def test_NegotiateRedfishParameters(testFixture, lowerLayerHeaders):
