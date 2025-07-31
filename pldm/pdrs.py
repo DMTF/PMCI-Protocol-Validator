@@ -1791,11 +1791,11 @@ class PDR_HEADER(Packet):
 
         ConditionalField(
             PacketField("Terminus", TerminusLocatorPDR(), TerminusLocatorPDR),
-            lambda kt: kt.PDRType == 1,
+            lambda pkt: pkt.PDRType == 1,
         ),
         ConditionalField(
             PacketField("NumericSensor", NumericSensorPDR(), NumericSensorPDR),
-            lambda kt: kt.PDRType == 2,
+            lambda pkt: pkt.PDRType == 2,
         ),
         ConditionalField(
             PacketField(
@@ -1803,11 +1803,11 @@ class PDR_HEADER(Packet):
                 NumericSensorInitializationPDR(),
                 NumericSensorInitializationPDR,
             ),
-            lambda kt: kt.PDRType == 3,
+            lambda pkt: pkt.PDRType == 3,
         ),
         ConditionalField(
             PacketField("StateSensor", StateSensorPDR(), StateSensorPDR),
-            lambda kt: kt.PDRType == 4,
+            lambda pkt: pkt.PDRType == 4,
         ),
         ConditionalField(
             PacketField(
@@ -1815,7 +1815,7 @@ class PDR_HEADER(Packet):
                 StateSensorInitializationPDR(),
                 StateSensorInitializationPDR,
             ),
-            lambda kt: kt.PDRType == 5,
+            lambda pkt: pkt.PDRType == 5,
         ),
         ConditionalField(
             PacketField(
@@ -1823,18 +1823,18 @@ class PDR_HEADER(Packet):
                 SensorAuxiliaryNamesPDR(),
                 SensorAuxiliaryNamesPDR,
             ),
-            lambda kt: kt.PDRType == 6,
+            lambda pkt: pkt.PDRType == 6,
         ),
         ConditionalField(
-            PacketField("OEMUnit", OEMUnitPDR(), OEMUnitPDR), lambda kt: kt.PDRType == 7
+            PacketField("OEMUnit", OEMUnitPDR(), OEMUnitPDR), lambda pkt: pkt.PDRType == 7
         ),
         ConditionalField(
             PacketField("OEMStateSet", OEMStatePDR(), OEMStatePDR),
-            lambda kt: kt.PDRType == 8,
+            lambda pkt: pkt.PDRType == 8,
         ),
         ConditionalField(
             PacketField("NumericEffecter", NumericEffecterPDR(), NumericEffecterPDR),
-            lambda kt: kt.PDRType == 9,
+            lambda pkt: pkt.PDRType == 9,
         ),
         ConditionalField(
             PacketField(
@@ -1842,11 +1842,11 @@ class PDR_HEADER(Packet):
                 NumericEffecterInitializationPDR(),
                 NumericEffecterInitializationPDR,
             ),
-            lambda kt: kt.PDRType == 10,
+            lambda pkt: pkt.PDRType == 10,
         ),
         ConditionalField(
             PacketField("StateEffecter", StateEffecterPDR(), StateEffecterPDR),
-            lambda kt: kt.PDRType == 11,
+            lambda pkt: pkt.PDRType == 11,
         ),
         ConditionalField(
             PacketField(
@@ -1854,7 +1854,7 @@ class PDR_HEADER(Packet):
                 StateEffecterInitializationPDR(),
                 StateEffecterInitializationPDR,
             ),
-            lambda kt: kt.PDRType == 12,
+            lambda pkt: pkt.PDRType == 12,
         ),
         ConditionalField(
             PacketField(
@@ -1862,19 +1862,19 @@ class PDR_HEADER(Packet):
                 EffecterAuxiliaryNamesPDR(),
                 EffecterAuxiliaryNamesPDR,
             ),
-            lambda kt: kt.PDRType == 13,
+            lambda pkt: pkt.PDRType == 13,
         ),
         ConditionalField(
             PacketField(
                 "OEMEffecterSemantic", OEMEffecterSemanticPDR(), OEMEffecterSemanticPDR
             ),
-            lambda kt: kt.PDRType == 14,
+            lambda pkt: pkt.PDRType == 14,
         ),
         ConditionalField(
             PacketField(
                 "EntityAssociation", EntityAssociationPDR(), EntityAssociationPDR
             ),
-            lambda kt: kt.PDRType == 15,
+            lambda pkt: pkt.PDRType == 15,
         ),
         ConditionalField(
             PacketField(
@@ -1882,11 +1882,11 @@ class PDR_HEADER(Packet):
                 EntityAuxiliaryNamesPDR(),
                 EntityAuxiliaryNamesPDR,
             ),
-            lambda kt: kt.PDRType == 16,
+            lambda pkt: pkt.PDRType == 16,
         ),
         ConditionalField(
             PacketField("OEMEntityID", OEMEntityIDPDR(), OEMEntityIDPDR),
-            lambda kt: kt.PDRType == 17,
+            lambda pkt: pkt.PDRType == 17,
         ),
         ConditionalField(
             PacketField(
@@ -1894,15 +1894,15 @@ class PDR_HEADER(Packet):
                 InterruptAssociationPDR(),
                 InterruptAssociationPDR,
             ),
-            lambda kt: kt.PDRType == 18,
+            lambda pkt: pkt.PDRType == 18,
         ),
         ConditionalField(
             PacketField("EventLog", EventLogPDR(), EventLogPDR),
-            lambda kt: kt.PDRType == 19,
+            lambda pkt: pkt.PDRType == 19,
         ),
         ConditionalField(
             PacketField("FRURecordSet", FRURecordSetPDR(), FRURecordSetPDR),
-            lambda kt: kt.PDRType == 20,
+            lambda pkt: pkt.PDRType == 20,
         ),
         ConditionalField(
             PacketField(
@@ -1910,11 +1910,11 @@ class PDR_HEADER(Packet):
                 CompactNumericSensorPDR(),
                 CompactNumericSensorPDR,
             ),
-            lambda kt: kt.PDRType == 21,
+            lambda pkt: pkt.PDRType == 21,
         ),
         ConditionalField(
             PacketField("RedfishResource", RedfishResourcePDR(), RedfishResourcePDR),
-            lambda kt: kt.PDRType == 22,
+            lambda pkt: pkt.PDRType == 22,
         ),
         ConditionalField(
             PacketField(
@@ -1922,18 +1922,18 @@ class PDR_HEADER(Packet):
                 RedfishEntityAssociationPDR(),
                 RedfishEntityAssociationPDR,
             ),
-            lambda kt: kt.PDRType == 23,
+            lambda pkt: pkt.PDRType == 23,
         ),
         ConditionalField(
             PacketField("RedfishAction", RedfishActionPDR(), RedfishActionPDR),
-            lambda kt: kt.PDRType == 24,
+            lambda pkt: pkt.PDRType == 24,
         ),
         ConditionalField(
             PacketField("OEMDevice", OEMDevicePDR(), OEMDevicePDR),
-            lambda kt: kt.PDRType == 126,
+            lambda pkt: pkt.PDRType == 126,
         ),
         ConditionalField(
-            PacketField("OEM", OEMPDR(), OEMPDR), lambda kt: kt.PDRType == 127
+            PacketField("OEM", OEMPDR(), OEMPDR), lambda pkt: pkt.PDRType == 127
         ),
         ConditionalField(
             FieldListField(
@@ -1942,7 +1942,7 @@ class PDR_HEADER(Packet):
                 XByteField("", 0x00),
                 count_from=lambda pkt: pkt.DataLength,
             ),
-            lambda kt: kt.PDRType
+            lambda pkt: pkt.PDRType
             not in [
                 1,
                 2,

@@ -728,6 +728,7 @@ class GetLinkStatus_Response(NCSI_PAYLOAD):
                     0x13: "800 Gbps"
                 },
             ),
+
             BitEnumField("ModulationScheme", 0, 2, {1: "NRZ", 2: "PAM-4"}),
             BitEnumField("OemLinkSpeedValid", 0, 1, VALID_NOT_VALID),
             BitEnumField("SerDesLink", 0, 1, {0: "SerDes is not used", 1: "SerDes is not used"}),
@@ -744,6 +745,7 @@ class GetLinkStatus_Response(NCSI_PAYLOAD):
             ),
             BitEnumField("RxFlowControlFlag", 0, 1, ENABLE_DISABLE),
             BitEnumField("TxFlowControlFlag", 0, 1, ENABLE_DISABLE),
+
             BitEnumField("LinkPartnerAdvertisedSpeedAndDuplex10THD", 0, 1, CAPABLE_NOT_CAPABLE),
             BitEnumField("LinkPartnerAdvertisedSpeedAndDuplex10TFD", 0, 1, CAPABLE_NOT_CAPABLE),
             BitEnumField("LinkPartnerAdvertisedSpeedAndDuplex100TXHD", 0, 1, CAPABLE_NOT_CAPABLE),
@@ -751,7 +753,8 @@ class GetLinkStatus_Response(NCSI_PAYLOAD):
             BitEnumField("LinkPartnerAdvertisedSpeedAndDuplex100T4", 0, 1, CAPABLE_NOT_CAPABLE),
             BitEnumField("LinkPartnerAdvertisedSpeedAndDuplex1000THD", 0, 1, CAPABLE_NOT_CAPABLE),
             BitEnumField("LinkPartnerAdvertisedSpeedAndDuplex1000TFD", 0, 1, CAPABLE_NOT_CAPABLE),
-            BitField("LinkStatusReserved_1", 0, 1),  # bit 8
+            BitField("LinkStatusReserved_1", 0, 1),
+
             BitEnumField("ParallelDetectionFlag", 0, 1, {0: "Not used to obtain link", 1: "Used to obtain link", }),
             BitEnumField("AutoNegotiateComplete", 0, 1, COMPLETE_NOT_COMPLETE),
             BitEnumField("AutoNegotiateFlag", 0, 1, ENABLE_DISABLE),
@@ -1069,10 +1072,10 @@ class GetVersionID_Response(NCSI_PAYLOAD):
 
             StrLenField("FirmwareNameString03_00", b"", length_from=lambda unused: 4),
 
-            XByteField("FirmwareVersionMajor", 0x00),
-            XByteField("FirmwareVersionMinor", 0x00),
-            XByteField("FirmwareVersionUpdate", 0x00),
-            XByteField("FirmwareVersionAlpha", 0x00),
+            XByteField("FirmwareVersionByte3", 0x00),
+            XByteField("FirmwareVersionByte2", 0x00),
+            XByteField("FirmwareVersionByte1", 0x00),
+            XByteField("FirmwareVersionByte0", 0x00),
 
             XShortField("PCIDID", 0x0000),
             XShortField("PCIVID", 0x0000),
@@ -1196,12 +1199,11 @@ class GetCapabilities_Response(NCSI_PAYLOAD):
 
             # AEN Control Support
             BitField("OEMSpecificAENControl", 0, 16),
-            BitField("Reserved_4", 0, 11),
-            BitEnumField("TransceiverEventAENControl", 0, 1, ENABLE_DISABLE),
-            BitEnumField("DelayedResponseReadyAENControl", 0, 1, ENABLE_DISABLE),
+            BitField("Reserved_4", 0, 13),
             BitEnumField("HostNCDriverStatusChangeAENControl", 0, 1, ENABLE_DISABLE),
             BitEnumField("ConfigurationRequiredAENControl", 0, 1, ENABLE_DISABLE),
             BitEnumField("LinkStatusChangeAENControl", 0, 1, ENABLE_DISABLE),
+
             XByteField("VLANFilterCount", 0x00),
             XByteField("MixedFilterCount", 0x00),
             XByteField("MulticastFilterCount", 0x00),
@@ -1270,6 +1272,9 @@ class GetParameters_Response(NCSI_PAYLOAD):
             XByteField("Reserved_2", 0x00),
             BitField("VLANTagFlags", 0, 16),    # Table 92 DSP0222
 
+            # Link Settings
+
+            # Byte 3
             BitField("SetLinkReserved_2", 0, 1),
             BitEnumField("ParallelDetect", 0, 1, ENABLE_DISABLE),  # NC-SI 1.2
             BitEnumField("LinkTraining", 0, 1, ENABLE_DISABLE),    # NC-SI 1.2
@@ -1277,6 +1282,8 @@ class GetParameters_Response(NCSI_PAYLOAD):
             BitField("FecReserved", 0, 2),    # NC-SI 1.2
             BitField("FecRS_FEC", 0, 1),      # NC-SI 1.2
             BitField("FecBASE_R_FEC", 0, 1),  # NC-SI 1.2
+
+            #Byte 2
             BitField("Enable_PAM_4", 0, 1),  # NC-SI 1.2
             BitField("Enable_NRZ", 0, 1),    # NC-SI 1.2
             BitField("SetLinkReserved_1", 0, 2),
@@ -1284,6 +1291,8 @@ class GetParameters_Response(NCSI_PAYLOAD):
             BitEnumField("Enable400Gbps", 0, 1, ENABLE_DISABLE),  # NC-SI 1.2
             BitEnumField("Enable200Gbps", 0, 1, ENABLE_DISABLE),  # NC-SI 1.2
             BitEnumField("Enable5Gbps", 0, 1, ENABLE_DISABLE),
+
+            # Byte 1
             BitEnumField("Enable2_5Gbps", 0, 1, ENABLE_DISABLE),
             BitEnumField("Enable100Gbps", 0, 1, ENABLE_DISABLE),
             BitEnumField("Enable50Gbps", 0, 1, ENABLE_DISABLE),
@@ -1292,6 +1301,8 @@ class GetParameters_Response(NCSI_PAYLOAD):
             BitEnumField("PauseCapability", 0, 1, {0: "Enable", 1: "Disable"}),
             BitEnumField("EnableFullDuplex", 0, 1, ENABLE_DISABLE),
             BitEnumField("EnableHalfDuplex", 0, 1, ENABLE_DISABLE),
+
+            #  Byte 0
             BitEnumField("Enable40Gbps", 0, 1, ENABLE_DISABLE),
             BitEnumField("Enable25Gbps", 0, 1, ENABLE_DISABLE),
             BitEnumField("Enable20Gbps", 0, 1, ENABLE_DISABLE),

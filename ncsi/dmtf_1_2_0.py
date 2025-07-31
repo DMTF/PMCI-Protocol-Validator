@@ -71,33 +71,26 @@ class GetNcCapabilitiesSettings_Response(NCSI_PAYLOAD):
         ByteField("EnabledPFs", 0),
         ShortField("MaxVFs", 0),
 
-        BitEnumField("FabricsEthernet", 0, 1, SUPPORTED_NOT_SUPPORTED),
-        BitEnumField("FabricsFibreChannel", 0, 1, SUPPORTED_NOT_SUPPORTED),
-        BitEnumField("FabricsInfiniBand", 0, 1, SUPPORTED_NOT_SUPPORTED),
         BitField("Reserved_0", 0, 5),
+        BitEnumField("FabricsInfiniBand", 0, 1, SUPPORTED_NOT_SUPPORTED),
+        BitEnumField("FabricsFibreChannel", 0, 1, SUPPORTED_NOT_SUPPORTED),
+        BitEnumField("FabricsEthernet", 0, 1, SUPPORTED_NOT_SUPPORTED),
 
-        BitEnumField("EnabledFabricsEthernet", 0, 1, SUPPORTED_NOT_SUPPORTED),
-        BitEnumField("EnabledFabricsFibreChannel", 0, 1, SUPPORTED_NOT_SUPPORTED),
-        BitEnumField("EnabledFabricsInfiniBand", 0, 1, SUPPORTED_NOT_SUPPORTED),
         BitField("EnabledFabricsReserved", 0, 5),
+        BitEnumField("EnabledFabricsInfiniBand", 0, 1, SUPPORTED_NOT_SUPPORTED),
+        BitEnumField("EnabledFabricsFibreChannel", 0, 1, SUPPORTED_NOT_SUPPORTED),
+        BitEnumField("EnabledFabricsEthernet", 0, 1, SUPPORTED_NOT_SUPPORTED),
 
         # Other Capabilities
+        BitField("Reserved_1", 0, 7),
+        XBitField("MaxDataTransferSizeExp", 0x00, 5),
         BitEnumField(
-            "VFAllocation",
+            "EnabledPFsFlag",
             0,
             1,
             {
-                0: "The Max VFs field is interpreted as per port",
-                1: "The Max VFs field is interpreted as per device",
-            }
-        ),
-        BitEnumField(
-            "EnabledPortsFlag",
-            0,
-            1,
-            {
-                0: "The number of Enabled Ports is fixed",
-                1: "The number of Enabled Ports is programmable",
+                0: "The number of Enabled PFs is fixed",
+                1: "The number of Enabled PFs is programmable",
             }
         ),
         BitEnumField(
@@ -110,16 +103,23 @@ class GetNcCapabilitiesSettings_Response(NCSI_PAYLOAD):
             }
         ),
         BitEnumField(
-            "EnabledPFsFlag",
+            "EnabledPortsFlag",
             0,
             1,
             {
-                0: "The number of Enabled PFs is fixed",
-                1: "The number of Enabled PFs is programmable",
+                0: "The number of Enabled Ports is fixed",
+                1: "The number of Enabled Ports is programmable",
             }
         ),
-        XBitField("MaxDataTransferSizeExp", 0x00, 5),
-        BitField("Reserved_1", 0, 7),
+        BitEnumField(
+            "VFAllocation",
+            0,
+            1,
+            {
+                0: "The Max VFs field is interpreted as per port",
+                1: "The Max VFs field is interpreted as per device",
+            }
+        ),
 
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
@@ -342,9 +342,6 @@ class SetChannelConfiguration_Request(NCSI_PAYLOAD):
         ),
         ByteField("NumPartitions", 0),
         ShortField("MaxMTU", 0),
-        FieldLenField(
-            "NumEnabledPartitions", 0, count_of="Bandwidth", fmt="B"
-        ),
         PacketListField(
             "Bandwidth",
             None,
@@ -672,31 +669,32 @@ class SetPartitionConfiguration_Request(NCSI_PAYLOAD):
 
     fields_desc = [
         ByteField("PartitionID", 0),
+        BitField("Reserved_0", 0, 1),
         BitEnumField(
-            "EthernetStatus",
+            "NVMe",
             0,
             1,
             {
-                0: "Disable Ethernet operation",
-                1: "Enable Ethernet operation",
-            }
-        ),
-       BitEnumField(
-            "FibreChannelStatus",
-            0,
-            1,
-            {
-                0: "Disable Fibre Channel operation",
-                1: "Enable Fibre Channel operation",
+                0: "Disable NVMe operation",
+                1: "Enable NVMe operation",
             },
         ),
         BitEnumField(
-            "FibreChannelOverEthernetStatus",
+            "RDMAStatus",
             0,
             1,
             {
-                0: "Disable Fibre Channel over Ethernet operation",
-                1: "Enable Fibre Channel over Ethernet operation",
+                0: "Disable RDMA operation",
+                1: "Enable RDMA operation",
+            }
+        ),
+        BitEnumField(
+            "iSCSIOffloadStatus",
+            0,
+            1,
+            {
+                0: "Disable iSCSI Offload operation",
+                1: "Enable iSCSI Offload operation",
             }
         ),
         BitEnumField(
@@ -709,33 +707,32 @@ class SetPartitionConfiguration_Request(NCSI_PAYLOAD):
             },
         ),
         BitEnumField(
-            "iSCSIOffloadStatus",
+            "FibreChannelOverEthernetStatus",
             0,
             1,
             {
-                0: "Disable iSCSI Offload operation",
-                1: "Enable iSCSI Offload operation",
+                0: "Disable Fibre Channel over Ethernet operation",
+                1: "Enable Fibre Channel over Ethernet operation",
             }
         ),
-        BitEnumField(
-            "RDMAStatus",
+       BitEnumField(
+            "FibreChannelStatus",
             0,
             1,
             {
-                0: "Disable RDMA operation",
-                1: "Enable RDMA operation",
-            }
-        ),
-        BitEnumField(
-            "NVMe",
-            0,
-            1,
-            {
-                0: "Disable NVMe operation",
-                1: "Enable NVMe operation",
+                0: "Disable Fibre Channel operation",
+                1: "Enable Fibre Channel operation",
             },
         ),
-        BitField("Reserved_0", 0, 1),
+        BitEnumField(
+            "EthernetStatus",
+            0,
+            1,
+            {
+                0: "Disable Ethernet operation",
+                1: "Enable Ethernet operation",
+            }
+        ),
         XShortField("Reserved_1", 0x0000),
         XByteEnumField(
             "PartitionLinkControl",
@@ -2260,9 +2257,9 @@ class SetPassThroughModeControl_Request(NCSI_PAYLOAD):
     fields_desc = [
         XShortField("Reserved_0", 0x0000),
         BitField("Reserved_1", 0, 5),
-        BitEnumField("NetworkBMCPassthroughTraffic", 0, 1, ALLOWED_DISALLOWED),
-        BitEnumField("HostBmcPassthroughTraffic", 0, 1, ALLOWED_DISALLOWED),
         BitEnumField("EmbeddedCpuBmcPassthroughTraffic", 0, 1, ALLOWED_DISALLOWED),
+        BitEnumField("HostBmcPassthroughTraffic", 0, 1, ALLOWED_DISALLOWED),
+        BitEnumField("NetworkBMCPassthroughTraffic", 0, 1, ALLOWED_DISALLOWED),
         XByteField("Reserved_2", 0x00),
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
@@ -2753,6 +2750,9 @@ class InventoryInfoEntry(Packet):
     """"DSP0222 v1.2.0 Get Inventory Information Response Data"""
 
     fields_desc = [
+        FieldLenField(
+            "Length", None, length_of="Value", fmt="B"
+        ),
         XByteEnumField(
             "AttributeNameType",
             0,
@@ -2764,9 +2764,6 @@ class InventoryInfoEntry(Packet):
                 0x04: "Serial Number",
                 0x05: "Manufacturing timestamp104",
             }
-        ),
-        FieldLenField(
-            "Length", None, length_of="Value", fmt="B"
         ),
         FieldListField(
             "Value",
@@ -2792,15 +2789,15 @@ class GetInventoryInformation_Response(NCSI_PAYLOAD):
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
         ConditionalField(
             FieldLenField(
-                "NumberOfTLVs", None, count_of="TLV", fmt="B"
+                "NumberOfTLVs", None, count_of="TLVs", fmt="B"
             ),
             lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
         ConditionalField(
             PacketListField(
-                "TLV",
-                [],
+                "TLVs",
                 InventoryInfoEntry(),
+                InventoryInfoEntry,
                 count_from=lambda pkt: pkt.NumberOfTLVs
             ),
             lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
@@ -2841,7 +2838,7 @@ class GetPackageUUID_Response(NCSI_PAYLOAD):
 
 # DSP0261 - Table 10
 class GetSupportedMedia_Request(NCSI_PAYLOAD):
-    """DSP0222 v1.2.0 Get Supported Media Request"""
+    """DSP0261 v1.3.1 Get Supported Media Request"""
 
     name = "Get Supported Media Request"
     CommandValue = 0x54
@@ -2875,7 +2872,7 @@ class MediaDescriptor(Packet):
 
 # DSP0261 - Table 11
 class GetSupportedMedia_Response(NCSI_PAYLOAD):
-    """DSP0222 v1.2.0 Get Supported Media Response"""
+    """DSP0261 v1.3.1 Get Supported Media Response"""
 
     name = "Get Supported Media Response"
     CommandValue = 0xD4
@@ -3038,7 +3035,7 @@ class GetMcMacAddress_Response(NCSI_PAYLOAD):
         ),
 
         ConditionalField(
-            X3BytesField("GetMcMacAddress_1", 0),
+            X3BytesField("Reserved", 0),
             lambda pkt: pkt.ResponseCode == 0x0000 and pkt.ReasonCode == 0x0000
         ),
 

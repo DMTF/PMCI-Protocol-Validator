@@ -196,12 +196,11 @@ def test_SetChannelConfiguration_Request(class_type):
     """Verify SetChannelConfiguration_Request initialization"""
 
     assert (class_type.CommandValue == 0x2A), "Incorrect command code"
-    assert (len(class_type.fields_desc) == 6), "Incorrect number of fields"
+    assert (len(class_type.fields_desc) == 5), "Incorrect number of fields"
 
     assert (class_type.FabricType == 0)
     assert (class_type.NumPartitions == 0)
     assert (class_type.MaxMTU == 0)
-    assert (class_type.NumEnabledPartitions == 0)
     assert (class_type.Bandwidth is not None)
 
     assert (class_type.Checksum is None)
@@ -838,7 +837,7 @@ def test_GetInventoryInformation_Response(class_type):
     assert (class_type.ResponseCode == 0x00)
     assert (class_type.ReasonCode == 0x00)
     assert (class_type.NumberOfTLVs is None)
-    assert (class_type.TLV is not None)
+    assert (class_type.TLVs is not None)
     assert (class_type.Checksum is None)
     return
 
@@ -1172,7 +1171,7 @@ def test_GetMcMacAddress_Response(class_type):
     assert (class_type.ResponseCode == 0x00)
     assert (class_type.ReasonCode == 0x00)
     assert (class_type.AddressCount is None)
-    assert (class_type.GetMcMacAddress_1 == 0x00)
+    assert (class_type.Reserved == 0)
     assert (class_type.Checksum is None)
     return
 
