@@ -34,7 +34,6 @@ test_ncsi_commands = [
     "EnableGlobalMulticastFilter",
     "DisableGlobalMulticastFilter",
     "SetNCSIFlowControl",
-    "GetVersionID",
     "GetCapabilities",
     "GetParameters",
     "GetControllerPacketStatistics",
