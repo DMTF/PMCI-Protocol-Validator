@@ -8,40 +8,41 @@
 ##############################################################################
 
 from scapy.packet import Packet
-from pmci_protocol_validator.framework.medium import physicalMedium
+from pmci_protocol_validator.framework.medium import CommMedium
 
-class c_FixtureBase(object):
+
+class FixtureBase(object):
     """ Test fixture base class """
 
-    def __init__(self, comm_if: physicalMedium):
-        """ c_FixtureBase class constructor """
+    def __init__(self, comm_if: CommMedium):
+        """ Class constructor """
 
         if comm_if is None:
-            raise Exception("c_FixtureBase: ERROR: A comm object is required")
+            raise Exception("FixtureBase: ERROR: A comm object is required")
 
         self.commObject = comm_if
         return
 
     def __del__(self):
-        """ c_FixtureBase class destructor """
+        """ Class destructor """
 
         if self.commObject is not None:
             self.commObject._close()
 
         return
 
-    def VerifyCommonFields(self, rsp_pkt: Packet, req_pkt: Packet):
+    def verify_common_fields(self, rsp_pkt: Packet, req_pkt: Packet) -> bool:
         """ Verify common fields """
 
         return True
 
-    def logMessage(self, msg_str: str):
+    def log_msg(self, msg_str: str) -> None:
         """ Log a message """
 
         print(msg_str)
         return
 
-    def showPacket(self, packet: Packet):
+    def show_pkt(self, packet: Packet) -> None:
         """ Display the packet contents """
 
         packet.show2()

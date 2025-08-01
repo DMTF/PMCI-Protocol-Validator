@@ -25,7 +25,7 @@ from pmci_protocol_validator.pldm.classes.dsp0240 import (
 )
 
 
-def test_SetTID(testFixture, lowerLayerHeaders, TID=0):
+def test_set_tid(testFixture, lowerLayerHeaders, TID=0):
     """ Test DSP0240 SetTID request """
 
     # Assemble the full PLDM request packet
@@ -34,7 +34,7 @@ def test_SetTID(testFixture, lowerLayerHeaders, TID=0):
     SendPacket[SetTID_Request].TID = TID
 
     # Send the request and wait for the response
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     # Validate fields
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
@@ -46,13 +46,13 @@ def test_SetTID(testFixture, lowerLayerHeaders, TID=0):
     return RecvPacket
 
 
-def test_GetTID(testFixture, lowerLayerHeaders):
+def test_get_tid(testFixture, lowerLayerHeaders):
     """ Test DSP0240 PLDM Get TID request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetTID_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -63,14 +63,14 @@ def test_GetTID(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetPldmVersion(testFixture, lowerLayerHeaders):
+def test_get_pldm_version(testFixture, lowerLayerHeaders):
     """" Test DSP0240 PLDM Get Pldm Version request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPldmVersion_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
     SendPacket[GetPldmVersion_Request].TransferOperationFlag = 1
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -81,13 +81,13 @@ def test_GetPldmVersion(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetPldmTypes(testFixture, lowerLayerHeaders):
+def test_get_pldm_types(testFixture, lowerLayerHeaders):
     """ Test DSP0240 PLDM GetPldmTypes request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPldmTypes_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -97,7 +97,7 @@ def test_GetPldmTypes(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetPldmCommands(testFixture, lowerLayerHeaders, pldmType=0, requestVersion=0xF1F1F000):
+def test_get_pldm_commands(testFixture, lowerLayerHeaders, pldmType=0, requestVersion=0xF1F1F000):
     """ Test DSP0240 PLDM Get PLDM Commands request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetPldmCommands_Request()
@@ -105,7 +105,7 @@ def test_GetPldmCommands(testFixture, lowerLayerHeaders, pldmType=0, requestVers
     SendPacket[GetPldmCommands_Request].PldmType = 0
     SendPacket[GetPldmCommands_Request].Version = requestVersion
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -115,7 +115,7 @@ def test_GetPldmCommands(testFixture, lowerLayerHeaders, pldmType=0, requestVers
     return RecvPacket
 
 
-def test_SelectPLDMVersion(testFixture, lowerLayerHeaders, pldmType=0, requestVersion=0xF1F1F000):
+def test_select_pldm_version(testFixture, lowerLayerHeaders, pldmType=0, requestVersion=0xF1F1F000):
     """ Test DSP0240 Select PLDM Version request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SelectPLDMVersion_Request()
@@ -123,7 +123,7 @@ def test_SelectPLDMVersion(testFixture, lowerLayerHeaders, pldmType=0, requestVe
     SendPacket[SelectPLDMVersion_Request].PldmType = pldmType
     SendPacket[SelectPLDMVersion_Request].Version = requestVersion
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 

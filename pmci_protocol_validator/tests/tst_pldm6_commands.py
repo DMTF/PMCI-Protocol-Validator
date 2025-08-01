@@ -11,7 +11,7 @@ from pmci_protocol_validator.framework.utilities import common_send_receive
 from pmci_protocol_validator.pldm.classes.dsp0218 import *
 
 
-def test_NegotiateRedfishParameters(testFixture, lowerLayerHeaders):
+def test_negotiate_redfish_parameters(testFixture, lowerLayerHeaders):
     """ Test DSP0218 Negotiate Redfish Parameters request """
 
     # Assemble the full PLDM request packet
@@ -19,7 +19,7 @@ def test_NegotiateRedfishParameters(testFixture, lowerLayerHeaders):
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
     # Send the request and wait for the response
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     # Validate header fields
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
@@ -34,14 +34,14 @@ def test_NegotiateRedfishParameters(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_NegotiateMediumParameters(testFixture, lowerLayerHeaders):
+def test_negotiate_medium_parameters(testFixture, lowerLayerHeaders):
     """ Test DSP0218 Negotiate Medium Parameters request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / NegotiateMediumParameters_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
     SendPacket[NegotiateMediumParameters_Request].MCMaximumTransferChunkSizeBytes = 64
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -51,13 +51,13 @@ def test_NegotiateMediumParameters(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetSchemaDictionary(testFixture, lowerLayerHeaders):
+def test_get_schema_dictionary(testFixture, lowerLayerHeaders):
     """ Test DSP0218 Get Schema Dictionary request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetSchemaDictionary_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -67,13 +67,13 @@ def test_GetSchemaDictionary(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetSchemaURI(testFixture, lowerLayerHeaders):
+def test_get_schema_uri(testFixture, lowerLayerHeaders):
     """ Test DSP0218 Get SchemaURI request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetSchemaURI_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -86,13 +86,13 @@ def test_GetSchemaURI(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetResourceETag(testFixture, lowerLayerHeaders):
+def test_get_resource_etag(testFixture, lowerLayerHeaders):
     """ Test DSP0218 GetResource ETag request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetResourceETag_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -103,13 +103,13 @@ def test_GetResourceETag(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetOEMCount(testFixture, lowerLayerHeaders):
+def test_get_oem_count(testFixture, lowerLayerHeaders):
     """ Test DSP0218 Get OEM Count request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetOEMCount_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -119,13 +119,13 @@ def test_GetOEMCount(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetOEMName(testFixture, lowerLayerHeaders):
+def test_get_oem_name(testFixture, lowerLayerHeaders):
     """ Test DSP0218 Get OEM Name request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetOEMName_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -136,13 +136,13 @@ def test_GetOEMName(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetRegistryCount(testFixture, lowerLayerHeaders):
+def test_get_registry_count(testFixture, lowerLayerHeaders):
     """ Test DSP0218 Get Registry Count request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetRegistryCount_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -152,13 +152,13 @@ def test_GetRegistryCount(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetRegistryDetails(testFixture, lowerLayerHeaders):
+def test_get_registry_details(testFixture, lowerLayerHeaders):
     """ Test DSP0218 Get Registry Details request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetRegistryDetails_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -172,13 +172,13 @@ def test_GetRegistryDetails(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_SelectRegistryVersion(testFixture, lowerLayerHeaders):
+def test_select_registry_version(testFixture, lowerLayerHeaders):
     """ Test DSP0218 Select Registry Version request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SelectRegistryVersion_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -188,13 +188,13 @@ def test_SelectRegistryVersion(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetMessageRegistry(testFixture, lowerLayerHeaders):
+def test_get_message_registry(testFixture, lowerLayerHeaders):
     """ Test DSP0218 Get Message Registry_ request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetMessageRegistry_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -204,13 +204,13 @@ def test_GetMessageRegistry(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetSchemaFile(testFixture, lowerLayerHeaders):
+def test_get_schema_file(testFixture, lowerLayerHeaders):
     """ Test DSP0218 Get Schema File request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetSchemaFile_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -220,13 +220,13 @@ def test_GetSchemaFile(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_RDEOperationInit(testFixture, lowerLayerHeaders):
+def test_rde_operation_init(testFixture, lowerLayerHeaders):
     """ Test DSP0218 RDE Operation Init request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RDEOperationInit_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -239,13 +239,13 @@ def test_RDEOperationInit(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_SupplyCustomRequestParameters(testFixture, lowerLayerHeaders):
+def test_supply_custom_request_parameters(testFixture, lowerLayerHeaders):
     """ Test DSP0218 Supply Custom Request Parameters request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / SupplyCustomRequestParameters_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -258,13 +258,13 @@ def test_SupplyCustomRequestParameters(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_RetrieveCustomResponseParameters(testFixture, lowerLayerHeaders):
+def test_retrieve_custom_response_parameters(testFixture, lowerLayerHeaders):
     """ Test DSP0218 Retrieve Custom Response Parameters request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RetrieveCustomResponseParameters_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -274,13 +274,13 @@ def test_RetrieveCustomResponseParameters(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_RDEOperationComplete(testFixture, lowerLayerHeaders):
+def test_rde_operation_complete(testFixture, lowerLayerHeaders):
     """ Test DSP0218 RDE Operation Complete request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RDEOperationComplete_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -290,13 +290,13 @@ def test_RDEOperationComplete(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_RDEOperationStatus(testFixture, lowerLayerHeaders):
+def test_rde_operation_status(testFixture, lowerLayerHeaders):
     """ Test DSP0218 RDE Operation Status request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RDEOperationStatus_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -309,13 +309,13 @@ def test_RDEOperationStatus(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_RDEOperationKill(testFixture, lowerLayerHeaders):
+def test_rde_operation_kill(testFixture, lowerLayerHeaders):
     """ Test DSP0218 RDE Operation Kill request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RDEOperationKill_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -325,13 +325,13 @@ def test_RDEOperationKill(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_RDEOperationEnumerate(testFixture, lowerLayerHeaders):
+def test_rde_operation_enumerate(testFixture, lowerLayerHeaders):
     """ Test DSP0218 RDE Operation Enumerate request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RDEOperationEnumerate_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 

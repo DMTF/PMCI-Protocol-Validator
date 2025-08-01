@@ -11,11 +11,11 @@ import socket
 import threading
 
 from scapy.all import raw
-from pmci_protocol_validator.framework.medium import physicalMedium
+from pmci_protocol_validator.framework.medium import CommMedium
 from pmci_protocol_validator.ptti.classes.dsp0280 import TestServiceWrapper
 
 
-class PTTIMedium(physicalMedium):
+class PTTIMedium(CommMedium):
     """ Connection to Test Server supporting DSP0280 specification """
 
     DEFAULT_TIMEOUT = 2  # in seconds
@@ -71,7 +71,7 @@ class PTTIMedium(physicalMedium):
                     _chunk = _chunk + self._socket.recv(_len)
 
                     # Add packet to RX queue
-                    self._addReadPacket(_chunk)
+                    self._add_read_packet(_chunk)
             except:
                 pass
 

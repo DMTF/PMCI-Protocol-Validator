@@ -45,13 +45,13 @@ from pmci_protocol_validator.pldm.classes.dsp0267 import (
 )
 
 
-def test_QueryDeviceIdentifiers(testFixture, lowerLayerHeaders):
+def test_query_device_identifiers(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Query Device Identifiers request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / QueryDeviceIdentifiers_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -61,13 +61,13 @@ def test_QueryDeviceIdentifiers(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetFirmwareParameters(testFixture, lowerLayerHeaders):
+def test_get_firmware_parameters(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Get Firmware Parameters request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetFirmwareParameters_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -82,13 +82,13 @@ def test_GetFirmwareParameters(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_QueryDownstreamDevices(testFixture, lowerLayerHeaders):
+def test_query_downstream_devices(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Query Downstream Devices request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / QueryDownstreamDevices_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -101,13 +101,13 @@ def test_QueryDownstreamDevices(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_QueryDownstreamIdentifiers(testFixture, lowerLayerHeaders):
+def test_query_downstream_identifiers(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Query Downstream Identifiers request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / QueryDownstreamIdentifiers_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -118,13 +118,13 @@ def test_QueryDownstreamIdentifiers(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetDownstreamFirmwareParameters(testFixture, lowerLayerHeaders):
+def test_get_downstream_firmware_parameters(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Get Downstream Firmware Parameters request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetDownstreamFirmwareParameters_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -139,13 +139,13 @@ def test_GetDownstreamFirmwareParameters(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_RequestUpdate(testFixture, lowerLayerHeaders):
+def test_request_update(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Request Update request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RequestUpdate_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -156,13 +156,13 @@ def test_RequestUpdate(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetDeviceMetaData(testFixture, lowerLayerHeaders):
+def test_get_device_meta_data(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Get Device Meta Data request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / GetDeviceMetaData_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -173,13 +173,13 @@ def test_GetDeviceMetaData(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_PassComponentTable(testFixture, lowerLayerHeaders):
+def test_pass_component_table(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Pass Component Table request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / PassComponentTable_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -191,13 +191,13 @@ def test_PassComponentTable(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_UpdateComponent(testFixture, lowerLayerHeaders):
+def test_update_component(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Update Component request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / UpdateComponent_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -211,13 +211,13 @@ def test_UpdateComponent(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_ActivateFirmware(testFixture, lowerLayerHeaders):
+def test_activate_firmware(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Activate Firmware request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / ActivateFirmware_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -227,7 +227,7 @@ def test_ActivateFirmware(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_GetStatus(testFixture, lowerLayerHeaders):
+def test_get_status(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Get Get Status request """
 
     # Assemble the full PLDM request packet
@@ -235,7 +235,7 @@ def test_GetStatus(testFixture, lowerLayerHeaders):
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
     # Send the request and wait for the response
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     # Validate header fields
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
@@ -247,13 +247,13 @@ def test_GetStatus(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_CancelUpdateComponent(testFixture, lowerLayerHeaders):
+def test_cancel_update_component(testFixture, lowerLayerHeaders):
     """ Test DSP0248 CancelUpdateComponent request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / CancelUpdateComponent_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -264,13 +264,13 @@ def test_CancelUpdateComponent(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_CancelUpdate(testFixture, lowerLayerHeaders):
+def test_cancel_update(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Cancel Update request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / CancelUpdate_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -281,13 +281,13 @@ def test_CancelUpdate(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_ActivatePendingComponentImageSet(testFixture, lowerLayerHeaders):
+def test_activate_pending_component_image_set(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Activate Pending Component Image Set request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / ActivatePendingComponentImageSet_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -297,13 +297,13 @@ def test_ActivatePendingComponentImageSet(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_ActivatePendingComponentImage(testFixture, lowerLayerHeaders):
+def test_activate_pending_component_image(testFixture, lowerLayerHeaders):
     """ Test DSP0248 ActivatePendingComponentImage request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / ActivatePendingComponentImage_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -313,13 +313,13 @@ def test_ActivatePendingComponentImage(testFixture, lowerLayerHeaders):
     return RecvPacket
 
 
-def test_RequestDownstreamDeviceUpdate(testFixture, lowerLayerHeaders):
+def test_request_downstream_device_update(testFixture, lowerLayerHeaders):
     """ Test DSP0248 Request Downstream Device Update request """
 
     SendPacket = lowerLayerHeaders / PLDM_HEADER() / RequestDownstreamDeviceUpdate_Request()
     SendPacket[PLDM_HEADER].InstanceID = testFixture.getNextInstanceID()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 

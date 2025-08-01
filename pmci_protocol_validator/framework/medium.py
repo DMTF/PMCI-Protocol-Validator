@@ -12,18 +12,18 @@ import queue
 from scapy.all import wrpcap, Packet
 
 
-def GetCurrMS() -> int:
+def get_current_ms() -> int:
     """ Get number of milliseconds since epoc """
 
     return int(round(time.time() * 1000))
 
 
 # Time application started up
-AppStartTime = GetCurrMS()
+AppStartTime = get_current_ms()
 
 
-class physicalMedium:
-    """ Base class for interface to send and receive manageability packets """
+class CommMedium:
+    """ Base class for interface to send and receive packets """
 
     # Common class return codes
     ERROR_SUCCESS = 0
@@ -33,7 +33,7 @@ class physicalMedium:
     ERROR_UNKNOWN_ERROR = 4
     LAST_ERROR_CODE = ERROR_UNKNOWN_ERROR
 
-    def ResponseToStr(self, resp: int) -> str:
+    def response_to_str(self, resp: int) -> str:
         """ public: Returns a text description of the specified error code """
 
         try:
@@ -64,35 +64,35 @@ class physicalMedium:
     def __del__(self) -> None:
         """ Class destructor """
 
-        self.Close()
+        self.close()
         return
 
-    def SetPcapFile(self, fileName: str = None) -> None:
+    def set_pcap_file(self, fileName: str = None) -> None:
         """ public: Specify a PCAP file for packet tracing """
 
         self.__pcapFileName = fileName
         self.__pcapFileAppend = False
         return
 
-    def Close(self) -> None:
+    def close(self) -> None:
         """ public: Close communications session """
 
         self._close()
         return
 
-    def Write(self, payload: bytes) -> int:
+    def write(self, payload: bytes) -> int:
         """ public: Write a raw packet to the underlying medium """
 
         _error_code = self._write(payload)
-        self._writeToPcap(payload)
+        self._write_to_pcap(payload)
         return _error_code
 
-    def Read(self, timeoutOverride: int = None) -> tuple:
+    def read(self, timeoutOverride: int = None) -> tuple:
         """ public: Read a received packet """
 
         try:
             _retPkt = None
-            _status = self._checkStatus()
+            _status = self._check_status()
 
             if _status == self.ERROR_SUCCESS:
                 if timeoutOverride is None:
@@ -104,7 +104,7 @@ class physicalMedium:
 
                 if _status == self.ERROR_SUCCESS:
                     _retPkt = self._packetize(_rawData)
-                    self._writeToPcap(_rawData)
+                    self._write_to_pcap(_rawData)
                     _retPkt.ReceiveTimeStamp = _timestamp
         except:
             _status = self.ERROR_UNKNOWN_ERROR
@@ -133,10 +133,10 @@ class physicalMedium:
         raise Exception("physicalMedium: ERROR: Derived class MUST implement this method")
         return Packet(rawData)
 
-    def _addReadPacket(self, rawPkt: bytes) -> None:
+    def _add_read_packet(self, rawPkt: bytes) -> None:
         """ protected virtual: Add a raw packet to the receive queue """
 
-        _recvTimestamp = (GetCurrMS() - AppStartTime)
+        _recvTimestamp = (get_current_ms() - AppStartTime)
         self.__recvPktQ.put_nowait((_recvTimestamp, rawPkt))
 
         return
@@ -155,7 +155,7 @@ class physicalMedium:
         raise Exception("physicalMedium: ERROR: Derived class MUST implement this method")
         return self.ERROR_WRITE_FAILED
 
-    def _checkStatus(self) -> int:
+    def _check_status(self) -> int:
         """
         protected virtual: Check the interface status
         Derived classes SHOULD implement this method.
@@ -163,7 +163,7 @@ class physicalMedium:
 
         return self.ERROR_SUCCESS
 
-    def _writeToPcap(self, packet: bytes) -> None:
+    def _write_to_pcap(self, packet: bytes) -> None:
         """ private: Log packet to PCAP trace file """
 
         if self.__pcapFileName is not None:

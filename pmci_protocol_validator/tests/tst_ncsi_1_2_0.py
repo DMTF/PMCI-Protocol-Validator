@@ -11,7 +11,7 @@ from pmci_protocol_validator.framework.utilities import common_send_receive
 from pmci_protocol_validator.ncsi.classes.dsp0222_1_2_0 import *
 
 
-def test_GetNcCapabilitiesSettings(testFixture, lowerLayer):
+def test_get_nc_capabilities_settings(testFixture, lowerLayer):
     """ Test DSP0222 v1.2.0 Get NC Capabilities Settings Request & Response """
 
     # Assemble the full request packet
@@ -19,7 +19,7 @@ def test_GetNcCapabilitiesSettings(testFixture, lowerLayer):
     SendPacket = SendPacket / GetNcCapabilitiesSettings_Request()
 
     # Send the request and get the response
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     # Validate the response header
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
@@ -45,7 +45,7 @@ def test_set_nc_configuration(testFixture, lowerLayer, EnablePortsCount=0, Enabl
     SendPacket[SetNcConfiguration_Request].EnablePCIeEndpoints = EnablePCIeEpCount
     SendPacket[SetNcConfiguration_Request].EnablePFs = EnablePFsCount
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -54,13 +54,13 @@ def test_set_nc_configuration(testFixture, lowerLayer, EnablePortsCount=0, Enabl
     return RecvPacket
 
 
-def test_GetPfAssignment(testFixture, lowerLayer):
+def test_get_pf_assignment(testFixture, lowerLayer):
     """ Test DSP0222 v1.2.0 Get PF Assignment Request and Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetPfAssignment_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -70,13 +70,13 @@ def test_GetPfAssignment(testFixture, lowerLayer):
     return RecvPacket
 
 
-def test_GetPartitionConfiguration(testFixture, lowerLayer, partitionID):
+def test_get_partition_configuration(testFixture, lowerLayer, partitionID):
     """ Test DSP0222 v1.2.0 Get Partition Configuration Request and Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header(PartitionID=partitionID)
     SendPacket = SendPacket / GetPartitionConfiguration_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -92,7 +92,7 @@ def test_GetPartitionConfiguration(testFixture, lowerLayer, partitionID):
     return RecvPacket
 
 
-def test_GetBootConfig(testFixture, lowerLayer, PartitionID=0, ProtocolType=0):
+def test_get_boot_config(testFixture, lowerLayer, PartitionID=0, ProtocolType=0):
     """ Test DSP0222 v1.2.0 Get Boot Configuration Request and Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
@@ -101,7 +101,7 @@ def test_GetBootConfig(testFixture, lowerLayer, PartitionID=0, ProtocolType=0):
     SendPacket[GetBootConfig_Request].PartitionID = PartitionID
     SendPacket[GetBootConfig_Request].ProtocolType = ProtocolType
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -114,7 +114,7 @@ def test_GetBootConfig(testFixture, lowerLayer, PartitionID=0, ProtocolType=0):
     return RecvPacket
 
 
-def test_GetPartitionStatistics(testFixture, lowerLayer, PartitionID=0, StatsType=0):
+def test_get_partition_statistics(testFixture, lowerLayer, PartitionID=0, StatsType=0):
     """ Test DSP0222 v1.2.0 Get Partition Statistics Request and Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
@@ -123,7 +123,7 @@ def test_GetPartitionStatistics(testFixture, lowerLayer, PartitionID=0, StatsTyp
     SendPacket[GetPartitionStatistics_Request].PartitionID = PartitionID
     SendPacket[GetPartitionStatistics_Request].StatsType = StatsType
 
-    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -134,7 +134,7 @@ def test_GetPartitionStatistics(testFixture, lowerLayer, PartitionID=0, StatsTyp
     return RecvPacket
 
 
-def test_SetPassThroughModeControl(testFixture, lowerLayer, net2bmc=0, host2bmc=0, ecpu2bmc=0):
+def test_set_pass_through_mode_control(testFixture, lowerLayer, net2bmc=0, host2bmc=0, ecpu2bmc=0):
     """ Test DSP0222 v1.2.0 Set Pass-through Mode Control Request and Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
@@ -144,7 +144,7 @@ def test_SetPassThroughModeControl(testFixture, lowerLayer, net2bmc=0, host2bmc=
     SendPacket[SetPassThroughModeControl_Request].HostBmcPassthroughTraffic = host2bmc
     SendPacket[SetPassThroughModeControl_Request].EmbeddedCpuBmcPassthroughTraffic = ecpu2bmc
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -154,13 +154,13 @@ def test_SetPassThroughModeControl(testFixture, lowerLayer, net2bmc=0, host2bmc=
     return RecvPacket
 
 
-def test_GetPassThroughModeControl(testFixture, lowerLayer):
+def test_get_pass_through_mode_control(testFixture, lowerLayer):
     """ Test DSP0222 v1.2.0 Get Pass-through Mode Control Request and Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetPassThroughModeControl_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -174,13 +174,13 @@ def test_GetPassThroughModeControl(testFixture, lowerLayer):
     return RecvPacket
 
 
-def test_GetVfAllocation(testFixture, lowerLayer):
+def test_get_vf_allocation(testFixture, lowerLayer):
     """ Test DSP0222 v1.2.0 Get VF Allocation Request and Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetVfAllocation_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -190,13 +190,13 @@ def test_GetVfAllocation(testFixture, lowerLayer):
     return RecvPacket
 
 
-def test_GetInventoryInformation(testFixture, lowerLayer):
+def test_get_inventory_information(testFixture, lowerLayer):
     """ Test DSP0222 v1.2.0 Get Inventory Information Request and Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetInventoryInformation_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -207,13 +207,13 @@ def test_GetInventoryInformation(testFixture, lowerLayer):
     return RecvPacket
 
 
-def test_ThermalShutdownControl(testFixture, lowerLayer, mode=0):
+def test_thermal_shutdown_control(testFixture, lowerLayer, mode=0):
     """ Test DSP0222 v1.2.0 Thermal Shutdown Control Request and Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / ThermalShutdownControl_Request(Operation=mode)
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -232,7 +232,7 @@ def test_get_asic_temperature(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetAsicTemperature_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -247,7 +247,7 @@ def test_get_ambient_temperature(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetAmbientTemperature_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -263,7 +263,7 @@ def test_get_transceiver_temperature(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetTransceiverTemperature_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -279,7 +279,7 @@ def test_get_channel_configuration(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetChannelConfiguration_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -303,7 +303,7 @@ def test_get_module_management_data(testFixture, lowerLayer, RequestedBank=0, Re
     SendPacket[GetModuleManagementData_Request].RequestedPage = RequestedPage
     SendPacket[GetModuleManagementData_Request].PageUpperFlag = PageUpperFlag
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -318,7 +318,7 @@ def test_get_supported_media(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetSupportedMedia_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -333,7 +333,7 @@ def test_get_mc_mac_address(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / GetMcMacAddress_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -348,7 +348,7 @@ def test_send_ncpldm_reply(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / SendNCPLDMReply_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -363,7 +363,7 @@ def test_settings_commit(testFixture, lowerLayer):
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
     SendPacket = SendPacket / SettingsCommit_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 

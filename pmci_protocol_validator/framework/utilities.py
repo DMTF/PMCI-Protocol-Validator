@@ -8,28 +8,28 @@
 ##############################################################################
 
 from scapy.packet import Packet, raw
-from pmci_protocol_validator.framework.medium import physicalMedium
+from pmci_protocol_validator.framework.medium import CommMedium
 
 
-def common_send_receive(commObject: physicalMedium, sendPacket: Packet, fctShowPacket=None) -> Packet:
+def common_send_receive(commObject: CommMedium, send_pkt: Packet, fct_show_pkt=None) -> Packet:
     """ Send a request packet and receive the response packet """
 
-    assert (isinstance(commObject, physicalMedium)), "common_send_receive: commObject is invalid"
-    assert (isinstance(sendPacket, Packet)), "common_send_receive: SendPacket is NOT type Packet"
+    assert (isinstance(commObject, CommMedium)), "common_send_receive: commObject is invalid"
+    assert (isinstance(send_pkt, Packet)), "common_send_receive: SendPacket is NOT type Packet"
 
-    if fctShowPacket is not None:
-        assert (callable(fctShowPacket)), "common_send_receive: fctShowPacket() is NOT callable"
-        fctShowPacket(sendPacket)
+    if fct_show_pkt is not None:
+        assert (callable(fct_show_pkt)), "common_send_receive: fctShowPacket() is NOT callable"
+        fct_show_pkt(send_pkt)
 
-    ErrorCode = commObject.Write(sendPacket)
-    assert (ErrorCode == physicalMedium.ERROR_SUCCESS), f"common_send_receive: {commObject.ResponseToStr(ErrorCode)}"
+    ErrorCode = commObject.write(send_pkt)
+    assert (ErrorCode == CommMedium.ERROR_SUCCESS), f"common_send_receive: {commObject.response_to_str(ErrorCode)}"
 
-    (ErrorCode, RecvPacket) = commObject.Read()
+    (ErrorCode, RecvPacket) = commObject.read()
 
-    if ErrorCode == physicalMedium.ERROR_SUCCESS and fctShowPacket is not None:
-        fctShowPacket(RecvPacket)
+    if ErrorCode == CommMedium.ERROR_SUCCESS and fct_show_pkt is not None:
+        fct_show_pkt(RecvPacket)
 
-    assert (ErrorCode == physicalMedium.ERROR_SUCCESS), f"common_send_receive: {commObject.ResponseToStr(ErrorCode)}"
+    assert (ErrorCode == CommMedium.ERROR_SUCCESS), f"common_send_receive: {commObject.response_to_str(ErrorCode)}"
     return RecvPacket
 
 
@@ -38,3 +38,9 @@ def render_packet(packet: Packet) -> Packet:
 
     assert (isinstance(packet, Packet)), "render_packet: parameter is NOT type Packet"
     return packet.__class__(raw(packet))
+
+
+def bin2hex(bin_data: bytes) -> str:
+    """ Convert a binary arrary to an array ASCII hex """
+
+    return ''.join('{:02x} '.format(x) for x in bin_data)

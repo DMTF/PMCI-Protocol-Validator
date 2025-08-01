@@ -11,7 +11,7 @@ from pmci_protocol_validator.framework.utilities import common_send_receive
 from pmci_protocol_validator.pldm.classes.dsp0242 import *
 
 
-def test_DfOpen(testFixture, lowerLayer, FileId, OpenWrite=False, OpenExclusive=False, OpenFIFO=False, OpenPushed=False):
+def test_df_open(testFixture, lowerLayer, FileId, OpenWrite=False, OpenExclusive=False, OpenFIFO=False, OpenPushed=False):
     """ Test DSP0242 DfOpen Request & Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
@@ -23,7 +23,7 @@ def test_DfOpen(testFixture, lowerLayer, FileId, OpenWrite=False, OpenExclusive=
     SendPacket[DfOpen_Request].DfOpenRegFIFO = 1 if OpenFIFO else 0
     SendPacket[DfOpen_Request].DfOpenPolledPushed = 1 if OpenPushed else 0
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -32,7 +32,7 @@ def test_DfOpen(testFixture, lowerLayer, FileId, OpenWrite=False, OpenExclusive=
     return RecvPacket
 
 
-def test_DfClose(testFixture, lowerLayer, FileDescriptor, SetZeroLength=False):
+def test_df_close(testFixture, lowerLayer, FileDescriptor, SetZeroLength=False):
     """ Test DSP0242 DfClose Request & Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
@@ -41,7 +41,7 @@ def test_DfClose(testFixture, lowerLayer, FileDescriptor, SetZeroLength=False):
     SendPacket[DfOpen_Request].FileDescriptor = FileDescriptor
     SendPacket[DfClose_Request].ZeroLength = 1 if SetZeroLength else 0
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -49,7 +49,7 @@ def test_DfClose(testFixture, lowerLayer, FileDescriptor, SetZeroLength=False):
     return RecvPacket
 
 
-def test_DfHeartbeat(testFixture, lowerLayer, FileDescriptor, MaxInterval=0):
+def test_df_heartbeat(testFixture, lowerLayer, FileDescriptor, MaxInterval=0):
     """ Test DSP0242 DfHeartbeat Request & Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
@@ -58,7 +58,7 @@ def test_DfHeartbeat(testFixture, lowerLayer, FileDescriptor, MaxInterval=0):
     SendPacket[DfOpen_Request].FileDescriptor = FileDescriptor
     SendPacket[DfOpen_Request].RequestorMaxInterval = MaxInterval
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -66,7 +66,7 @@ def test_DfHeartbeat(testFixture, lowerLayer, FileDescriptor, MaxInterval=0):
     return RecvPacket
 
 
-def test_DfProperties(testFixture, lowerLayer, FileDescriptor, Property=0):
+def test_df_properties(testFixture, lowerLayer, FileDescriptor, Property=0):
     """ Test DSP0242 DfProperties Request & Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
@@ -76,7 +76,7 @@ def test_DfProperties(testFixture, lowerLayer, FileDescriptor, Property=0):
     SendPacket[DfProperties_Request].MaxConcurrentMedium = 1 if Property & 0x01 else 0
     SendPacket[DfProperties_Request].MaxFileDescriptors = 1 if Property & 0x02 else 0
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -84,7 +84,7 @@ def test_DfProperties(testFixture, lowerLayer, FileDescriptor, Property=0):
     return RecvPacket
 
 
-def test_DfGetFileAttribute(testFixture, lowerLayer, FileId, Attribute):
+def test_df_get_file_attribute(testFixture, lowerLayer, FileId, Attribute):
     """ Test DSP0242 DfGetFileAttribute Request & Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
@@ -95,7 +95,7 @@ def test_DfGetFileAttribute(testFixture, lowerLayer, FileId, Attribute):
     SendPacket[DfGetFileAttribute_Request].RequestCI = 1 if Attribute & 0x0100 else 0
     SendPacket[DfGetFileAttribute_Request].ReqMaxPoll = 1 if Attribute & 0x0200 else 0
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 
@@ -103,7 +103,7 @@ def test_DfGetFileAttribute(testFixture, lowerLayer, FileId, Attribute):
     return RecvPacket
 
 
-def test_DfSetFileAttribute(testFixture, lowerLayer, FileId, AttributeSet=0, Value=0):
+def test_df_set_file_attribute(testFixture, lowerLayer, FileId, AttributeSet=0, Value=0):
     """ Test DSP0242 DfSetFileAttribute Request & Response """
 
     SendPacket = lowerLayer / testFixture.get_ncsi_header()
@@ -113,7 +113,7 @@ def test_DfSetFileAttribute(testFixture, lowerLayer, FileId, AttributeSet=0, Val
     SendPacket[DfSetFileAttribute_Request].ClientZeroLengthOnly = 1 if AttributeSet & 0x0001 else 0
     SendPacket[DfSetFileAttribute_Request].FileAttributeValue = Value
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     testFixture.VerifyCommonFields(RecvPacket, SendPacket)
 

@@ -7,12 +7,12 @@
 #  DSP0280 basic positive test cases.
 ##############################################################################
 
-from pmci_protocol_validator.framework.fixture_ptti import c_PTTI_fixture
+from pmci_protocol_validator.framework.fixture_ptti import PTTI_fixture
 from pmci_protocol_validator.framework.utilities import common_send_receive
 from pmci_protocol_validator.ptti.classes.dsp0280 import *
 
 
-def test_Connect(testFixture: c_PTTI_fixture, lowerLayerHeaders: TestServiceWrapper, secPrm: bytes):
+def test_connect(testFixture: PTTI_fixture, lowerLayerHeaders: TestServiceWrapper, secPrm: bytes):
     """ Test DSP0280 Connect request """
 
     SendPacket = lowerLayerHeaders / Connect_Request()
@@ -20,7 +20,7 @@ def test_Connect(testFixture: c_PTTI_fixture, lowerLayerHeaders: TestServiceWrap
     SendPacket[Connect_Request].SecurityParameter = RawVal(secPrm)
     SendPacket[Connect_Request].SecurityParameterLength = len(secPrm)
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
 
     assert (RecvPacket[TestServiceWrapper].Version == VERSION_COMPLIANCE), "Incorrect PTTI version"
     assert (RecvPacket[TestServiceWrapper].ProtocolType == 0xFF), "Protocol mismatch"
@@ -30,29 +30,29 @@ def test_Connect(testFixture: c_PTTI_fixture, lowerLayerHeaders: TestServiceWrap
     return RecvPacket
 
 
-def test_QueryStatus(testFixture: c_PTTI_fixture, lowerLayerHeaders: TestServiceWrapper, queryType: int):
+def test_query_status(testFixture: PTTI_fixture, lowerLayerHeaders: TestServiceWrapper, queryType: int):
     """ Test DSP0280 QueryStatus request """
 
     SendPacket = lowerLayerHeaders / QueryStatus_Request(QueryType=queryType)
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
-    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
+    testFixture.verify_common_fields(RecvPacket, SendPacket)
 
     return RecvPacket
 
 
-def test_QueryCapabilities(testFixture: c_PTTI_fixture, lowerLayerHeaders: TestServiceWrapper):
+def test_query_capabilities(testFixture: PTTI_fixture, lowerLayerHeaders: TestServiceWrapper):
     """ Test DSP0280 QueryCapabilities request """
 
     SendPacket = lowerLayerHeaders / QueryCapabilities_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
-    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
+    testFixture.verify_common_fields(RecvPacket, SendPacket)
 
     return RecvPacket
 
 
-def test_ConfigureTestService(testFixture: c_PTTI_fixture, lowerLayerHeaders: TestServiceWrapper, cfgPrmsList: list):
+def test_configure_test_service(testFixture: PTTI_fixture, lowerLayerHeaders: TestServiceWrapper, cfgPrmsList: list):
     """ Test DSP0280 ConfigureTestService request """
 
     SendPacket = lowerLayerHeaders / ConfigureTestService_Request()
@@ -60,35 +60,35 @@ def test_ConfigureTestService(testFixture: c_PTTI_fixture, lowerLayerHeaders: Te
     SendPacket[ConfigureTestService_Request].NumberOfCapabilitiesFields = len(cfgPrmsList)
     SendPacket[ConfigureTestService_Request].TestServiceCapabilities = cfgPrmsList
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
-    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
+    testFixture.verify_common_fields(RecvPacket, SendPacket)
 
     return RecvPacket
 
 
-def test_QuerySystemInventory(testFixture: c_PTTI_fixture, lowerLayerHeaders: TestServiceWrapper):
+def test_query_system_inventory(testFixture: PTTI_fixture, lowerLayerHeaders: TestServiceWrapper):
     """ Test DSP0280 QuerySystemInventory request """
 
     SendPacket = lowerLayerHeaders / QuerySystemInventory_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
-    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
+    testFixture.verify_common_fields(RecvPacket, SendPacket)
 
     return RecvPacket
 
 
-def test_ConfigureDeviceUnderTest(testFixture: c_PTTI_fixture, lowerLayerHeaders: TestServiceWrapper):
+def test_configure_device_under_test(testFixture: PTTI_fixture, lowerLayerHeaders: TestServiceWrapper):
     """ Test DSP0280 ConfigureDeviceUnderTest request """
 
     SendPacket = lowerLayerHeaders / ConfigureDeviceUnderTest_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
-    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
+    testFixture.verify_common_fields(RecvPacket, SendPacket)
 
     return RecvPacket
 
 
-def test_RegisterToProtocol(testFixture: c_PTTI_fixture, lowerLayerHeaders: TestServiceWrapper, connectionID: int, protocolType: int, typesList: list):
+def test_register_to_protocol(testFixture: PTTI_fixture, lowerLayerHeaders: TestServiceWrapper, connectionID: int, protocolType: int, typesList: list):
     """ Test DSP0280 RegisterToProtocol request """
 
     SendPacket = lowerLayerHeaders / RegisterToProtocol_Request()
@@ -99,13 +99,13 @@ def test_RegisterToProtocol(testFixture: c_PTTI_fixture, lowerLayerHeaders: Test
     SendPacket[RegisterToProtocol_Request].TypeCount = len(typesList)
     SendPacket[RegisterToProtocol_Request].TypeList = typesList
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
-    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
+    testFixture.verify_common_fields(RecvPacket, SendPacket)
 
     return RecvPacket
 
 
-def test_RegisterAsyncMessageRecipient(testFixture: c_PTTI_fixture, lowerLayerHeaders: TestServiceWrapper, connectionID: int, protocolType: int, typesList: list):
+def test_register_async_message_recipient(testFixture: PTTI_fixture, lowerLayerHeaders: TestServiceWrapper, connectionID: int, protocolType: int, typesList: list):
     """ Test DSP0280 RegisterAsyncMessageRecipient request """
 
     SendPacket = lowerLayerHeaders / RegisterAsyncMessageRecipient_Request()
@@ -116,30 +116,30 @@ def test_RegisterAsyncMessageRecipient(testFixture: c_PTTI_fixture, lowerLayerHe
     SendPacket[RegisterAsyncMessageRecipient_Request].TypeCount = len(typesList)
     SendPacket[RegisterAsyncMessageRecipient_Request].TypeList = typesList
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
-    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
+    testFixture.verify_common_fields(RecvPacket, SendPacket)
 
     return RecvPacket
 
 
-def test_TestMessage(testFixture: c_PTTI_fixture, lowerLayerHeaders: TestServiceWrapper, connectID: int, maxWaitTime: int, testMessage: Packet):
+def test_test_message(testFixture: PTTI_fixture, lowerLayerHeaders: TestServiceWrapper, connectID: int, maxWaitTime: int, testMessage: Packet):
     """ Test DSP0280 TestMessage request """
 
     SendPacket = lowerLayerHeaders / TestMessage_Request(DUTConnectionID=connectID, MaximumWaitTime=maxWaitTime)
     SendPacket = SendPacket / testMessage
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
-    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
+    testFixture.verify_common_fields(RecvPacket, SendPacket)
 
     return RecvPacket
 
 
-def test_Disconnect(testFixture: c_PTTI_fixture, lowerLayerHeaders: TestServiceWrapper):
+def test_disconnect(testFixture: PTTI_fixture, lowerLayerHeaders: TestServiceWrapper):
     """ Test DSP0280 Disconnect request """
 
     SendPacket = lowerLayerHeaders / Disconnect_Request()
 
-    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.showPacket)
-    testFixture.VerifyCommonFields(RecvPacket, SendPacket)
+    RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
+    testFixture.verify_common_fields(RecvPacket, SendPacket)
 
     return RecvPacket

@@ -20,7 +20,7 @@ ERROR_OEM_INVALID_PARAMETER = 0xF0
 ERROR_OEM_UNSUPPORTED = 0xF1
 
 
-class c_TestServiceBase():
+class TestServiceBase():
     """
     Example DSP0280 Test Server Application.
     This class implements the minimum functionality for a Test Service.
@@ -255,11 +255,11 @@ class c_TestServiceBase():
         return (0)
 
     # end main()
-# end class c_TestServiceBase()
+# end class TestServiceBase()
 
 
 """ Example Test Service (TS) entry point """
 if __name__ == '__main__':
 
-    test_service = c_TestServiceBase()
+    test_service = TestServiceBase()
     exit(test_service.main(CONNECTION_ADDRESS, CONNECTION_PORT))
