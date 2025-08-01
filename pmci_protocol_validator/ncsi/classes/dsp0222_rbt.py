@@ -48,7 +48,7 @@ class RBT(Packet):
         pktLen = pktLen & 0x0FFF  # top 4 bits are reserved, and not part of pktlen
 
         ncsiPadLen = (4 - (pktLen % 4)) % 4  # calculate NCSI Pad Length
-        # not all commands (Intel OEM) have checksums
+        # not all commands have checksums
         # so go figure out what the payload type is, create a
         # quick instance and call the method to get the checksum len
         # and need to know if there is a checksum to properly strip
