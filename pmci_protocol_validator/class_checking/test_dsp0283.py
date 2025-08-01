@@ -4,7 +4,7 @@
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
 #  File Abstract:
-#  Verify xxx classes
+#  Verify DSP0283 classes
 ########################################################
 
 import pytest
@@ -14,7 +14,7 @@ from pmci_protocol_validator.mctp.classes.dsp283 import USB
 
 @pytest.mark.parametrize("class_type", USB())
 def test_mctp_usb_header(class_type):
-    """Verify MCTP USB header structure """
+    """ Verify MCTP USB binding header structure """
 
     # Verify the class contains the required number of fields
     assert (len(class_type.fields_desc) == 4)

@@ -14,7 +14,7 @@ from pmci_protocol_validator.mctp.classes.dsp0253 import SERIAL
 
 @pytest.mark.parametrize("class_type", SERIAL())
 def test_mctp_serial_header(class_type):
-    """Verify MCTP serial header structure """
+    """ Verify MCTP serial binding header structure """
 
     # Verify the class contains the required number of fields
     assert (len(class_type.fields_desc) == 6)

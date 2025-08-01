@@ -14,7 +14,7 @@ from pmci_protocol_validator.mctp.classes.dsp0237 import SMBUS
 
 @pytest.mark.parametrize("class_type", SMBUS())
 def test_mctp_smbus_header(class_type):
-    """Verify MCTP SM BUS header structure """
+    """ Verify MCTP SM BUS binding header structure """
 
     # Verify the class contains the required number of fields
     assert (len(class_type.fields_desc) == 8)

@@ -14,22 +14,22 @@ from pmci_protocol_validator.mctp.classes.dsp0238 import PCIE_VDM
 
 @pytest.mark.parametrize("class_type", PCIE_VDM())
 def test_mctp_pcie_vdm_header(class_type):
-    """Verify MCTP PCIe VDM header structure """
+    """ Verify MCTP PCIe VDM binding header structure """
 
     # Verify the class contains the required number of fields
     assert (len(class_type.fields_desc) == 22)
 
     # Verify the fields data type
-    assert (isinstance(class_type.fields_desc[0], BitField))     # Format
-    assert (isinstance(class_type.fields_desc[1], BitField))     # Type
-    assert (isinstance(class_type.fields_desc[2], BitField))     # T9
-    assert (isinstance(class_type.fields_desc[3], BitField))     # TC
-    assert (isinstance(class_type.fields_desc[4], BitField))     # Reserved0
-    assert (isinstance(class_type.fields_desc[5], BitField))     # TD
-    assert (isinstance(class_type.fields_desc[6], BitField))     # EP
-    assert (isinstance(class_type.fields_desc[7], BitField))     # Attr
-    assert (isinstance(class_type.fields_desc[8], BitField))     # AT
-    assert (isinstance(class_type.fields_desc[9], BitField))     # Length
+    assert (isinstance(class_type.fields_desc[0], BitField))      # Format
+    assert (isinstance(class_type.fields_desc[1], BitField))      # Type
+    assert (isinstance(class_type.fields_desc[2], BitField))      # T9
+    assert (isinstance(class_type.fields_desc[3], BitField))      # TC
+    assert (isinstance(class_type.fields_desc[4], BitField))      # Reserved0
+    assert (isinstance(class_type.fields_desc[5], BitField))      # TD
+    assert (isinstance(class_type.fields_desc[6], BitField))      # EP
+    assert (isinstance(class_type.fields_desc[7], BitField))      # Attr
+    assert (isinstance(class_type.fields_desc[8], BitField))      # AT
+    assert (isinstance(class_type.fields_desc[9], BitField))      # Length
     assert (isinstance(class_type.fields_desc[10], XByteField))   # RequesterBus
     assert (isinstance(class_type.fields_desc[11], BitField))     # RequesterDevice
     assert (isinstance(class_type.fields_desc[12], BitField))     # RequesterFunction
