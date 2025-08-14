@@ -1,0 +1,225 @@
+# Copyright Notice:
+# Copyright 2023-2025 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link:
+#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
+##############################################################################
+#  File Abstract:
+#  Example of a basic PTTI session.
+##############################################################################
+
+from pmci_protocol_validator.framework.fixture_ptti import PTTI_fixture
+from pmci_protocol_validator.framework.utilities  import common_send_receive
+
+from pmci_protocol_validator.ptti.classes.dsp0280 import *
+from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
+from pmci_protocol_validator.pldm.classes.dsp0240 import GetTID_Request
+
+# Network parameters for Test Service connection
+CONNECTION_ADDRESS = 'localhost'
+CONNECTION_PORT = 49155
+
+
+def main():
+    """ Test script main() """
+
+    # Create the test fixture object
+    try:
+        fixture = PTTI_fixture(CONNECTION_ADDRESS, CONNECTION_PORT)
+
+        assert (fixture.tcp_address == CONNECTION_ADDRESS), "TPC address mismatch"
+        assert (fixture.tcp_port == CONNECTION_PORT), "TPC port mismatch"
+
+    except Exception as exceptionInfo:
+        print("ERROR: c_PTTI_fixture(): TS connect error: " + str(exceptionInfo))
+        return 99
+
+    # 1. Connect
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=0)
+    SendPacket = SendPacket / Connect_Request()
+
+    SendPacket[Connect_Request].SecurityParameter = RawVal(b'\x31\x32\x33\x34\x35\x36')
+    SendPacket[Connect_Request].SecurityParameterLength = len(SendPacket[Connect_Request].SecurityParameter)
+
+    try:
+        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
+
+        if RecvPacket[TestServiceWrapper].Version != VERSION_COMPLIANCE or \
+            RecvPacket[TestServiceWrapper].ProtocolType != 0xFF or \
+            RecvPacket[TestServiceWrapper].Reserved_0 != 0 or \
+            RecvPacket[TestServiceWrapper].Reserved_1 != 0:
+
+            fixture.log_msg("ERROR: Connect(): Invalid field value")
+            return 2
+
+        fixture.test_client_id = RecvPacket[Connect_Response].TestClientID
+
+    except Exception as exceptionInfo:
+        fixture.log_msg("ERROR: Connect(): " + str(exceptionInfo))
+        return 1
+
+    # 2. Ping the Test Service (Query Status)
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
+    SendPacket = SendPacket / QueryStatus_Request(QueryType=0)
+
+    try:
+        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
+        fixture.verify_common_fields(RecvPacket, SendPacket)
+
+    except Exception as exceptionInfo:
+        fixture.log_msg("ERROR: QueryStatus_Request(): " + str(exceptionInfo))
+        return 3
+
+    # 3. Query Capabilities
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
+    SendPacket = SendPacket / QueryCapabilities_Request()
+
+    try:
+        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
+        fixture.verify_common_fields(RecvPacket, SendPacket)
+
+    except Exception as exceptionInfo:
+        fixture.log_msg("ERROR: QueryCapabilities_Request(): " + str(exceptionInfo))
+        return 4
+
+    # 4. Configure Test Service
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
+    SendPacket = SendPacket / ConfigureTestService_Request()
+
+    TestConfiguration = [
+        TestServiceCapabilityEntry(CapabilityID=1, CapabilityValue=15),
+        TestServiceCapabilityEntry(CapabilityID=2, CapabilityValue=1000)
+    ]
+
+    SendPacket[ConfigureTestService_Request].NumberOfCapabilitiesFields = len(TestConfiguration)
+    SendPacket[ConfigureTestService_Request].TestServiceCapabilities = TestConfiguration
+
+    try:
+        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
+        fixture.verify_common_fields(RecvPacket, SendPacket)
+
+    except Exception as exceptionInfo:
+        fixture.log_msg("ERROR: ConfigureTestService_Request(): " + str(exceptionInfo))
+        return 5
+
+    # 5. Read back settings
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
+    SendPacket = SendPacket / QueryCapabilities_Request()
+
+    try:
+        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
+        fixture.verify_common_fields(RecvPacket, SendPacket)
+
+    except Exception as exceptionInfo:
+        fixture.log_msg("ERROR: QueryCapabilities_Request(): " + str(exceptionInfo))
+        return 6
+
+    # 6. Query System Inventory
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
+    SendPacket = SendPacket / QuerySystemInventory_Request()
+
+    try:
+        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
+        fixture.verify_common_fields(RecvPacket, SendPacket)
+
+    except Exception as exceptionInfo:
+        fixture.log_msg("ERROR: QuerySystemInventory_Request(): " + str(exceptionInfo))
+        return 7
+
+    # 7. Configure DUT
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
+    SendPacket = SendPacket / ConfigureDeviceUnderTest_Request()
+
+    try:
+        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
+        fixture.verify_common_fields(RecvPacket, SendPacket)
+
+    except Exception as exceptionInfo:
+        fixture.log_msg("ERROR: ConfigureDeviceUnderTest_Request(): " + str(exceptionInfo))
+        return 8
+
+    # Save the DUT Connection ID for future tests
+    DUTConnectionID = RecvPacket[ConfigureDeviceUnderTest_Response].DUTConnectionID
+
+    # 8. Register to Protocol
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
+    SendPacket = SendPacket / RegisterToProtocol_Request()
+
+    SendPacket[RegisterToProtocol_Request].ProtocolType = 1  # PLDM Protocol
+    SendPacket[RegisterToProtocol_Request].DUTConnectionID = DUTConnectionID
+
+    RegisterList = [2, 4, 5, 6]  # Allowed PLDM Types
+
+    SendPacket[RegisterToProtocol_Request].TypeCount = len(RegisterList)
+    SendPacket[RegisterToProtocol_Request].TypeList = RegisterList
+
+    try:
+        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
+        fixture.verify_common_fields(RecvPacket, SendPacket)
+
+    except Exception as exceptionInfo:
+        fixture.log_msg("ERROR: RegisterToProtocol_Request(): " + str(exceptionInfo))
+        return 9
+
+    # 9. Register Async Message Recipient
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
+    SendPacket = SendPacket / RegisterAsyncMessageRecipient_Request()
+
+    SendPacket[RegisterAsyncMessageRecipient_Request].DUTConnectionID = DUTConnectionID
+    SendPacket[RegisterAsyncMessageRecipient_Request].ProtocolType = 1  # PLDM Protocol AENs
+
+    SendPacket[RegisterAsyncMessageRecipient_Request].TypeCount = len(RegisterList)
+    SendPacket[RegisterAsyncMessageRecipient_Request].TypeList = RegisterList
+
+    try:
+        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
+        fixture.verify_common_fields(RecvPacket, SendPacket)
+
+    except Exception as exceptionInfo:
+        fixture.log_msg("ERROR: RegisterAsyncMessageRecipient_Request(): " + str(exceptionInfo))
+        return 10
+
+    # 10. Query Status
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
+    SendPacket = SendPacket / QueryStatus_Request(QueryType=1)
+
+    try:
+        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
+        fixture.verify_common_fields(RecvPacket, SendPacket)
+
+    except Exception as exceptionInfo:
+        fixture.log_msg("ERROR: QueryStatus_Request(): " + str(exceptionInfo))
+        return 11
+
+    # 11. Send a Test Message with a PLDM Get TID request
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
+    SendPacket = SendPacket / TestMessage_Request(DUTConnectionID=DUTConnectionID)
+    SendPacket = SendPacket / PLDM_HEADER(Request=1, InstanceID=10)
+    SendPacket = SendPacket / GetTID_Request()
+
+    try:
+        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
+        fixture.verify_common_fields(RecvPacket, SendPacket)
+
+    except Exception as exceptionInfo:
+        fixture.log_msg("ERROR: TestMessage_Request(): " + str(exceptionInfo))
+        return 12
+
+    # 12. Disconnect
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
+    SendPacket = SendPacket / Disconnect_Request()
+
+    try:
+        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
+        fixture.verify_common_fields(RecvPacket, SendPacket)
+
+    except Exception as exceptionInfo:
+        fixture.log_msg("ERROR: Disconnect(): " + str(exceptionInfo))
+        return 13
+
+    return 0
+
+
+""" Example Test Client (TC) entry point """
+if __name__ == '__main__':
+
+    exit(main())

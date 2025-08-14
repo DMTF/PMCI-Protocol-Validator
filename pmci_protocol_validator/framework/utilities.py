@@ -1,0 +1,46 @@
+# Copyright Notice:
+# Copyright 2023-2025 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link:
+#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
+##############################################################################
+#  File Abstract:
+#  Common library functions to support test cases.
+##############################################################################
+
+from scapy.packet import Packet, raw
+from pmci_protocol_validator.framework.medium import CommMedium
+
+
+def common_send_receive(commObject: CommMedium, send_pkt: Packet, fct_show_pkt=None) -> Packet:
+    """ Send a request packet and receive the response packet """
+
+    assert (isinstance(commObject, CommMedium)), "common_send_receive: commObject is invalid"
+    assert (isinstance(send_pkt, Packet)), "common_send_receive: SendPacket is NOT type Packet"
+
+    if fct_show_pkt is not None:
+        assert (callable(fct_show_pkt)), "common_send_receive: fctShowPacket() is NOT callable"
+        fct_show_pkt(send_pkt)
+
+    ErrorCode = commObject.write(send_pkt)
+    assert (ErrorCode == CommMedium.ERROR_SUCCESS), f"common_send_receive: {commObject.response_to_str(ErrorCode)}"
+
+    (ErrorCode, RecvPacket) = commObject.read()
+
+    if ErrorCode == CommMedium.ERROR_SUCCESS and fct_show_pkt is not None:
+        fct_show_pkt(RecvPacket)
+
+    assert (ErrorCode == CommMedium.ERROR_SUCCESS), f"common_send_receive: {commObject.response_to_str(ErrorCode)}"
+    return RecvPacket
+
+
+def render_packet(packet: Packet) -> Packet:
+    """ Build a packet so that all fields are populated """
+
+    assert (isinstance(packet, Packet)), "render_packet: parameter is NOT type Packet"
+    return packet.__class__(raw(packet))
+
+
+def bin2hex(bin_data: bytes) -> str:
+    """ Convert a binary arrary to an array ASCII hex """
+
+    return ''.join('{:02x} '.format(x) for x in bin_data)
