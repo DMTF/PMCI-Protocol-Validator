@@ -10,11 +10,13 @@
 
 from scapy.fields import *
 from scapy.packet import Packet
-
+from .dsp0249 import entity_id_codes
 
 dataSize = {0: "uint8", 1: "sint8", 2: "uint16", 3: "sint16", 4: "uint32", 5: "sint32"}
 
 supported_not_supported = {0: "Not supported", 1: "Supported"}
+
+true_false = {0: "False", 1: "True"}
 
 initialization = {
     1: "State sensor requires initialization",
@@ -179,6 +181,14 @@ RateUnit = {
 }
 
 
+class LEIeeeFloatField(Field[int, int]):
+    """ Define a Little Endian IEEE Single Float for DMTF real32 type """
+
+    def __init__(self, name, default):
+        Field.__init__(self, name, default, "<f")
+        return
+
+
 class TerminusLocatorPDR(Packet):
     """this is the PLDM V1.2 format, per DSP0248 -> Table 77"""
 
@@ -213,8 +223,8 @@ class NumericSensorPDR(Packet):
     fields_desc = [
         XLEShortField("PLDMTerminusHandle", 0x00000000),
         XLEShortField("SensorID", 0x0000),
-        XLEShortField("EntityType", 0x0000),
-        XLEShortField("EntityInstanceNumber", 0x0000),
+        LEShortEnumField("EntityType", 0x0000, entity_id_codes),
+        LEShortField("EntityInstanceNumber", 0x0000),
         XLEShortField("ContainerID", 0x0000),
         ByteEnumField(
             "SensorInit",
@@ -226,7 +236,7 @@ class NumericSensorPDR(Packet):
                 3: "disableSensor",
             },
         ),
-        ByteField("SensorAuxiliaryNamesPDR", 0),
+        ByteEnumField("SensorAuxiliaryNamesPDR", 0, true_false),
         ByteEnumField("BaseUnit", 0, SensorUnitsEnumeration),
         ByteField("UnitModifier", 0x00),
         ByteEnumField("RateUnit", 0, RateUnit),
@@ -236,58 +246,66 @@ class NumericSensorPDR(Packet):
         ByteEnumField("AuxRateUnit", 0, RateUnit),
         ByteEnumField("Relationship", 0, {0: "dividedBy", 1: "multipliedBy"}),
         XByteField("AuxOEMUnitHandle", 0x00),
-        ByteField("IsLinear", 0),  # bool8
+        ByteEnumField("IsLinear", 0, true_false),  # bool8
         ByteEnumField("SensorDataSize", 0, {**dataSize, 6: "real32"}),
-        XLEIntField("Resolution", 0x00000000),  # real32
-        XLEIntField("Offset", 0x00000000),  # real32
-        XLEShortField("Accuracy", 0x0000),
-        XByteField("PlusTolerance", 0x00),
-        XByteField("MinusTolerance", 0x00),
+        LEIeeeFloatField("Resolution", 0x00000000),  # real32
+        LEIeeeFloatField("Offset", 0x00000000),  # real32
+        LEShortField("Accuracy", 0x0000),
+        ByteField("PlusTolerance", 0x00),
+        ByteField("MinusTolerance", 0x00),
         MultipleTypeField(
             [
                 (
-                    XByteField("HysteresisValue", 0x00),
+                    ByteField("HysteresisValue", 0x00),
                     lambda pkt: pkt.SensorDataSize in [0, 1],
                 ),
                 (
-                    XLEShortField("HysteresisValue", 0x0000),
+                    LEShortField("HysteresisValue", 0x0000),
                     lambda pkt: pkt.SensorDataSize in [2, 3],
                 ),
                 (
-                    XLEIntField("HysteresisValue", 0x00000000),
+                    LEIntField("HysteresisValue", 0x00000000),
                     lambda pkt: pkt.SensorDataSize in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("HysteresisValue", 0x00000000),
+                    lambda pkt: pkt.SensorDataSize in [6],
                 ),
             ],
             XByteField("HysteresisValue", 0x00),  # Default field
         ),
         BitField("Reserved_1", 0, 2),
-        BitField("lowerThresholdFatal", 0, 1),
-        BitField("lowerThresholdCritical", 0, 1),
-        BitField("lowerThresholdWarning", 0, 1),
-        BitField("upperThresholdFatal", 0, 1),
-        BitField("upperThresholdCritical", 0, 1),
-        BitField("upperThresholdWarning", 0, 1),
+        BitEnumField("lowerThresholdFatal", 0, 1, supported_not_supported),
+        BitEnumField("lowerThresholdCritical", 0, 1, supported_not_supported),
+        BitEnumField("lowerThresholdWarning", 0, 1, supported_not_supported),
+        BitEnumField("upperThresholdFatal", 0, 1, supported_not_supported),
+        BitEnumField("upperThresholdCritical", 0, 1, supported_not_supported),
+        BitEnumField("upperThresholdWarning", 0, 1, supported_not_supported),
         BitField("Reserved_2", 0, 3),
-        BitField("PLDMTerminusReturnsToOnlineCondition", 0, 1),
-        BitField("SystemWarmResets", 0, 1),
-        BitField("SystemHardResets", 0, 1),
-        BitField("PLDMSubsystemPowerUp", 0, 1),
-        BitField("InitializationAgentControllerRestartUpdate", 0, 1),
-        XLEIntField("StateTransitionInterval", 0x00000000),  # real32
-        XLEIntField("UpdateInterval", 0x00000000),  # real32
+        BitEnumField("PLDMTerminusReturnsToOnlineCondition", 0, 1, true_false),
+        BitEnumField("SystemWarmResets", 0, 1, true_false),
+        BitEnumField("SystemHardResets", 0, 1, true_false),
+        BitEnumField("PLDMSubsystemPowerUp", 0, 1, true_false),
+        BitEnumField("InitializationAgentControllerRestartUpdate", 0, 1, true_false),
+        LEIeeeFloatField("StateTransitionInterval", 0x00000000),  # real32
+        LEIeeeFloatField("UpdateInterval", 0x00000000),  # real32
         MultipleTypeField(
             [
                 (
-                    XByteField("MaxReadable", 0x00),
+                    ByteField("MaxReadable", 0x00),
                     lambda pkt: pkt.SensorDataSize in [0, 1],
                 ),
                 (
-                    XLEShortField("MaxReadable", 0x0000),
+                    LEShortField("MaxReadable", 0x0000),
                     lambda pkt: pkt.SensorDataSize in [2, 3],
                 ),
                 (
-                    XLEIntField("MaxReadable", 0x00000000),
+                    LEIntField("MaxReadable", 0x00000000),
                     lambda pkt: pkt.SensorDataSize in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("MaxReadable", 0x00000000),
+                    lambda pkt: pkt.SensorDataSize in [6],
                 ),
             ],
             XByteField("MaxReadable", 0x00),  # Default field
@@ -295,42 +313,50 @@ class NumericSensorPDR(Packet):
         MultipleTypeField(
             [
                 (
-                    XByteField("MinReadable", 0x00),
+                    ByteField("MinReadable", 0x00),
                     lambda pkt: pkt.SensorDataSize in [0, 1],
                 ),
                 (
-                    XLEShortField("MinReadable", 0x0000),
+                    LEShortField("MinReadable", 0x0000),
                     lambda pkt: pkt.SensorDataSize in [2, 3],
                 ),
                 (
-                    XLEIntField("MinReadable", 0x00000000),
+                    LEIntField("MinReadable", 0x00000000),
                     lambda pkt: pkt.SensorDataSize in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("MinReadable", 0x00000000),
+                    lambda pkt: pkt.SensorDataSize in [6],
                 ),
             ],
             XByteField("MinReadable", 0x00),  # Default field
         ),
         ByteEnumField("RangeFieldFormat", 0, {**dataSize, 6: "real32"}),
         BitField("Reserved_3", 0, 1),
-        BitField("FatalLowSupported", 0, 1),
-        BitField("FatalHighSupported", 0, 1),
-        BitField("CriticalLowSupported", 0, 1),
-        BitField("CriticalHighSupported", 0, 1),
-        BitField("NormalMinSupported", 0, 1),
-        BitField("NormalMaxSupported", 0, 1),
-        BitField("NominalValueSupported", 0, 1),
+        BitEnumField("FatalLowSupported", 0, 1, supported_not_supported),
+        BitEnumField("FatalHighSupported", 0, 1, supported_not_supported),
+        BitEnumField("CriticalLowSupported", 0, 1, supported_not_supported),
+        BitEnumField("CriticalHighSupported", 0, 1, supported_not_supported),
+        BitEnumField("NormalMinSupported", 0, 1, supported_not_supported),
+        BitEnumField("NormalMaxSupported", 0, 1, supported_not_supported),
+        BitEnumField("NominalValueSupported", 0, 1, supported_not_supported),
         MultipleTypeField(
             [
                 (
-                    XByteField("NominalValue", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ByteField("NominalValue", 0x00),
+                    lambda pkt: pkt.RangeFieldFormat in [0, 1],
                 ),
                 (
-                    XLEShortField("NominalValue", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
+                    LEShortField("NominalValue", 0x0000),
+                    lambda pkt: pkt.RangeFieldFormat in [2, 3],
                 ),
                 (
-                    XLEIntField("NominalValue", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5, 6],
+                    LEIntField("NominalValue", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [4, 5, 6],
+                ),
+                (
+                    LEIeeeFloatField("NominalValue", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [6],
                 ),  # real32
             ],
             XByteField("NominalValue", 0x00),  # Default field
@@ -338,16 +364,20 @@ class NumericSensorPDR(Packet):
         MultipleTypeField(
             [
                 (
-                    XByteField("NormalMax", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ByteField("NormalMax", 0x00),
+                    lambda pkt: pkt.RangeFieldFormat in [0, 1],
                 ),
                 (
-                    XLEShortField("NormalMax", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
+                    LEShortField("NormalMax", 0x0000),
+                    lambda pkt: pkt.RangeFieldFormat in [2, 3],
                 ),
                 (
-                    XLEIntField("NormalMax", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5, 6],
+                    LEIntField("NormalMax", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("NormalMax", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [6],
                 ),  # real32
             ],
             XByteField("NormalMax", 0x00),  # Default field
@@ -355,16 +385,20 @@ class NumericSensorPDR(Packet):
         MultipleTypeField(
             [
                 (
-                    XByteField("NormalMin", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ByteField("NormalMin", 0x00),
+                    lambda pkt: pkt.RangeFieldFormat in [0, 1],
                 ),
                 (
-                    XLEShortField("NormalMin", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
+                    LEShortField("NormalMin", 0x0000),
+                    lambda pkt: pkt.RangeFieldFormat in [2, 3],
                 ),
                 (
-                    XLEIntField("NormalMin", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5, 6],
+                    LEIntField("NormalMin", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("NormalMin", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [6],
                 ),  # real32
             ],
             XByteField("NormalMin", 0x00),  # Default field
@@ -372,16 +406,20 @@ class NumericSensorPDR(Packet):
         MultipleTypeField(
             [
                 (
-                    XByteField("WarningHigh", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ByteField("WarningHigh", 0x00),
+                    lambda pkt: pkt.RangeFieldFormat in [0, 1],
                 ),
                 (
-                    XLEShortField("WarningHigh", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
+                    LEShortField("WarningHigh", 0x0000),
+                    lambda pkt: pkt.RangeFieldFormat in [2, 3],
                 ),
                 (
-                    XLEIntField("WarningHigh", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5, 6],
+                    LEIntField("WarningHigh", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("WarningHigh", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [6],
                 ),  # real32
             ],
             XByteField("WarningHigh", 0x00),  # Default field
@@ -389,16 +427,20 @@ class NumericSensorPDR(Packet):
         MultipleTypeField(
             [
                 (
-                    XByteField("WarningLow", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ByteField("WarningLow", 0x00),
+                    lambda pkt: pkt.RangeFieldFormat in [0, 1],
                 ),
                 (
-                    XLEShortField("WarningLow", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
+                    LEShortField("WarningLow", 0x0000),
+                    lambda pkt: pkt.RangeFieldFormat in [2, 3],
                 ),
                 (
-                    XLEIntField("WarningLow", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5, 6],
+                    LEIntField("WarningLow", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("WarningLow", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [6],
                 ),  # real32
             ],
             XByteField("WarningLow", 0x00),  # Default field
@@ -406,16 +448,20 @@ class NumericSensorPDR(Packet):
         MultipleTypeField(
             [
                 (
-                    XByteField("CriticalHigh", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ByteField("CriticalHigh", 0x00),
+                    lambda pkt: pkt.RangeFieldFormat in [0, 1],
                 ),
                 (
-                    XLEShortField("CriticalHigh", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
+                    LEShortField("CriticalHigh", 0x0000),
+                    lambda pkt: pkt.RangeFieldFormat in [2, 3],
                 ),
                 (
-                    XLEIntField("CriticalHigh", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5, 6],
+                    LEIntField("CriticalHigh", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("CriticalHigh", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [6],
                 ),  # real32
             ],
             XByteField("CriticalHigh", 0x00),  # Default field
@@ -423,16 +469,20 @@ class NumericSensorPDR(Packet):
         MultipleTypeField(
             [
                 (
-                    XByteField("CriticalLow", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ByteField("CriticalLow", 0x00),
+                    lambda pkt: pkt.RangeFieldFormat in [0, 1],
                 ),
                 (
-                    XLEShortField("CriticalLow", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
+                    LEShortField("CriticalLow", 0x0000),
+                    lambda pkt: pkt.RangeFieldFormat in [2, 3],
                 ),
                 (
-                    XLEIntField("CriticalLow", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5, 6],
+                    LEIntField("CriticalLow", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("CriticalLow", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [6],
                 ),  # real32
             ],
             XByteField("CriticalLow", 0x00),  # Default field
@@ -440,16 +490,20 @@ class NumericSensorPDR(Packet):
         MultipleTypeField(
             [
                 (
-                    XByteField("FatalHigh", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ByteField("FatalHigh", 0x00),
+                    lambda pkt: pkt.RangeFieldFormat in [0, 1],
                 ),
                 (
-                    XLEShortField("FatalHigh", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
+                    LEShortField("FatalHigh", 0x0000),
+                    lambda pkt: pkt.RangeFieldFormat in [2, 3],
                 ),
                 (
-                    XLEIntField("FatalHigh", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5, 6],
+                    LEIntField("FatalHigh", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("FatalHigh", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [6],
                 ),  # real32
             ],
             XByteField("FatalHigh", 0x00),  # Default field
@@ -457,16 +511,20 @@ class NumericSensorPDR(Packet):
         MultipleTypeField(
             [
                 (
-                    XByteField("FatalLow", 0x00),
-                    lambda pkt: pkt.SensorDataSize in [0, 1],
+                    ByteField("FatalLow", 0x00),
+                    lambda pkt: pkt.RangeFieldFormat in [0, 1],
                 ),
                 (
-                    XLEShortField("FatalLow", 0x0000),
-                    lambda pkt: pkt.SensorDataSize in [2, 3],
+                    LEShortField("FatalLow", 0x0000),
+                    lambda pkt: pkt.RangeFieldFormat in [2, 3],
                 ),
                 (
-                    XLEIntField("FatalLow", 0x00000000),
-                    lambda pkt: pkt.SensorDataSize in [4, 5, 6],
+                    LEIntField("FatalLow", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("FatalLow", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [6],
                 ),  # real32
             ],
             XByteField("FatalLow", 0x00),  # Default field
@@ -486,19 +544,19 @@ class NumericSensorInitializationPDR(Packet):
         XLEShortField("PLDMTerminusHandle", 0x00000000),
         XLEShortField("SensorID", 0x0000),
         BitField("Reserved_1", 0, 3),
-        BitField("PLDMTerminusReturnsToOnlineCondition", 0, 1),
-        BitField("SystemWarmResets", 0, 1),
-        BitField("SystemHardResets", 0, 1),
-        BitField("PLDMSubsystemPowerUp", 0, 1),
-        BitField("InitializationAgentControllerRestartUpdate", 0, 1),
+        BitEnumField("PLDMTerminusReturnsToOnlineCondition", 0, 1, true_false),
+        BitEnumField("SystemWarmResets", 0, 1, true_false),
+        BitEnumField("SystemHardResets", 0, 1, true_false),
+        BitEnumField("PLDMSubsystemPowerUp", 0, 1, true_false),
+        BitEnumField("InitializationAgentControllerRestartUpdate", 0, 1, true_false),
         XByteField("SensorEnable", 0x00),
         BitField("Reserved_2", 0, 2),
-        BitField("lowerThresholdFatal", 0, 1),
-        BitField("lowerThresholdCritical", 0, 1),
-        BitField("lowerThresholdWarning", 0, 1),
-        BitField("upperThresholdFatal", 0, 1),
-        BitField("upperThresholdCritical", 0, 1),
-        BitField("upperThresholdWarning", 0, 1),
+        BitEnumField("lowerThresholdFatal", 0, 1, true_false),
+        BitEnumField("lowerThresholdCritical", 0, 1, true_false),
+        BitEnumField("lowerThresholdWarning", 0, 1, true_false),
+        BitEnumField("upperThresholdFatal", 0, 1, true_false),
+        BitEnumField("upperThresholdCritical", 0, 1, true_false),
+        BitEnumField("upperThresholdWarning", 0, 1, true_false),
         ByteEnumField("SensorDataSize", 0, dataSize),
         MultipleTypeField(
             [
@@ -630,8 +688,8 @@ class StateSensorFields(Packet):
     name = "State Sensor Possible States"
 
     fields_desc = [
-        XLEShortField("StateSetID", 0x0000),
-        XByteField("PossibleStateSize", 0x00),
+        LEShortField("StateSetID", 0x0000),
+        ByteField("PossibleStateSize", 0x00),
         PacketListField(
             "PossibleStates",
             StateSensorBitFields(),
@@ -652,8 +710,8 @@ class StateSensorPDR(Packet):
     fields_desc = [
         XLEShortField("PLDMTerminusHandle", 0x0000),
         XLEShortField("SensorID", 0x0000),
-        XLEShortField("EntityType", 0x0000),
-        XLEShortField("EntityInstanceNumber", 0x0000),
+        LEShortEnumField("EntityType", 0x0000, entity_id_codes),
+        LEShortField("EntityInstanceNumber", 0x0000),
         XLEShortField("ContainerID", 0x0000),
         ByteEnumField(
             "SensorInit",
@@ -665,8 +723,8 @@ class StateSensorPDR(Packet):
                 3: "disableSensor",
             },
         ),
-        ByteField("SensorAuxiliaryNamesPDR", 0),
-        XByteField("CompositeSensorCount", 0x00),  # Values from 0x01 to 0x08
+        ByteEnumField("SensorAuxiliaryNamesPDR", 0, true_false),
+        ByteField("CompositeSensorCount", 0x00),  # Values from 0x01 to 0x08
         PacketListField(
             "PossibleStatesFields",
             StateSensorFields(),
@@ -688,11 +746,11 @@ class StateSensorInitializationPDR(Packet):
         XLEShortField("PLDMTerminusHandle", 0x00000000),
         XLEShortField("SensorID", 0x0000),
         BitField("Reserved_1", 0, 3),
-        BitField("PLDMTerminusReturnsToOnlineCondition", 0, 1),
-        BitField("SystemWarmResets", 0, 1),
-        BitField("SystemHardResets", 0, 1),
-        BitField("PLDMSubsystemPowerUp", 0, 1),
-        BitField("InitializationAgentControllerRestartUpdate", 0, 1),
+        BitEnumField("PLDMTerminusReturnsToOnlineCondition", 0, 1, true_false),
+        BitEnumField("SystemWarmResets", 0, 1, true_false),
+        BitEnumField("SystemHardResets", 0, 1, true_false),
+        BitEnumField("PLDMSubsystemPowerUp", 0, 1, true_false),
+        BitEnumField("InitializationAgentControllerRestartUpdate", 0, 1, true_false),
         XByteField("SensorEnable", 0x00),
         BitEnumField("SensorInitMask_7", 0, 1, initialization),
         BitEnumField("SensorInitMask_6", 0, 1, initialization),
@@ -710,15 +768,14 @@ class StateSensorInitializationPDR(Packet):
         BitEnumField("sensorStateEventEnableMask_2", 0, 1, enableEvent),
         BitEnumField("sensorStateEventEnableMask_1", 0, 1, enableEvent),
         BitEnumField("sensorStateEventEnableMask_0", 0, 1, enableEvent),
-        BitField("SensorEventRearm_7", 0, 1),
-        BitField("SensorEventRearm_6", 0, 1),
-        BitField("SensorEventRearm_5", 0, 1),
-        BitField("SensorEventRearm_4", 0, 1),
-        BitField("SensorEventRearm_3", 0, 1),
-        BitField("SensorEventRearm_2", 0, 1),
-        BitField("SensorEventRearm_1", 0, 1),
-        BitField("SensorEventRearm_0", 0, 1),
-
+        BitEnumField("SensorEventRearm_7", 0, 1, true_false),
+        BitEnumField("SensorEventRearm_6", 0, 1, true_false),
+        BitEnumField("SensorEventRearm_5", 0, 1, true_false),
+        BitEnumField("SensorEventRearm_4", 0, 1, true_false),
+        BitEnumField("SensorEventRearm_3", 0, 1, true_false),
+        BitEnumField("SensorEventRearm_2", 0, 1, true_false),
+        BitEnumField("SensorEventRearm_1", 0, 1, true_false),
+        BitEnumField("SensorEventRearm_0", 0, 1, true_false),
         XByteField("StateValue_0", 0x00),
         XByteField("StateValue_1", 0x00),
         XByteField("StateValue_2", 0x00),
@@ -749,7 +806,7 @@ class SensorAuxiliaryNamesFields(Packet):
     name = "Sensor Auxiliary Names Sensor Fields"
 
     fields_desc = [
-        XByteField("NameStringCount", 0x00),
+        ByteField("NameStringCount", 0x00),
         PacketListField(
             "NameStrings",
             NamesFieldsSensorAuxiliaryNames(),
@@ -770,7 +827,7 @@ class SensorAuxiliaryNamesPDR(Packet):
     fields_desc = [
         XLEShortField("PLDMTerminusHandle", 0x00000000),
         XLEShortField("SensorID", 0x0000),
-        XByteField("SensorCount", 0x00),
+        ByteField("SensorCount", 0x00),
         PacketListField(
             "Sensors",
             SensorAuxiliaryNamesFields(),
@@ -805,7 +862,7 @@ class OEMUnitPDR(Packet):
         XByteField("OEMUnitHandle", 0x0000),
         XLEIntField("VendorIANA", 0x00000000),
         XByteField("OEMUnitID", 0x00),
-        XByteField("StringCount", 0x00),
+        ByteField("StringCount", 0x00),
         PacketListField(
             "UnitNames",
             OEMUnitStrings(),
@@ -865,7 +922,7 @@ class OEMStatePDR(Packet):
                 1: "treatAsError"
             }
         ),
-        XByteField("StateCount", 0x00),
+        ByteField("StateCount", 0x00),
         PacketListField(
             "OEMStateValueRecords",
             OEMStateValueRecordFields(),
@@ -886,8 +943,8 @@ class NumericEffecterPDR(Packet):
     fields_desc = [
         XLEShortField("PLDMTerminusHandle", 0x0000),
         XLEShortField("EffecterID", 0x0000),
-        XLEShortField("EntityType", 0x0000),
-        XLEShortField("EntityInstanceNumber", 0x0000),
+        LEShortEnumField("EntityType", 0x0000, entity_id_codes),
+        LEShortField("EntityInstanceNumber", 0x0000),
         XLEShortField("ContainerID", 0x0000),
         XLEShortField("EffecterSemanticID", 0x0000),
         ByteEnumField(
@@ -900,7 +957,7 @@ class NumericEffecterPDR(Packet):
                 3: "disableEffecter",
             },
         ),
-        XByteField("EffecterAuxiliaryNamesPDR", 0x00),
+        ByteEnumField("EffecterAuxiliaryNamesPDR", 0x00, true_false),
         ByteEnumField("BaseUnit", 0, SensorUnitsEnumeration),
         ByteField("UnitModifier", 0x00),
         ByteEnumField("RateUnit", 0, RateUnit),
@@ -909,14 +966,14 @@ class NumericEffecterPDR(Packet):
         ByteField("AuxUnitModifier", 0x00),
         ByteEnumField("AuxRateUnit", 0, RateUnit),
         XByteField("AuxOEMUnitHandle", 0x00),
-        ByteField("IsLinear", 0),  # bool8
+        ByteEnumField("IsLinear", 0, true_false),  # bool8
         ByteEnumField("EffecterDataSize", 0, dataSize),
-        XLEIntField("Resolution", 0x00000000),
-        XLEIntField("Offset", 0x00000000),
-        XLEShortField("Accuracy", 0x0000),
-        XByteField("PlusTolerance", 0x00),
-        XByteField("MinusTolerance", 0x00),
-        XLEIntField("StateTransitionInterval", 0x00000000),
+        LEIeeeFloatField("Resolution", 0x00000000),
+        LEIeeeFloatField("Offset", 0x00000000),
+        LEShortField("Accuracy", 0x0000),
+        ByteField("PlusTolerance", 0x00),
+        ByteField("MinusTolerance", 0x00),
+        LEIeeeFloatField("StateTransitionInterval", 0x00000000),
         MultipleTypeField(
             [
                 (
@@ -951,95 +1008,116 @@ class NumericEffecterPDR(Packet):
             ],
             XByteField("MinSettable", 0x00),  # Default field
         ),
+
         ByteEnumField("RangeFieldFormat", 0, {**dataSize, 6: "real32"}),
         BitField("Reserved_1", 0, 3),
-        BitField("RatedMinSupported", 0, 1),
-        BitField("RatedMaxSupported", 0, 1),
-        BitField("NormalMinSupported", 0, 1),
-        BitField("NormalMaxSupported", 0, 1),
-        BitField("NominalValueSupported", 0, 1),
+        BitEnumField("RatedMinSupported", 0, 1, supported_not_supported),
+        BitEnumField("RatedMaxSupported", 0, 1, supported_not_supported),
+        BitEnumField("NormalMinSupported", 0, 1, supported_not_supported),
+        BitEnumField("NormalMaxSupported", 0, 1, supported_not_supported),
+        BitEnumField("NominalValueSupported", 0, 1, supported_not_supported),
         MultipleTypeField(
             [
                 (
-                    XByteField("NominalValue", 0x00),
+                    ByteField("NominalValue", 0x00),
                     lambda pkt: pkt.RangeFieldFormat in [0, 1],
                 ),
                 (
-                    XLEShortField("NominalValue", 0x0000),
+                    LEShortField("NominalValue", 0x0000),
                     lambda pkt: pkt.RangeFieldFormat in [2, 3],
                 ),
                 (
-                    XLEIntField("NominalValue", 0x00000000),
-                    lambda pkt: pkt.RangeFieldFormat in [4, 5, 6],
-                ),  # real32
+                    LEIntField("NominalValue", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("NominalValue", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [6],
+                ),
             ],
             XByteField("NominalValue", 0x00),  # Default field
         ),
         MultipleTypeField(
             [
                 (
-                    XByteField("NormalMax", 0x00),
+                    ByteField("NormalMax", 0x00),
                     lambda pkt: pkt.RangeFieldFormat in [0, 1],
                 ),
                 (
-                    XLEShortField("NormalMax", 0x0000),
+                    LEShortField("NormalMax", 0x0000),
                     lambda pkt: pkt.RangeFieldFormat in [2, 3],
                 ),
                 (
-                    XLEIntField("NormalMax", 0x00000000),
-                    lambda pkt: pkt.RangeFieldFormat in [4, 5, 6],
-                ),  # real32
+                    LEIntField("NormalMax", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("NormalMax", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [6],
+                ),
             ],
             XByteField("NormalMax", 0x00),  # Default field
         ),
         MultipleTypeField(
             [
                 (
-                    XByteField("NormalMin", 0x00),
+                    ByteField("NormalMin", 0x00),
                     lambda pkt: pkt.RangeFieldFormat in [0, 1],
                 ),
                 (
-                    XLEShortField("NormalMin", 0x0000),
+                    LEShortField("NormalMin", 0x0000),
                     lambda pkt: pkt.RangeFieldFormat in [2, 3],
                 ),
                 (
-                    XLEIntField("NormalMin", 0x00000000),
-                    lambda pkt: pkt.RangeFieldFormat in [4, 5, 6],
-                ),  # real32
+                    LEIntField("NormalMin", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("NormalMin", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [6],
+                ),
             ],
             XByteField("NormalMin", 0x00),  # Default field
         ),
         MultipleTypeField(
             [
                 (
-                    XByteField("RatedMax", 0x00),
+                    ByteField("RatedMax", 0x00),
                     lambda pkt: pkt.RangeFieldFormat in [0, 1],
                 ),
                 (
-                    XLEShortField("RatedMax", 0x0000),
+                    LEShortField("RatedMax", 0x0000),
                     lambda pkt: pkt.RangeFieldFormat in [2, 3],
                 ),
                 (
-                    XLEIntField("RatedMax", 0x00000000),
-                    lambda pkt: pkt.RangeFieldFormat in [4, 5, 6],
-                ),  # real32
+                    LEIntField("RatedMax", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("RatedMax", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [6],
+                ),
             ],
             XByteField("RatedMax", 0x00),  # Default field
         ),
         MultipleTypeField(
             [
                 (
-                    XByteField("RatedMin", 0x00),
+                    ByteField("RatedMin", 0x00),
                     lambda pkt: pkt.RangeFieldFormat in [0, 1],
                 ),
                 (
-                    XLEShortField("RatedMin", 0x0000),
+                    LEShortField("RatedMin", 0x0000),
                     lambda pkt: pkt.RangeFieldFormat in [2, 3],
                 ),
                 (
-                    XLEIntField("RatedMin", 0x00000000),
-                    lambda pkt: pkt.RangeFieldFormat in [4, 5, 6],
-                ),  # real32
+                    LEIntField("RatedMin", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("RatedMin", 0x00000000),
+                    lambda pkt: pkt.RangeFieldFormat in [6],
+                ),
             ],
             XByteField("RatedMin", 0x00),  # Default field
         ),
@@ -1059,26 +1137,30 @@ class NumericEffecterInitializationPDR(Packet):
         XLEShortField("EffecterID", 0x0000),
         XByteField("EffecterEnable", 0x00),
         BitField("Reserved_1", 0, 3),
-        BitField("PLDMTerminusReturnsToOnlineCondition", 0, 1),
-        BitField("SystemWarmResets", 0, 1),
-        BitField("SystemHardResets", 0, 1),
-        BitField("PLDMSubsystemPowerUp", 0, 1),
-        BitField("InitializationAgentControllerRestartUpdate", 0, 1),
+        BitEnumField("PLDMTerminusReturnsToOnlineCondition", 0, 1, true_false),
+        BitEnumField("SystemWarmResets", 0, 1, true_false),
+        BitEnumField("SystemHardResets", 0, 1, true_false),
+        BitEnumField("PLDMSubsystemPowerUp", 0, 1, true_false),
+        BitEnumField("InitializationAgentControllerRestartUpdate", 0, 1, true_false),
         ByteEnumField("EffecterDataSize", 0, dataSize),
         MultipleTypeField(
             [
                 (
-                    XByteField("EffecterData", 0x00),
+                    ByteField("EffecterData", 0x00),
                     lambda pkt: pkt.EffecterDataSize in [0, 1],
                 ),
                 (
-                    XLEShortField("EffecterData", 0x0000),
+                    LEShortField("EffecterData", 0x0000),
                     lambda pkt: pkt.EffecterDataSize in [2, 3],
                 ),
                 (
-                    XLEIntField("EffecterData", 0x00000000),
-                    lambda pkt: pkt.EffecterDataSize in [4, 5, 6],
-                ),  # real32
+                    LEIntField("EffecterData", 0x00000000),
+                    lambda pkt: pkt.EffecterDataSize in [4, 5],
+                ),
+                (
+                    LEIeeeFloatField("EffecterData", 0x00000000),
+                    lambda pkt: pkt.EffecterDataSize in [6],
+                ),
             ],
             XByteField("EffecterData", 0x00)  # Default field
         ),
@@ -1110,8 +1192,8 @@ class StateEffecterFields(Packet):
     name = "State Effecter Possible States"
 
     fields_desc = [
-        XLEShortField("StateSetID", 0x0000),
-        XByteField("PossibleStateSize", 0x00),
+        LEShortField("StateSetID", 0x0000),
+        ByteField("PossibleStateSize", 0x00),
         PacketListField(
             "PossibleStates",
             StateEffecterBitFields(),
@@ -1132,8 +1214,8 @@ class StateEffecterPDR(Packet):
     fields_desc = [
         XLEShortField("PLDMTerminusHandle", 0x0000),
         XLEShortField("EffecterID", 0x0000),
-        XLEShortField("EntityType", 0x0000),
-        XLEShortField("EntityInstanceNumber", 0x0000),
+        LEShortEnumField("EntityType", 0x0000, entity_id_codes),
+        LEShortField("EntityInstanceNumber", 0x0000),
         XLEShortField("ContainerID", 0x0000),
         XLEShortField("EffecterSemanticID", 0x0000),
         ByteEnumField(
@@ -1146,8 +1228,8 @@ class StateEffecterPDR(Packet):
                 3: "disableEffecter",
             },
         ),
-        XByteField("EffecterDescriptionPDR", 0x00),
-        XByteField("CompositeEffecterCount", 0x00),
+        ByteEnumField("EffecterDescriptionPDR", 0x00, true_false),
+        ByteField("CompositeEffecterCount", 0x00),
         PacketListField(
             "PossibleStatesFields",
             StateEffecterFields(),
@@ -1168,15 +1250,15 @@ class StateEffecterInitializationPDR(Packet):
     fields_desc = [
         XLEShortField("PLDMTerminusHandle", 0x0000),
         XLEShortField("EffecterID", 0x0000),
-        XLEShortField("EntityType", 0x0000),
-        XLEShortField("EntityInstanceNumber", 0x0000),
+        LEShortEnumField("EntityType", 0x0000, entity_id_codes),
+        LEShortField("EntityInstanceNumber", 0x0000),
         XLEShortField("ContainerID", 0x0000),
         BitField("Reserved_1", 0, 3),
-        BitField("PLDMTerminusReturnsToOnlineCondition", 0, 1),
-        BitField("SystemWarmResets", 0, 1),
-        BitField("SystemHardResets", 0, 1),
-        BitField("PLDMSubsystemPowerUp", 0, 1),
-        BitField("InitializationAgentControllerRestartUpdate", 0, 1),
+        BitEnumField("PLDMTerminusReturnsToOnlineCondition", 0, 1, true_false),
+        BitEnumField("SystemWarmResets", 0, 1, true_false),
+        BitEnumField("SystemHardResets", 0, 1, true_false),
+        BitEnumField("PLDMSubsystemPowerUp", 0, 1, true_false),
+        BitEnumField("InitializationAgentControllerRestartUpdate", 0, 1, true_false),
         XByteField("EffecterEnable", 0x00),
         BitEnumField("EffecterInitMask_7", 0, 1, initialization),
         BitEnumField("EffecterInitMask_6", 0, 1, initialization),
@@ -1224,7 +1306,7 @@ class EffecterAuxiliaryNamesFields(Packet):
     name = "Effecter Auxiliary Names Records"
 
     fields_desc = [
-        XByteField("NameStringCount", 0x00),
+        ByteField("NameStringCount", 0x00),
         PacketListField(
             "EffecterNames",
             EffecterAuxiliaryNamesStrings(),
@@ -1245,7 +1327,7 @@ class EffecterAuxiliaryNamesPDR(Packet):
     fields_desc = [
         XLEShortField("PLDMTerminusHandle", 0x0000),
         XLEShortField("EffecterID", 0x0000),
-        XByteField("EffecterCount", 0x00),
+        ByteField("EffecterCount", 0x00),
         PacketListField(
             "EffecterNames",
             EffecterAuxiliaryNamesFields(),
@@ -1280,7 +1362,7 @@ class OEMEffecterSemanticPDR(Packet):
         XByteField("OEMEffecterSemanticHandle", 0x00),
         XLEIntField("VendorIANA", 0x0000000000),
         XByteField("OEMEffecterSemanticID", 0x00),
-        XByteField("StringCount", 0x00),
+        ByteField("StringCount", 0x00),
         PacketListField(
             "Names",
             OEMEffecterSemanticStrings(),
@@ -1297,8 +1379,8 @@ class EntityAssociationContained(Packet):
     name = "Contained Entity"
 
     fields_desc = [
-        XLEShortField("ContainedEntityType", 0x0000),
-        XLEShortField("ContainedEntityInstanceNumber", 0x0000),
+        LEShortEnumField("ContainedEntityType", 0x0000, entity_id_codes),
+        LEShortField("ContainedEntityInstanceNumber", 0x0000),
         XLEShortField("ContainedEntityContainerID", 0x0000),
     ]
 
@@ -1318,10 +1400,10 @@ class EntityAssociationPDR(Packet):
             0,
             {0: "physicalToPhysicalContainment", 1: "logicalContainment"},
         ),
-        XLEShortField("ContainerEntityType", 0x0000),
-        XLEShortField("ContainerEntityInstanceNumber", 0x0000),
+        LEShortEnumField("ContainerEntityType", 0x0000, entity_id_codes),
+        LEShortField("ContainerEntityInstanceNumber", 0x0000),
         XLEShortField("ContainerEntityContainerID", 0x0000),
-        XByteField("ContainedEntityCount", 0x00),
+        ByteField("ContainedEntityCount", 0x00),
         PacketListField(
             "ContainedEntities",
             EntityAssociationContained(),
@@ -1352,11 +1434,11 @@ class EntityAuxiliaryNamesPDR(Packet):
     name = "Entity Auxiliary Names"
 
     fields_desc = [
-        XLEShortField("EntityType", 0x0000),
-        XLEShortField("EntityInstanceNumber", 0x0000),
+        LEShortEnumField("EntityType", 0x0000, entity_id_codes),
+        LEShortField("EntityInstanceNumber", 0x0000),
         XLEShortField("EntityContainerID", 0x0000),
-        XLEShortField("SharedNameCount", 0x0000),
-        XByteField("NameStringCount", 0x00),
+        LEShortField("SharedNameCount", 0x0000),
+        ByteField("NameStringCount", 0x00),
         PacketListField(
             "EntityAuxiliaryNames",
             EntityAuxiliaryNamesStrings(),
@@ -1391,7 +1473,7 @@ class OEMEntityIDPDR(Packet):
         XLEShortField("OEMEntityIDHandleValue", 0x0000),  # MSB is reserved
         XLEIntField("VendorIANA", 0x00000000),
         XLEShortField("VendorEntityID", 0x0000),  # MSB is reserved
-        XByteField("StringCount", 0x00),
+        ByteField("StringCount", 0x00),
         PacketListField(
             "EntityIDStrings",
             OEMEntityIDStrings(),
@@ -1410,7 +1492,7 @@ class InterruptAssociationFields(Packet):
     fields_desc = [
         XLEIntField("InterruptSourcePLDMTerminusHandle", 0x00000000),
         XLEShortField("InterruptSourceEntityType", 0x0000),
-        XLEShortField("InterruptSourceEntityInstanceNumber", 0x0000),
+        LEShortField("InterruptSourceEntityInstanceNumber", 0x0000),
         XLEShortField("InterruptSourceEntityContainerID", 0x0000),
         XLEShortField("InterruptSourceSensorID", 0x0000),
     ]
@@ -1431,9 +1513,9 @@ class InterruptAssociationPDR(Packet):
             "SourceOrTargetSensor", 0, {0: "targetSensor", 1: "sourceSensor"}
         ),
         XLEShortField("InterruptTargetEntityType", 0x0000),
-        XLEShortField("InterruptTargetEntityInstanceNumber", 0x0000),
+        LEShortField("InterruptTargetEntityInstanceNumber", 0x0000),
         XLEShortField("InterruptTargetEntityContainerID", 0x0000),
-        XByteField("InterruptSourceEntityCount", 0x0000),
+        ByteField("InterruptSourceEntityCount", 0x0000),
         PacketListField(
             "SourceEntityIdentificationInformation",
             InterruptAssociationFields(),
@@ -1452,15 +1534,15 @@ class EventLogPDR(Packet):
     name = "Event Log"
 
     fields_desc = [
-        XLEIntField("LogSize", 0x00000000),
+        LEIntField("LogSize", 0x00000000),
         BitField("Reserved", 0, 5),
         BitEnumField("clearOnAge", 0, 1, supported_not_supported),
         BitEnumField("FIFO", 0, 1, supported_not_supported),
         BitEnumField("fillAndStop", 0, 1, supported_not_supported),
-        XByteField("EntryIDTimeout", 0x00),
-        XByteField("PerEntryOverhead", 0x00),
-        XByteField("AllocationGranularity", 0x00),
-        XByteField("PercentUsedResolution", 0x00),
+        ByteField("EntryIDTimeout", 0x00),
+        ByteField("PerEntryOverhead", 0x00),
+        ByteField("AllocationGranularity", 0x00),
+        ByteField("PercentUsedResolution", 0x00),
     ]
 
     def extract_padding(self, s):
@@ -1475,8 +1557,8 @@ class FRURecordSetPDR(Packet):
     fields_desc = [
         XLEShortField("PLDMTerminusHandle", 0x0000),
         XLEShortField("FRURecordSetIdentifier", 0x0000),
-        XLEShortField("EntityType", 0x0000),
-        XLEShortField("EntityInstanceNumber", 0x0000),
+        LEShortEnumField("EntityType", 0x0000, entity_id_codes),
+        LEShortField("EntityInstanceNumber", 0x0000),
         XLEShortField("ContainerID", 0x0000),
     ]
 
@@ -1500,7 +1582,7 @@ class OEMDevicePDR(Packet):
         ),
         XLEIntField("VendorIANA", 0x00000000),
         XLEShortField("OEMRecordID", 0x0000),
-        XLEShortField("DataLength", 0x0000),
+        LEShortField("DataLength", 0x0000),
         FieldListField(
             "VendorSpecificData",
             [],
@@ -1521,7 +1603,7 @@ class OEMPDR(Packet):
     fields_desc = [
         XLEIntField("VendorIANA", 0x00000000),
         XLEShortField("OEMRecordID", 0x0000),
-        XLEShortField("DataLength", 0x0000),
+        LEShortField("DataLength", 0x0000),
         FieldListField(
             "VendorSpecificData",
             [],
@@ -1542,26 +1624,26 @@ class CompactNumericSensorPDR(Packet):
     fields_desc = [
         XLEShortField("PLDMTerminusHandle", 0x00000000),
         XLEShortField("SensorID", 0x0000),
-        XLEShortField("EntityType", 0x0000),
-        XLEShortField("EntityInstanceNumber", 0x0000),
+        LEShortEnumField("EntityType", 0x0000, entity_id_codes),
+        LEShortField("EntityInstanceNumber", 0x0000),
         XLEShortField("ContainerID", 0x0000),
-        XByteField("SensorNameStringByteLength", 0x00),
+        ByteField("SensorNameStringByteLength", 0x00),
         ByteEnumField("BaseUnit", 0, SensorUnitsEnumeration),
         ByteField("UnitModifier", 0x00),
         ByteEnumField("OccurenceRate", 0, occurenceRate),
         BitField("Reserved_1", 0, 2),
-        BitField("FatalLowSupported", 0, 1),
-        BitField("FatalHighSupported", 0, 1),
-        BitField("CriticalLowSupported", 0, 1),
-        BitField("CriticalHighSupported", 0, 1),
-        BitField("WarningLowSupported", 0, 1),
-        BitField("WarningHighSupported", 0, 1),
-        XLEIntField("WarningHigh", 0x00000000),
-        XLEIntField("WarningLow", 0x00000000),
-        XLEIntField("CriticalHigh", 0x00000000),
-        XLEIntField("CriticalLow", 0x00000000),
-        XLEIntField("FatalHigh", 0x00000000),
-        XLEIntField("FatalLow", 0x00000000),
+        BitEnumField("FatalLowSupported", 0, 1, supported_not_supported),
+        BitEnumField("FatalHighSupported", 0, 1, supported_not_supported),
+        BitEnumField("CriticalLowSupported", 0, 1, supported_not_supported),
+        BitEnumField("CriticalHighSupported", 0, 1, supported_not_supported),
+        BitEnumField("WarningLowSupported", 0, 1, supported_not_supported),
+        BitEnumField("WarningHighSupported", 0, 1, supported_not_supported),
+        LEIntField("WarningHigh", 0x00000000),
+        LEIntField("WarningLow", 0x00000000),
+        LEIntField("CriticalHigh", 0x00000000),
+        LEIntField("CriticalLow", 0x00000000),
+        LEIntField("FatalHigh", 0x00000000),
+        LEIntField("FatalLow", 0x00000000),
         StrLenField(
             "sensorNameString",
             b"",
@@ -1623,17 +1705,17 @@ class RedfishResourcePDR(Packet):
     fields_desc = [
         XLEIntField("ResourceID", 0x00000000),
         BitField("Reserved_1", 0, 5),
-        BitField("IsCollection", 0, 1),
-        BitField("IsContainedInCollection", 0, 1),
-        BitField("IsDeviceRoot", 0, 1),
+        BitEnumField("IsCollection", 0, 1, true_false),
+        BitEnumField("IsContainedInCollection", 0, 1, true_false),
+        BitEnumField("IsDeviceRoot", 0, 1, true_false),
         XLEIntField("ContainingResourceID", 0x00000000),
-        XLEShortField("ProposedContainingResourceLengthBytes", 0x0000),
+        LEShortField("ProposedContainingResourceLengthBytes", 0x0000),
         StrLenField(
             "ProposedContainingResourceName",
             b"",
             length_from=lambda pkt: pkt.ProposedContainingResourceLengthBytes,
         ),
-        XLEShortField("SubURILengthBytes", 0x0000),
+        LEShortField("SubURILengthBytes", 0x0000),
         MultipleTypeField(
             [
                 (
@@ -1649,7 +1731,7 @@ class RedfishResourcePDR(Packet):
             ],
             XByteField("SubURI", 0x00),  # Default field
         ),
-        XLEShortField("AdditionalResourceIDCount", 0x0000),
+        LEShortField("AdditionalResourceIDCount", 0x0000),
         MultipleTypeField(
             [
                 (
@@ -1678,13 +1760,13 @@ class RedfishResourcePDR(Packet):
             ),
         ),
         XLEIntField("MajorSchemaVersion", 0x00000000),
-        XLEShortField("MajorSchemaDictionaryLengthBytes", 0x0000),
+        LEShortField("MajorSchemaDictionaryLengthBytes", 0x0000),
         XLEIntField("MajorSchemaDictionarySignature", 0x00000000),
-        XByteField("MajorSchemaNameLength", 0x00),
+        ByteField("MajorSchemaNameLength", 0x00),
         StrLenField(
             "MajorSchemaName", b"", length_from=lambda pkt: pkt.MajorSchemaNameLength
         ),
-        XLEShortField("OEMCount", 0x0000),
+        LEShortField("OEMCount", 0x0000),
         PacketListField(
             "OEMNames",
             RedfishResourceOEMNames(),
@@ -1704,13 +1786,13 @@ class RedfishEntityAssociationPDR(Packet):
 
     fields_desc = [
         XLEIntField("ContainingResourceID", 0x00000000),
-        XLEShortField("ProposedContainingResourceLengthBytes", 0x0000),
+        LEShortField("ProposedContainingResourceLengthBytes", 0x0000),
         StrLenField(
             "ProposedContainingResourceName",
             b"",
-            length_from=lambda pkt: pkt.SensorNameStringByteLength,
+            length_from=lambda pkt: pkt.ProposedContainingResourceLengthBytes,
         ),
-        XByteField("ContainedEntityCount", 0x0000),
+        ByteField("ContainedEntityCount", 0x0000),
         FieldListField(
             "ContainedEntity",
             [],
@@ -1756,15 +1838,15 @@ class RedfishActionPDR(Packet):
     name = "Redfish Action"
 
     fields_desc = [
-        XByteField("ActionPDRIndex", 0x00),
-        XLEShortField("RelatedResourceCount", 0x0000),
+        ByteField("ActionPDRIndex", 0x00),
+        LEShortField("RelatedResourceCount", 0x0000),
         PacketListField(
             "RelatedResources",
             RedfishActionRelatedResources(),
             RedfishActionRelatedResources,
             count_from=lambda pkt: pkt.RelatedResourceCount,
         ),
-        XByteField("ActionCount", 0x00),
+        ByteField("ActionCount", 0x00),
         PacketListField(
             "ActionNames",
             RedfishActionNames(),
@@ -1784,9 +1866,9 @@ class PDR_HEADER(Packet):
 
     fields_desc = [
         XLEIntField("RecordHandle", 0x00000000),
-        XByteField("PDRHeaderVersion", 0x00),
+        ByteField("PDRHeaderVersion", 0x00),
         ByteEnumField("PDRType", 0x00, PDRTypes),
-        XLEShortField("RecordChangeNumber", 0x0000),
+        LEShortField("RecordChangeNumber", 0x0000),
         LEShortField("DataLength", 0),
 
         ConditionalField(
