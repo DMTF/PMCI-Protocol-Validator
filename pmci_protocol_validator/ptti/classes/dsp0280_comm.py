@@ -67,8 +67,8 @@ class PTTIMedium(CommMedium):
                 if len(_chunk) >= 16:
 
                     # Read the remainder of the packet
-                    _len = int.from_bytes(_chunk[8:9], byteorder='little')
-                    _chunk = _chunk + self._socket.recv(_len)
+                    _len = int.from_bytes(_chunk[8:10], byteorder='little')
+                    _chunk = _chunk + self._socket.recv(_len, socket.MSG_WAITALL)
 
                     # Add packet to RX queue
                     self._add_read_packet(_chunk)
