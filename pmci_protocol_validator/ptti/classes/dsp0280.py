@@ -424,9 +424,14 @@ class QueryPartialSystemInventory_Response(Packet):
         XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         XByteEnumField("ResponseCode", 0x00, MESSAGE_RESPONSE_CODES),
 
-        LEIntField("NextFragmentHandle", 0),
-        LEShortField("FragmentLength", 0),
-
+        ConditionalField(
+            LEIntField("NextFragmentHandle", 0),
+            lambda pkt: pkt.ResponseCode == 0
+        ),
+        ConditionalField(
+            LEShortField("FragmentLength", 0),
+            lambda pkt: pkt.ResponseCode == 0
+        ),
         ConditionalField(
             StrField("SystemInventory", None),
             lambda pkt: pkt.ResponseCode == 0

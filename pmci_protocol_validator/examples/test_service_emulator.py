@@ -28,6 +28,32 @@ class TestServiceBase():
     messages defined in DSP0280 version 1.1.0.
    """
 
+    SYSTEM_INVENTORY_STR = " \
+        {\"SchemaDefinition\": \"SystemInventory.v1_0_0\", \
+        \"ControlPlane\": { \
+        \"Manufacturer\": \"Contoso\", \
+        \"Model\": \"ContoBMC\", \
+        \"Interfaces\": [ \
+        {\"Interface\": \"I2C\", \"MessageInitiationSupport\": \"ControlPlaneRequestorOnly\"}]}, \
+        \"Devices\": [ \
+        {\"Manufacturer\": \"ContosoSensors\", \
+        \"Location\": \"motherboard\", \
+        \"GeneralDeviceIdentifier\": 2, \
+        \"Interfaces\": [ \
+        {\"Interface\": \"I2C\", \
+        \"InterfaceIdentifier\": 12, \
+        \"ParentDeviceIdentifier\": 0, \
+        \"ProtocolSupport\": [ \
+        {\"Protocol\": \"MCTP\", \
+        \"Types\": [ \
+        {\"Type\": 0, \"Name\": \"MCTP Base\", \"Versions\": [\"1.2.0\"]}, \
+        {\"Type\": 1, \"Name\": \"PLDM over MCTP\", \"Versions\": [\"1.0.0\"]}, \
+        {\"Type\": 2, \"Name\": \"NC-SI over MCTP\", \"Versions\": [\"1.0.0\"]}]}, \
+        {\"Protocol\": \"PLDM\", \
+        \"Types\": [ \
+        {\"Type\": 0, \"Name\": \"PLDM Base\", \"Versions\": [\"1.0.0\"]}, \
+        {\"Type\": 2, \"Name\": \"PLDM for Platform Monitoring and Control\", \"Versions\": [\"1.2.0\"]}]}]} ]}]}"
+
     def __init__(self):
         """ c_TestServiceBase class constructor """
 
@@ -116,7 +142,16 @@ class TestServiceBase():
         """ DSP0280 section 10.2.6 Query System Inventory """
 
         response = QuerySystemInventory_Response()
-        response.SystemInventory = "{ ""SchemaDefinition"": ""SystemInventory.v1_0_0"" }"
+        response.SystemInventory = self.SYSTEM_INVENTORY_STR
+        return response
+
+    def _QueryPartialSystemInventory(self, fragment_handle):
+        """ DSP0280 Query PartialSystem Inventory """
+
+        response = QueryPartialSystemInventory_Response()
+        response[QueryPartialSystemInventory_Response].NextFragmentHandle = 0
+        response[QueryPartialSystemInventory_Response].FragmentLength = len(self.SYSTEM_INVENTORY_STR)
+        response[QueryPartialSystemInventory_Response].SystemInventory = self.SYSTEM_INVENTORY_STR
         return response
 
     def _ConfigureTestService(self, request):
@@ -124,8 +159,13 @@ class TestServiceBase():
         return ConfigureTestService_Response()
 
     def _ConfigureDeviceUnderTest(self, request):
-        """ DSP0280 section 10.2.8 Configure Device Under Test"""
-        return ConfigureDeviceUnderTest_Response(ResponseCode=ERROR_OEM_UNSUPPORTED)
+        """ DSP0280 section 10.2.8 Configure Device Under Test """
+
+        response = ConfigureDeviceUnderTest_Response()
+        response[ConfigureDeviceUnderTest_Response].DUTConnectionID = 0xabcdef
+        response[ConfigureDeviceUnderTest_Response].IdentifierCount = 0
+
+        return response
 
     def _RegisterToProtocol(self, conn_id):
         """ DSP0280 section 10.2.10 Register to Protocol """
@@ -152,6 +192,9 @@ class TestServiceBase():
             response = self._QueryStatus(request.QueryType)
         elif isinstance(request, QuerySystemInventory_Request):
             response = self._QuerySystemInventory()
+        elif isinstance(request, QueryPartialSystemInventory_Request):
+            fragment_handle = request[QueryPartialSystemInventory_Request].FragmentHandle
+            response = self._QueryPartialSystemInventory(fragment_handle)
         elif isinstance(request, ConfigureTestService_Request):
             response = self._ConfigureTestService(request)
         elif isinstance(request, ConfigureDeviceUnderTest_Request):
@@ -228,7 +271,6 @@ class TestServiceBase():
                         rsp_packet = self.proccess_test_message(
                             tsw_req.ProtocolType,
                             tsw_req.payload)
-
                     else:
                         rsp_packet = self.process_unknown_request(tsw_req.payload[0])
 
@@ -241,7 +283,6 @@ class TestServiceBase():
 
                         response = tsw_rsp / rsp_packet
                         self._client_socket.sendall(raw(response))
-
                 else:
                     # ERROR: Most likely the Test Client closed the socket.
                     self._session_connected = False

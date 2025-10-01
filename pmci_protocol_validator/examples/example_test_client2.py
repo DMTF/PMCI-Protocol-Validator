@@ -1,11 +1,13 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
+# Copyright 2023-2025 DMTF. All rights reserved.
 # License: BSD 3-Clause License. For full text see link:
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
 #  File Abstract:
 #  Example of a basic PTTI session.
 ##############################################################################
+
+import json
 
 from pmci_protocol_validator.framework.fixture_ptti import PTTI_fixture
 from pmci_protocol_validator.ptti.classes.dsp0280 import *
@@ -16,6 +18,36 @@ from pmci_protocol_validator.pldm.classes.dsp0240 import GetTID_Request
 # Network parameters for Test Service connection
 CONNECTION_ADDRESS = 'localhost'
 CONNECTION_PORT = 49155
+
+
+def test_query_partial_system_inventory(fixture, tsw):
+    """ Collect the system inventory using the QueryPartialSystemInventory command"""
+
+    inventory_text = b""
+    request = tsw / QueryPartialSystemInventory_Request()
+
+    fragment = 0
+    while True:
+        request[QueryPartialSystemInventory_Request].FragmentHandle = fragment
+
+        rc = fixture.commObject.write(request)
+        if rc == 0:
+            rc, response = fixture.commObject.read()
+
+            if rc == 0:
+                inventory_text = inventory_text + response[QueryPartialSystemInventory_Response].SystemInventory
+                fragment = fragment + response[QueryPartialSystemInventory_Response].FragmentLength
+
+                if response[QueryPartialSystemInventory_Response].NextFragmentHandle == 0:
+                    inventory_text = inventory_text.decode("utf-8")
+                    break
+            else:
+                break
+
+        else:
+            break
+
+    return inventory_text
 
 
 def main():
@@ -67,43 +99,44 @@ def main():
         testID = 6
         Response = test_query_system_inventory(fixture, TSW)
 
-        # 7. Configure DUT
+        # 7. Query Partial System Inventory
         testID = 7
-        Response = test_configure_device_under_test(fixture, TSW)
+        Respsystem_inventory_text = test_query_partial_system_inventory(fixture, TSW)
+
+        SystemInventory = json.loads(Respsystem_inventory_text)
+        DeviceIdentifier = SystemInventory["Devices"][0]["GeneralDeviceIdentifier"]
+
+        # 8. Configure DUT
+        testID = 8
+        Response = test_configure_device_under_test(fixture, TSW, DeviceIdentifier)
         DUTConnectionID = Response[ConfigureDeviceUnderTest_Response].DUTConnectionID
 
-        # 8. Register to Protocol
-        testID = 8
+        # 9. Register to Protocol
+        testID = 9
 
         RegisterProtocol = 1                # PLDM Protocol
         RegisterTypeList = [2, 4, 5, 6]     # Allowed PLDM Types
 
         test_register_to_protocol(fixture, TSW, DUTConnectionID, RegisterProtocol, RegisterTypeList)
 
-        # 9. Register Async Message Recipient
-        testID = 9
+        # 10. Register Async Message Recipient
+        testID = 10
 
         RegisterProtocol = 1                # PLDM Protocol
         RegisterTypeList = [2, 4, 5, 6]     # Allowed PLDM Types
 
         test_register_async_message_recipient(fixture, TSW, DUTConnectionID, RegisterProtocol, RegisterTypeList)
 
-        # 10. Query Status (again)
-        testID = 10
-        Response = test_query_status(fixture, TSW, 1)
-
-        # 11. Send a Test Message with a PLDM Get TID request
+        # 11. Query Status (again)
         testID = 11
-
-        maxWaitTime = 0
-        testMessage = PLDM_HEADER(Request=1, InstanceID=10) / GetTID_Request()
-
-        test_test_message(fixture, TSW, DUTConnectionID, maxWaitTime, testMessage)
+        Response = test_query_status(fixture, TSW, 1)
 
         # 12. Disconnect
         testID = 12
 
         Response = test_disconnect(fixture, TSW)
+
+        fixture.commObject.close()
 
     except Exception as exceptionInfo:
         fixture.log_msg(f"ERROR: test #{testID}: {str(exceptionInfo)}")

@@ -7,6 +7,8 @@
 #  Example of a basic PTTI session.
 ##############################################################################
 
+import json
+
 from pmci_protocol_validator.framework.fixture_ptti import PTTI_fixture
 from pmci_protocol_validator.framework.utilities  import common_send_receive
 
@@ -49,7 +51,7 @@ def main():
             RecvPacket[TestServiceWrapper].Reserved_1 != 0:
 
             fixture.log_msg("ERROR: Connect(): Invalid field value")
-            return 2
+            return 1
 
         fixture.test_client_id = RecvPacket[Connect_Response].TestClientID
 
@@ -67,7 +69,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: QueryStatus_Request(): " + str(exceptionInfo))
-        return 3
+        return 2
 
     # 3. Query Capabilities
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
@@ -79,7 +81,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: QueryCapabilities_Request(): " + str(exceptionInfo))
-        return 4
+        return 3
 
     # 4. Configure Test Service
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
@@ -99,7 +101,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: ConfigureTestService_Request(): " + str(exceptionInfo))
-        return 5
+        return 4
 
     # 5. Read back settings
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
@@ -111,7 +113,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: QueryCapabilities_Request(): " + str(exceptionInfo))
-        return 6
+        return 5
 
     # 6. Query System Inventory
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
@@ -123,11 +125,39 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: QuerySystemInventory_Request(): " + str(exceptionInfo))
+        return 6
+
+    # 7. Collect inventory using a series of Query Partial System Inventory commands
+    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
+    SendPacket = SendPacket / QueryPartialSystemInventory_Request()
+
+    SystemInventory = None
+    DeviceIdentifier = None
+    inventory_text = b""
+    fragment = 0
+
+    try:
+        while True:
+            SendPacket[QueryPartialSystemInventory_Request].FragmentHandle = fragment
+
+            RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
+            fixture.verify_common_fields(RecvPacket, SendPacket)
+
+            inventory_text = inventory_text + RecvPacket[QueryPartialSystemInventory_Response].SystemInventory
+            fragment = fragment + RecvPacket[QueryPartialSystemInventory_Response].FragmentLength
+
+            if RecvPacket[QueryPartialSystemInventory_Response].NextFragmentHandle == 0:
+                SystemInventory = json.loads(inventory_text.decode("utf-8"))
+                DeviceIdentifier = SystemInventory["Devices"][0]["GeneralDeviceIdentifier"]
+                break
+
+    except Exception as exceptionInfo:
+        fixture.log_msg("ERROR: QueryPartialSystemInventory_Request(): " + str(exceptionInfo))
         return 7
 
-    # 7. Configure DUT
+    # 8. Configure DUT
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
-    SendPacket = SendPacket / ConfigureDeviceUnderTest_Request()
+    SendPacket = SendPacket / ConfigureDeviceUnderTest_Request(TargetIdentifier=DeviceIdentifier)
 
     try:
         RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
@@ -140,7 +170,7 @@ def main():
     # Save the DUT Connection ID for future tests
     DUTConnectionID = RecvPacket[ConfigureDeviceUnderTest_Response].DUTConnectionID
 
-    # 8. Register to Protocol
+    # 9. Register to Protocol
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
     SendPacket = SendPacket / RegisterToProtocol_Request()
 
@@ -160,7 +190,7 @@ def main():
         fixture.log_msg("ERROR: RegisterToProtocol_Request(): " + str(exceptionInfo))
         return 9
 
-    # 9. Register Async Message Recipient
+    # 10. Register Async Message Recipient
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
     SendPacket = SendPacket / RegisterAsyncMessageRecipient_Request()
 
@@ -178,7 +208,7 @@ def main():
         fixture.log_msg("ERROR: RegisterAsyncMessageRecipient_Request(): " + str(exceptionInfo))
         return 10
 
-    # 10. Query Status
+    # 11. Query Status
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
     SendPacket = SendPacket / QueryStatus_Request(QueryType=1)
 
@@ -190,20 +220,6 @@ def main():
         fixture.log_msg("ERROR: QueryStatus_Request(): " + str(exceptionInfo))
         return 11
 
-    # 11. Send a Test Message with a PLDM Get TID request
-    SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
-    SendPacket = SendPacket / TestMessage_Request(DUTConnectionID=DUTConnectionID)
-    SendPacket = SendPacket / PLDM_HEADER(Request=1, InstanceID=10)
-    SendPacket = SendPacket / GetTID_Request()
-
-    try:
-        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
-        fixture.verify_common_fields(RecvPacket, SendPacket)
-
-    except Exception as exceptionInfo:
-        fixture.log_msg("ERROR: TestMessage_Request(): " + str(exceptionInfo))
-        return 12
-
     # 12. Disconnect
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
     SendPacket = SendPacket / Disconnect_Request()
@@ -214,8 +230,9 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: Disconnect(): " + str(exceptionInfo))
-        return 13
+        return 12
 
+    fixture.commObject.close()
     return 0
 
 
