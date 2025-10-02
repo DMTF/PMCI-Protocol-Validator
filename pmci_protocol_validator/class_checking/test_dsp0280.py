@@ -1,5 +1,5 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
+# Copyright 2023-2025 DMTF. All rights reserved.
 # License: BSD 3-Clause License. For full text see link:
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
@@ -219,6 +219,42 @@ def test_QuerySystemInventory_Response(class_type):
 
     assert (class_type.CommandCode == class_type.CommandValue)
     assert (class_type.ResponseCode == 0)
+    assert (class_type.SystemInventory is None)
+    return
+
+
+@pytest.mark.parametrize("class_type", QueryPartialSystemInventory_Request())
+def test_QueryPartialSystemInventory_Request(class_type):
+    """ Validate QueryPartialSystemInventory_Request class initialization """
+
+    assert (class_type.CommandValue == 0x13)
+
+    assert (len(class_type.fields_desc) == 2)
+    assert (isinstance(class_type.fields_desc[0], XByteEnumField))  # CommandCode
+    assert (isinstance(class_type.fields_desc[1], LEIntField))      # FragmentHandle
+
+    assert (class_type.CommandCode == 0x13)
+    assert (class_type.FragmentHandle == 0)
+    return
+
+
+@pytest.mark.parametrize("class_type", QueryPartialSystemInventory_Response())
+def test_QueryPartialSystemInventory_Response(class_type):
+    """ Validate QueryPartialSystemInventory_Response class initialization """
+
+    assert (class_type.CommandValue == QueryPartialSystemInventory_Request.CommandValue)
+
+    assert (len(class_type.fields_desc) == 5), "Incorrect number of fields"
+    assert (isinstance(class_type.fields_desc[0], XByteEnumField))      # CommandCode
+    assert (isinstance(class_type.fields_desc[1], XByteEnumField))      # ResponseCode
+    assert (isinstance(class_type.fields_desc[2], ConditionalField))    # NextFragmentHandle
+    assert (isinstance(class_type.fields_desc[3], ConditionalField))    # FragmentLength
+    assert (isinstance(class_type.fields_desc[4], ConditionalField))    # SystemInventory
+
+    assert (class_type.CommandCode == class_type.CommandValue)
+    assert (class_type.ResponseCode == 0)
+    assert (class_type.NextFragmentHandle == 0)
+    assert (class_type.FragmentLength == 0)
     assert (class_type.SystemInventory is None)
     return
 

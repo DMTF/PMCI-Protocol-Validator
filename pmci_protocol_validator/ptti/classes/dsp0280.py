@@ -33,6 +33,7 @@ COMMAND_CODES = {
     0x10: "Query Capabilities",
     0x11: "Query Status",
     0x12: "Query System Inventory",
+    0x13: "Query Partial System Inventory",
     0x20: "Configure Test Service",
     0x21: "Configure Device Under Test",
     0x22: "Register to Protocol",
@@ -42,17 +43,20 @@ COMMAND_CODES = {
 
 # DSP0280 - Section 10.1.2
 MESSAGE_RESPONSE_CODES = {
-    0: "SUCCESS",
-    1: "TIMEOUT",
-    2: "INVALID_PROTOCOL",
-    3: "TRANSPORT_ERROR",
-    4: "PHYSICAL_ERROR",
-    5: "AUTHENTICATION_ERROR",
-    6: "PRIVILEGE_ERROR",
-    7: "INTEGRITY_CHECK_ERROR",
-    8: "INCOMPATIBLE_VERSION",
-    9: "INVALID_DUT_CONNECTION_ID",
-    10: "OUTSTANDING_MESSAGE"
+    0x00: "SUCCESS",
+    0x01: "TIMEOUT",
+    0x02: "INVALID_PROTOCOL",
+    0x03: "TRANSPORT_ERROR",
+    0x04: "PHYSICAL_ERROR",
+    0x05: "AUTHENTICATION_ERROR",
+    0x06: "PRIVILEGE_ERROR",
+    0x07: "INTEGRITY_CHECK_ERROR",
+    0x08: "INCOMPATIBLE_VERSION",
+    0x09: "INVALID_DUT_CONNECTION_ID",
+    0x0A: "OUTSTANDING_MESSAGE",
+    0x0B: "INVALID_PARAMETER",
+    0x0C: "INSUFFICIENT_RESOURCES",
+    0x7F: "UNSPECIFIED_ERROR"
 }
 
 # Dictionary of registered PTTI command and responses handlers
@@ -398,6 +402,43 @@ class QuerySystemInventory_Response(Packet):
     ]
 
 
+class QueryPartialSystemInventory_Request(Packet):
+    """DSP0280 - Section ??? Query Partial System Inventory Request"""
+
+    name = "PTTI Query Partial System Inventory Request"
+    CommandValue = 0x13
+
+    fields_desc = [
+        XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
+        LEIntField("FragmentHandle", 0),
+    ]
+
+
+class QueryPartialSystemInventory_Response(Packet):
+    """DSP0280 - Section ??? Query Partial System Inventory Response"""
+
+    name = "PTTI Query Partial System Inventory Response"
+    CommandValue = QueryPartialSystemInventory_Request.CommandValue
+
+    fields_desc = [
+        XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
+        XByteEnumField("ResponseCode", 0x00, MESSAGE_RESPONSE_CODES),
+
+        ConditionalField(
+            LEIntField("NextFragmentHandle", 0),
+            lambda pkt: pkt.ResponseCode == 0
+        ),
+        ConditionalField(
+            LEShortField("FragmentLength", 0),
+            lambda pkt: pkt.ResponseCode == 0
+        ),
+        ConditionalField(
+            StrField("SystemInventory", None),
+            lambda pkt: pkt.ResponseCode == 0
+        )
+    ]
+
+
 class ConfigureTestService_Request(Packet):
     """DSP0280 - Section 10.2.7 Configure Test Service Request"""
 
@@ -701,6 +742,8 @@ register_ptti_handler(QueryStatus_Request)
 register_ptti_handler(QueryStatus_Response)
 register_ptti_handler(QuerySystemInventory_Request)
 register_ptti_handler(QuerySystemInventory_Response)
+register_ptti_handler(QueryPartialSystemInventory_Request)
+register_ptti_handler(QueryPartialSystemInventory_Response)
 register_ptti_handler(ConfigureTestService_Request)
 register_ptti_handler(ConfigureTestService_Response)
 register_ptti_handler(ConfigureDeviceUnderTest_Request)

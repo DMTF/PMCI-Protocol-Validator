@@ -77,10 +77,11 @@ def test_query_system_inventory(testFixture: PTTI_fixture, lowerLayerHeaders: Te
     return RecvPacket
 
 
-def test_configure_device_under_test(testFixture: PTTI_fixture, lowerLayerHeaders: TestServiceWrapper):
+def test_configure_device_under_test(testFixture: PTTI_fixture, lowerLayerHeaders: TestServiceWrapper, tid: int = 0):
     """ Test DSP0280 ConfigureDeviceUnderTest request """
 
     SendPacket = lowerLayerHeaders / ConfigureDeviceUnderTest_Request()
+    SendPacket[ConfigureDeviceUnderTest_Request].TargetIdentifier = tid
 
     RecvPacket = common_send_receive(testFixture.commObject, SendPacket, testFixture.show_pkt)
     testFixture.verify_common_fields(RecvPacket, SendPacket)
