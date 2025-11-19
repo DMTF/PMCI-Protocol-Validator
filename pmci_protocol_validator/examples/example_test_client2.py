@@ -34,7 +34,7 @@ def test_query_partial_system_inventory(fixture, tsw):
         if rc == 0:
             rc, response = fixture.commObject.read()
 
-            if rc == 0:
+            if rc == 0 and response[QueryPartialSystemInventory_Response].ResponseCode == 0:
                 inventory_text = inventory_text + response[QueryPartialSystemInventory_Response].SystemInventory
                 fragment = fragment + response[QueryPartialSystemInventory_Response].FragmentLength
 
@@ -99,40 +99,57 @@ def main():
         testID = 6
         Response = test_query_system_inventory(fixture, TSW)
 
+        SystemInventoryComplete = None
+        if Response[QuerySystemInventory_Response].ResponseCode == 0:
+            SystemInventoryComplete = json.loads(Response[QuerySystemInventory_Response].SystemInventory.decode("utf-8"))
+
         # 7. Query Partial System Inventory
         testID = 7
+        SystemInventory = None
+        DeviceIdentifier = 0
+
         Respsystem_inventory_text = test_query_partial_system_inventory(fixture, TSW)
 
-        SystemInventory = json.loads(Respsystem_inventory_text)
-        DeviceIdentifier = SystemInventory["Devices"][0]["GeneralDeviceIdentifier"]
+        if Respsystem_inventory_text != b'':
+            SystemInventory = json.loads(Respsystem_inventory_text)
 
-        # 8. Configure DUT
+            try:
+                DeviceIdentifier = SystemInventory["Devices"][0]["GeneralDeviceIdentifier"]
+            except:
+                pass
+
+        # 8. Compare system inventories
         testID = 8
+
+        if SystemInventoryComplete != SystemInventory:
+            fixture.log_msg("ERROR: System Inventory mismatch")
+            return 8
+
+        # 9. Configure DUT
+        testID = 9
         Response = test_configure_device_under_test(fixture, TSW, DeviceIdentifier)
         DUTConnectionID = Response[ConfigureDeviceUnderTest_Response].DUTConnectionID
 
-        # 9. Register to Protocol
-        testID = 9
-
+        # 10. Register to Protocol
+        testID = 10
         RegisterProtocol = 1                # PLDM Protocol
         RegisterTypeList = [2, 4, 5, 6]     # Allowed PLDM Types
 
         test_register_to_protocol(fixture, TSW, DUTConnectionID, RegisterProtocol, RegisterTypeList)
 
-        # 10. Register Async Message Recipient
-        testID = 10
-
+        # 11. Register Async Message Recipient
+        testID = 11
         RegisterProtocol = 1                # PLDM Protocol
         RegisterTypeList = [2, 4, 5, 6]     # Allowed PLDM Types
 
         test_register_async_message_recipient(fixture, TSW, DUTConnectionID, RegisterProtocol, RegisterTypeList)
 
-        # 11. Query Status (again)
-        testID = 11
+        # 12. Query Status (again)
+        testID = 12
         Response = test_query_status(fixture, TSW, 1)
 
-        # 12. Disconnect
-        testID = 12
+        # 13. Disconnect
+        testID = 13
 
         Response = test_disconnect(fixture, TSW)
 

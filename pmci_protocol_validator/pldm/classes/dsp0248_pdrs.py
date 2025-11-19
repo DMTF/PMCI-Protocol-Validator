@@ -12,6 +12,8 @@ from scapy.fields import *
 from scapy.packet import Packet
 from .dsp0249 import entity_id_codes
 
+PDR_COMMON_HEADER_LENGTH = 10
+
 dataSize = {0: "uint8", 1: "sint8", 2: "uint16", 3: "sint16", 4: "uint32", 5: "sint32"}
 
 supported_not_supported = {0: "Not supported", 1: "Supported"}
@@ -1866,9 +1868,9 @@ class PDR_HEADER(Packet):
 
     fields_desc = [
         XLEIntField("RecordHandle", 0x00000000),
-        ByteField("PDRHeaderVersion", 0x00),
+        ByteField("PDRHeaderVersion", 1),
         ByteEnumField("PDRType", 0x00, PDRTypes),
-        LEShortField("RecordChangeNumber", 0x0000),
+        LEShortField("RecordChangeNumber", 0),
         LEShortField("DataLength", 0),
 
         ConditionalField(
