@@ -97,43 +97,58 @@ def main():
 
         # 6. Query System Inventory
         testID = 6
+        SystemInventory = None
         Response = test_query_system_inventory(fixture, TSW)
+
+        if Response[QuerySystemInventory_Response].ResponseCode == 0:
+            SystemInventory = json.loads(Response[QuerySystemInventory_Response].SystemInventory.decode("utf-8"))
 
         # 7. Query Partial System Inventory
         testID = 7
-        Respsystem_inventory_text = test_query_partial_system_inventory(fixture, TSW)
+        SystemInventoryPartial = None
+        DeviceIdentifier = 0
 
-        SystemInventory = json.loads(Respsystem_inventory_text)
-        DeviceIdentifier = SystemInventory["Devices"][0]["GeneralDeviceIdentifier"]
+        system_inventory_text = test_query_partial_system_inventory(fixture, TSW)
 
-        # 8. Configure DUT
-        testID = 8
+        if system_inventory_text != b"":
+            SystemInventoryPartial = json.loads(system_inventory_text)
+
+            try:
+                DeviceIdentifier = SystemInventory["Devices"][0]["GeneralDeviceIdentifier"]
+            except:
+                pass
+
+        # 8. Compare inventory JSON results from QuerySystemInventory and QueryPartialSystemInventory
+        if SystemInventory != SystemInventoryPartial:
+            fixture.log_msg("ERROR: Inventory content mismatch")
+
+        # 9. Configure DUT
+        testID = 9
         Response = test_configure_device_under_test(fixture, TSW, DeviceIdentifier)
         DUTConnectionID = Response[ConfigureDeviceUnderTest_Response].DUTConnectionID
 
-        # 9. Register to Protocol
-        testID = 9
+        # 10. Register to Protocol
+        testID = 10
 
         RegisterProtocol = 1                # PLDM Protocol
         RegisterTypeList = [2, 4, 5, 6]     # Allowed PLDM Types
 
         test_register_to_protocol(fixture, TSW, DUTConnectionID, RegisterProtocol, RegisterTypeList)
 
-        # 10. Register Async Message Recipient
-        testID = 10
+        # 11. Register Async Message Recipient
+        testID = 11
 
         RegisterProtocol = 1                # PLDM Protocol
         RegisterTypeList = [2, 4, 5, 6]     # Allowed PLDM Types
 
         test_register_async_message_recipient(fixture, TSW, DUTConnectionID, RegisterProtocol, RegisterTypeList)
 
-        # 11. Query Status (again)
-        testID = 11
+        # 12. Query Status (again)
+        testID = 12
         Response = test_query_status(fixture, TSW, 1)
 
-        # 12. Disconnect
-        testID = 12
-
+        # 13. Disconnect
+        testID = 13
         Response = test_disconnect(fixture, TSW)
 
         fixture.commObject.close()

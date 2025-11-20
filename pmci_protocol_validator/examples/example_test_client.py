@@ -116,12 +116,16 @@ def main():
         return 5
 
     # 6. Query System Inventory
+    SystemInventory = None
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
     SendPacket = SendPacket / QuerySystemInventory_Request()
 
     try:
         RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
         fixture.verify_common_fields(RecvPacket, SendPacket)
+
+        if RecvPacket[QuerySystemInventory_Response].ResponseCode == 0:
+            SystemInventory = json.loads(RecvPacket[QuerySystemInventory_Response].SystemInventory.decode("utf-8"))
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: QuerySystemInventory_Request(): " + str(exceptionInfo))
@@ -131,8 +135,8 @@ def main():
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
     SendPacket = SendPacket / QueryPartialSystemInventory_Request()
 
-    SystemInventory = None
-    DeviceIdentifier = None
+    SystemInventoryPartial = None
+    DeviceIdentifier = 0
     inventory_text = b""
     fragment = 0
 
@@ -143,19 +147,30 @@ def main():
             RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
             fixture.verify_common_fields(RecvPacket, SendPacket)
 
+            if RecvPacket[QueryPartialSystemInventory_Response].ResponseCode != 0:
+                break
+
             inventory_text = inventory_text + RecvPacket[QueryPartialSystemInventory_Response].SystemInventory
             fragment = fragment + RecvPacket[QueryPartialSystemInventory_Response].FragmentLength
 
             if RecvPacket[QueryPartialSystemInventory_Response].NextFragmentHandle == 0:
-                SystemInventory = json.loads(inventory_text.decode("utf-8"))
-                DeviceIdentifier = SystemInventory["Devices"][0]["GeneralDeviceIdentifier"]
+                SystemInventoryPartial = json.loads(inventory_text.decode("utf-8"))
+
+                try:
+                    DeviceIdentifier = SystemInventory["Devices"][0]["GeneralDeviceIdentifier"]
+                except:
+                    pass
                 break
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: QueryPartialSystemInventory_Request(): " + str(exceptionInfo))
         return 7
 
-    # 8. Configure DUT
+    # 8. Compare inventory JSON results from QuerySystemInventory and QueryPartialSystemInventory
+    if SystemInventory != SystemInventoryPartial:
+        fixture.log_msg("ERROR: Inventory content mismatch")
+
+    # 9. Configure DUT
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
     SendPacket = SendPacket / ConfigureDeviceUnderTest_Request(TargetIdentifier=DeviceIdentifier)
 
@@ -165,12 +180,12 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: ConfigureDeviceUnderTest_Request(): " + str(exceptionInfo))
-        return 8
+        return 9
 
     # Save the DUT Connection ID for future tests
     DUTConnectionID = RecvPacket[ConfigureDeviceUnderTest_Response].DUTConnectionID
 
-    # 9. Register to Protocol
+    # 10. Register to Protocol
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
     SendPacket = SendPacket / RegisterToProtocol_Request()
 
@@ -188,9 +203,9 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: RegisterToProtocol_Request(): " + str(exceptionInfo))
-        return 9
+        return 10
 
-    # 10. Register Async Message Recipient
+    # 11. Register Async Message Recipient
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
     SendPacket = SendPacket / RegisterAsyncMessageRecipient_Request()
 
@@ -206,9 +221,9 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: RegisterAsyncMessageRecipient_Request(): " + str(exceptionInfo))
-        return 10
+        return 11
 
-    # 11. Query Status
+    # 12. Query Status
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
     SendPacket = SendPacket / QueryStatus_Request(QueryType=1)
 
@@ -218,9 +233,9 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: QueryStatus_Request(): " + str(exceptionInfo))
-        return 11
+        return 12
 
-    # 12. Disconnect
+    # 13. Disconnect
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
     SendPacket = SendPacket / Disconnect_Request()
 
@@ -230,7 +245,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: Disconnect(): " + str(exceptionInfo))
-        return 12
+        return 13
 
     fixture.commObject.close()
     return 0
