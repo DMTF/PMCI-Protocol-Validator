@@ -403,7 +403,7 @@ class QuerySystemInventory_Response(Packet):
 
 
 class QueryPartialSystemInventory_Request(Packet):
-    """DSP0280 - Section ??? Query Partial System Inventory Request"""
+    """DSP0280 - Query Partial System Inventory Request"""
 
     name = "PTTI Query Partial System Inventory Request"
     CommandValue = 0x13
@@ -415,7 +415,7 @@ class QueryPartialSystemInventory_Request(Packet):
 
 
 class QueryPartialSystemInventory_Response(Packet):
-    """DSP0280 - Section ??? Query Partial System Inventory Response"""
+    """DSP0280 - Query Partial System Inventory Response"""
 
     name = "PTTI Query Partial System Inventory Response"
     CommandValue = QueryPartialSystemInventory_Request.CommandValue
