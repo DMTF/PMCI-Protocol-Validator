@@ -15,6 +15,7 @@ from pmci_protocol_validator.framework.utilities  import common_send_receive
 from pmci_protocol_validator.ptti.classes.dsp0280 import *
 from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
 from pmci_protocol_validator.pldm.classes.dsp0240 import GetTID_Request
+from pmci_protocol_validator.tests.tst_pldm0_commands import test_get_tid
 
 # Network parameters for Test Service connection
 CONNECTION_ADDRESS = 'localhost'
@@ -235,7 +236,17 @@ def main():
         fixture.log_msg("ERROR: QueryStatus_Request(): " + str(exceptionInfo))
         return 12
 
-    # 13. Disconnect
+    # 13. Send a PLDM GetTID request via TestMessage (PTTI-wrapped PLDM)
+    try:
+        SendPacket = TestServiceWrapper(ProtocolType=0x01, Direction=0, TestClientID=fixture.test_client_id)
+        SendPacket = SendPacket / TestMessage_Request(DUTConnectionID=DUTConnectionID, MaximumWaitTime=1000)
+        test_get_tid(fixture, SendPacket)
+
+    except Exception as exceptionInfo:
+        fixture.log_msg("ERROR: TestMessage(GetTID): " + str(exceptionInfo))
+        return 13
+
+    # 14. Disconnect
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=fixture.test_client_id)
     SendPacket = SendPacket / Disconnect_Request()
 
@@ -245,7 +256,7 @@ def main():
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: Disconnect(): " + str(exceptionInfo))
-        return 13
+        return 14
 
     fixture.commObject.close()
     return 0

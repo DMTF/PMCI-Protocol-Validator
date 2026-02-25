@@ -10,6 +10,8 @@
 import socket
 from scapy.all import *
 from pmci_protocol_validator.ptti.classes.dsp0280 import *
+from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
+from pmci_protocol_validator.pldm.classes.dsp0240 import GetTID_Request, GetTID_Response
 
 ### Network parameters for client connections ###
 CONNECTION_ADDRESS = 'localhost'
@@ -221,6 +223,28 @@ class TestServiceBase():
 
     def proccess_test_message(self, protocol_type, request):
         """Process Test Message Requests"""
+
+        if protocol_type == 0x01 and isinstance(request, TestMessage_Request):
+            pldm_header = request.payload
+
+            if (
+                isinstance(pldm_header, PLDM_HEADER)
+                and pldm_header.Request == 1
+                and pldm_header.PldmType == 0
+                and pldm_header.CommandCode == GetTID_Request.CommandValue
+            ):
+                # Minimal PLDM GetTID stub response.
+                response = TestMessage_Response(
+                    ResponseCode=0,
+                    DUTConnectionID=request.DUTConnectionID,
+                    ElapsedTime=0
+                )
+
+                response = response / PLDM_HEADER(PldmType=0x00) / GetTID_Response(CompletionCode=0, TID=0x01)
+                response[PLDM_HEADER].InstanceID = pldm_header.InstanceID
+                response[PLDM_HEADER].PldmType = pldm_header.PldmType
+                return response
+
         return TestMessage_Response(ResponseCode=ERROR_OEM_UNSUPPORTED)
 
     def process_unknown_request(self, command_code):
