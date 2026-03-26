@@ -9,6 +9,7 @@
 
 from scapy.fields import *
 from scapy.packet import Packet
+from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
 
 
 # DSP0280 - Section 2.1.5
@@ -709,6 +710,19 @@ class TestMessage_Request(Packet):
         XLEIntField("MaximumWaitTime", 0),
     ]
 
+    def guess_payload_class(self, payload):
+        """ Determine payload class for protocol test message requests. """
+
+        tsw = getattr(self, "underlayer", None)
+        while tsw is not None and not isinstance(tsw, TestServiceWrapper):
+            tsw = getattr(tsw, "underlayer", None)
+
+        # Decode PLDM when carried inside a PTTI TestMessage.
+        if tsw is not None and tsw.ProtocolType == 0x01:
+            return PLDM_HEADER
+
+        return None
+
 
 class TestMessage_Response(Packet):
     """DSP0280 - Section 10.5 Test Messages Response"""
@@ -729,6 +743,19 @@ class TestMessage_Response(Packet):
             lambda pkt: pkt.ResponseCode == 0
         )
     ]
+
+    def guess_payload_class(self, payload):
+        """ Determine payload class for protocol test message responses. """
+
+        tsw = getattr(self, "underlayer", None)
+        while tsw is not None and not isinstance(tsw, TestServiceWrapper):
+            tsw = getattr(tsw, "underlayer", None)
+
+        # Decode PLDM when carried inside a PTTI TestMessage.
+        if tsw is not None and tsw.ProtocolType == 0x01:
+            return PLDM_HEADER
+
+        return None
 
 
 # Register command and response handlers

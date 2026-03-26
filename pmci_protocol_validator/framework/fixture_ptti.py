@@ -24,6 +24,7 @@ class PTTI_fixture(FixtureBase):
         self.tcp_address = prm_tcp_addr
         self.tcp_port = prm_tcp_port
         self.test_client_id = 0
+        self._pldm_instance_id = 0
         return
 
     def __del__(self):
@@ -41,3 +42,16 @@ class PTTI_fixture(FixtureBase):
         assert (rsp_pkt[TestServiceWrapper].Reserved_1 == 0), "Reserved field NOT zero"
         assert (rsp_pkt[TestServiceWrapper].TestClientID == self.test_client_id), "Incorrect Test Client ID"
         return True
+
+    def VerifyCommonFields(self, rsp_pkt: Packet, req_pkt: Packet) -> bool:
+        """Compatibility wrapper for tests using VerifyCommonFields naming."""
+
+        return self.verify_common_fields(rsp_pkt, req_pkt)
+
+    def getNextInstanceID(self) -> int:
+        """Return the next PLDM instance ID (wraps at 32)."""
+
+        # PLDM InstanceID is 5 bits.
+        instance_id = self._pldm_instance_id & 0x1F
+        self._pldm_instance_id = (self._pldm_instance_id + 1) & 0x1F
+        return instance_id
