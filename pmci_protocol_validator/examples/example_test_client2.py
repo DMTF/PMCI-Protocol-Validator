@@ -1,165 +1,123 @@
 # Copyright Notice:
-# Copyright 2023-2025 DMTF. All rights reserved.
+# Copyright 2026 DMTF. All rights reserved.
 # License: BSD 3-Clause License. For full text see link:
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
 #  File Abstract:
-#  Example of a basic PTTI session.
+#  Example PTTI test session demonstrating the use of library helper functions.
 ##############################################################################
 
 import json
 
 from pmci_protocol_validator.framework.fixture_ptti import PTTI_fixture
 from pmci_protocol_validator.ptti.classes.dsp0280 import *
-from pmci_protocol_validator.tests.tst_ptti_commands import *
-from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
-from pmci_protocol_validator.pldm.classes.dsp0240 import GetTID_Request
+from pmci_protocol_validator.ptti.lib.lib_dsp0280 import *
+
 
 # Network parameters for Test Service connection
 CONNECTION_ADDRESS = 'localhost'
 CONNECTION_PORT = 49155
 
 
-def test_query_partial_system_inventory(fixture, tsw):
-    """ Collect the system inventory using the QueryPartialSystemInventory command"""
-
-    inventory_text = b""
-    request = tsw / QueryPartialSystemInventory_Request()
-
-    fragment = 0
-    while True:
-        request[QueryPartialSystemInventory_Request].FragmentHandle = fragment
-
-        rc = fixture.commObject.write(request)
-        if rc == 0:
-            rc, response = fixture.commObject.read()
-
-            if rc == 0:
-                inventory_text = inventory_text + response[QueryPartialSystemInventory_Response].SystemInventory
-                fragment = fragment + response[QueryPartialSystemInventory_Response].FragmentLength
-
-                if response[QueryPartialSystemInventory_Response].NextFragmentHandle == 0:
-                    inventory_text = inventory_text.decode("utf-8")
-                    break
-            else:
-                break
-
-        else:
-            break
-
-    return inventory_text
-
-
 def main():
-    """ Test script main() """
+    """ Test script """
+
+    fixture = None
+    _client_id = 0
 
     try:
+        # Set up test environment
         fixture = PTTI_fixture(CONNECTION_ADDRESS, CONNECTION_PORT)
-
         assert (fixture.tcp_address == CONNECTION_ADDRESS), "TPC address mismatch"
         assert (fixture.tcp_port == CONNECTION_PORT), "TPC port mismatch"
 
-    except Exception as exceptionInfo:
-        print(f"ERROR: c_PTTI_fixture(): TS connect error: {str(exceptionInfo)}")
-        return 99
-
-    try:
-        TSW = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=0)
-
         # 1. Connect
-        testID = 1
-        securityParameter = b'\x31\x32\x33\x34\x35\x36'
-        Response = test_connect(fixture, TSW, securityParameter)
+        _security_parameter = b'\x31\x32\x33\x34\x35\x36'
 
-        fixture.test_client_id = Response[Connect_Response].TestClientID
-        TSW.TestClientID = fixture.test_client_id
+        _rc, _client_id = ptti_connect(fixture, _security_parameter)
+        assert _rc == True, "ERROR: Connect failed."
 
         # 2. Ping the Test Service (Query Status)
-        testID = 2
-        Response = test_query_status(fixture, TSW, 0)   # Ping test service
+        _rc = ptti_query_status(fixture, _client_id, 0)
+        assert _rc == True, "ERROR: Query Status Ping failed."
 
         # 3. Query Capabilities
-        testID = 3
-        Response = test_query_capabilities(fixture, TSW)
+        _rc, _caps_list = ptti_query_capabilities(fixture, _client_id)
+        assert _rc == True, "ERROR: Query Capabilities failed."
 
         # 4. Configure Test Service
-        testID = 4
-        TestConfiguration = [
+        _test_cfg = [
             TestServiceCapabilityEntry(CapabilityID=1, CapabilityValue=15),
             TestServiceCapabilityEntry(CapabilityID=2, CapabilityValue=1000)
         ]
 
-        Response = test_configure_test_service(fixture, TSW, TestConfiguration)
+        _rc = ptti_configure_test_service(fixture, _client_id, _test_cfg)
+        assert _rc == True, "ERROR: Configure Test Service failed."
 
         # 5. Read back settings using Query Capabilities
-        testID = 5
-        Response = test_query_status(fixture, TSW, 1)
+        _rc, _caps_list = ptti_query_capabilities(fixture, _client_id)
+        assert _rc == True, "ERROR: Query Capabilities failed."
 
         # 6. Query System Inventory
-        testID = 6
-        SystemInventory = None
-        Response = test_query_system_inventory(fixture, TSW)
-
-        if Response[QuerySystemInventory_Response].ResponseCode == 0:
-            SystemInventory = json.loads(Response[QuerySystemInventory_Response].SystemInventory.decode("utf-8"))
+        _rc, _system_inventory = ptti_query_system_inventory(fixture, _client_id)
+        assert _rc == True, "ERROR: Get System Inventory failed."
+        _system_inventory = json.loads(_system_inventory)
 
         # 7. Query Partial System Inventory
-        testID = 7
-        SystemInventoryPartial = None
-        DeviceIdentifier = 0
+        _device_id = 0
 
-        system_inventory_text = test_query_partial_system_inventory(fixture, TSW)
+        _system_inventory_partial = ptti_query_partial_system_inventory_full(fixture, _client_id)
 
-        if system_inventory_text != b"":
-            SystemInventoryPartial = json.loads(system_inventory_text)
+        if _system_inventory_partial != "":
+            _system_inventory_partial = json.loads(_system_inventory_partial)
 
             try:
-                DeviceIdentifier = SystemInventory["Devices"][0]["GeneralDeviceIdentifier"]
+                _device_id = _system_inventory_partial["Devices"][0]["GeneralDeviceIdentifier"]
             except:
                 pass
 
         # 8. Compare inventory JSON results from QuerySystemInventory and QueryPartialSystemInventory
-        if SystemInventory != SystemInventoryPartial:
+        if _system_inventory != _system_inventory_partial:
             fixture.log_msg("ERROR: Inventory content mismatch")
 
         # 9. Configure DUT
-        testID = 9
-        Response = test_configure_device_under_test(fixture, TSW, DeviceIdentifier)
-        DUTConnectionID = Response[ConfigureDeviceUnderTest_Response].DUTConnectionID
+        _rc, _dut_connect_id, _ =  ptti_configure_device_under_test(fixture, _client_id, _device_id, [])
+        assert _rc == True, "ERROR: Configure Device Under Test failed."
 
         # 10. Register to Protocol
-        testID = 10
+        _protocol_type = 1          # PLDM Protocol
+        _type_list = [2, 4, 5, 6]   # Allowed PLDM Types
 
-        RegisterProtocol = 1                # PLDM Protocol
-        RegisterTypeList = [2, 4, 5, 6]     # Allowed PLDM Types
-
-        test_register_to_protocol(fixture, TSW, DUTConnectionID, RegisterProtocol, RegisterTypeList)
+        _rc = ptti_register_to_protocol(fixture, _client_id, _dut_connect_id, _protocol_type, _type_list)
+        assert _rc == True, "ERROR: Register to Protocol failed."
 
         # 11. Register Async Message Recipient
-        testID = 11
+        _protocol_type = 1          # PLDM Protocol
+        _type_list = [2, 4, 5, 6]   # Allowed PLDM Types
 
-        RegisterProtocol = 1                # PLDM Protocol
-        RegisterTypeList = [2, 4, 5, 6]     # Allowed PLDM Types
-
-        test_register_async_message_recipient(fixture, TSW, DUTConnectionID, RegisterProtocol, RegisterTypeList)
+        _rc = ptti_register_async_message_recipient(fixture, _client_id, _dut_connect_id, _protocol_type, _type_list)
+        assert _rc == True, "ERROR: Register to Async Message Recipient failed."
 
         # 12. Query Status (again)
-        testID = 12
-        Response = test_query_status(fixture, TSW, 1)
+        _rc = ptti_query_status(fixture, _client_id, 1)
+        assert _rc == True, "ERROR: Query Status Device List failed."
 
-        # 13. Disconnect
-        testID = 13
-        Response = test_disconnect(fixture, TSW)
+        print("SUCCESS: All tests completed successfully")
+
+    except Exception as exceptionInfo:
+        print(f"FAILURE: {str(exceptionInfo)}")
+
+    # Clean up and exit gracefully
+    if fixture is not None:
+        _rc = ptti_disconnect(fixture, _client_id)
+        if _rc == False:
+            "ERROR: DISCONNECT failed."
 
         fixture.commObject.close()
 
-    except Exception as exceptionInfo:
-        fixture.log_msg(f"ERROR: test #{testID}: {str(exceptionInfo)}")
-        return testID
-
-    return 0
+    return
 
 
 """ Example Test Client (TC) entry point """
 if __name__ == '__main__':
-    exit(main())
+    main()
