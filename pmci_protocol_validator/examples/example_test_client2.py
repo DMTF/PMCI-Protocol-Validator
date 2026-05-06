@@ -1,5 +1,5 @@
 # Copyright Notice:
-# Copyright 2026 DMTF. All rights reserved.
+# Copyright 2023-2026 DMTF. All rights reserved.
 # License: BSD 3-Clause License. For full text see link:
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
@@ -9,7 +9,7 @@
 
 import json
 
-from pmci_protocol_validator.framework.fixture_ptti import PTTI_fixture
+from pmci_protocol_validator.framework.ptti_context import PTTI_Context
 from pmci_protocol_validator.ptti.classes.dsp0280 import *
 from pmci_protocol_validator.ptti.lib.lib_dsp0280 import *
 
@@ -27,7 +27,7 @@ def main():
 
     try:
         # Set up test environment
-        fixture = PTTI_fixture(CONNECTION_ADDRESS, CONNECTION_PORT)
+        fixture = PTTI_Context(CONNECTION_ADDRESS, CONNECTION_PORT, True)
         assert (fixture.tcp_address == CONNECTION_ADDRESS), "TPC address mismatch"
         assert (fixture.tcp_port == CONNECTION_PORT), "TPC port mismatch"
 

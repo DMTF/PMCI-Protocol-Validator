@@ -1,11 +1,12 @@
 __all__ = [
-    "bej_types",
-    "dmtf",
-    "pdrs",
-    "type0",
-    "type2",
-    "type4",
-    "type5",
-    "type6",
-    "type7",
+    "dsp0218_bej_types",
+    "dsp0218",
+    "dsp0240_base",
+    "dsp0240",
+    "dsp0242",
+    "dsp0248_pdrs",
+    "dsp0248",
+    "dsp0249",
+    "dsp0257",
+    "dsp0267"
 ]

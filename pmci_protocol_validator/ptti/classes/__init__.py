@@ -1,4 +1,4 @@
 __all__ = [
-    "binding",
-    "dmtf"
+    "dsp0280_comm",
+    "dsp0280"
 ]

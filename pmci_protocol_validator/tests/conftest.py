@@ -5,7 +5,7 @@
 
 import pytest
 
-from pmci_protocol_validator.framework.fixture_ptti import PTTI_fixture
+from framework.ptti_context import PTTI_Context
 from pmci_protocol_validator.ptti.lib.lib_dsp0280 import *
 
 CONNECTION_ADDRESS = 'localhost'
@@ -25,7 +25,7 @@ def setup():
     # Set up test session
     try:
         # Create the Test Framework Context
-        framework_context = PTTI_fixture(CONNECTION_ADDRESS, CONNECTION_PORT)
+        framework_context = PTTI_Context(CONNECTION_ADDRESS, CONNECTION_PORT)
 
         # Connect to Test Service
         _security_parameter = b'\x31\x32\x33\x34\x35\x36'

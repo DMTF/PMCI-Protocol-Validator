@@ -7,7 +7,7 @@
 #  Helper functions for DSP0280 functions.
 ##############################################################################
 
-from pmci_protocol_validator.framework.fixture_base import FixtureBase
+from pmci_protocol_validator.framework.context import FwkContext
 from pmci_protocol_validator.framework.utilities import common_send_receive
 from pmci_protocol_validator.ptti.classes.dsp0280 import *
 
@@ -28,7 +28,7 @@ def ptti_check_tsw(wrapper: Packet, client_id: int =None) -> bool:
     return False
 
 
-def ptti_connect_ex(fwk_ctx: FixtureBase, sec_prm: bytes) -> tuple[int, Packet|None, Packet]:
+def ptti_connect_ex(fwk_ctx: FwkContext, sec_prm: bytes) -> tuple[int, Packet|None, Packet]:
     """ Advanced function for sending/receiving a CONNECT message. The caller is responsible for checking the response. """
 
     _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=0) / Connect_Request()
@@ -40,7 +40,7 @@ def ptti_connect_ex(fwk_ctx: FixtureBase, sec_prm: bytes) -> tuple[int, Packet|N
     return _error_code, _recv_msg, _send_msg
 
 
-def ptti_connect(fwk_ctx: FixtureBase, sec_prm: bytes) -> tuple[bool, int]:
+def ptti_connect(fwk_ctx: FwkContext, sec_prm: bytes) -> tuple[bool, int]:
     """ Simplified method for sending/receiving a CONNECT message including checking response parameters """
 
     _error_code, _recv_msg, _ = ptti_connect_ex(fwk_ctx, sec_prm)
@@ -57,7 +57,7 @@ def ptti_connect(fwk_ctx: FixtureBase, sec_prm: bytes) -> tuple[bool, int]:
 
     return False, 0
 
-def ptti_disconnect_ex(fwk_ctx: FixtureBase, connect_id: int) -> tuple[int, Packet|None, Packet]:
+def ptti_disconnect_ex(fwk_ctx: FwkContext, connect_id: int) -> tuple[int, Packet|None, Packet]:
 
     _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=connect_id) / Disconnect_Request()
 
@@ -65,7 +65,7 @@ def ptti_disconnect_ex(fwk_ctx: FixtureBase, connect_id: int) -> tuple[int, Pack
     return _error_code, _recv_msg, _send_msg
 
 
-def ptti_disconnect(fwk_ctx: FixtureBase, connect_id: int) -> bool:
+def ptti_disconnect(fwk_ctx: FwkContext, connect_id: int) -> bool:
 
     _error_code, _recv_msg, _ = ptti_disconnect_ex(fwk_ctx, connect_id)
 
@@ -76,7 +76,7 @@ def ptti_disconnect(fwk_ctx: FixtureBase, connect_id: int) -> bool:
             _recv_msg[Disconnect_Response].CommandCode == Disconnect_Response.CommandValue and \
             _recv_msg[Disconnect_Response].ResponseCode == 0
 
-def ptti_query_status_ex(fwk_ctx: FixtureBase, connect_id: int, queryType: int) -> tuple[int, Packet|None, Packet]:
+def ptti_query_status_ex(fwk_ctx: FwkContext, connect_id: int, queryType: int) -> tuple[int, Packet|None, Packet]:
 
     _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=connect_id)
     _send_msg = _send_msg / QueryStatus_Request(QueryType=queryType)
@@ -84,7 +84,7 @@ def ptti_query_status_ex(fwk_ctx: FixtureBase, connect_id: int, queryType: int) 
     _error_code, _recv_msg = common_send_receive(fwk_ctx, _send_msg)
     return _error_code, _recv_msg, _send_msg
 
-def ptti_query_status_ping(fwk_ctx: FixtureBase, connect_id: int) -> bool:
+def ptti_query_status_ping(fwk_ctx: FwkContext, connect_id: int) -> bool:
 
     _error_code, _recv_msg, _ = ptti_query_status_ex(fwk_ctx, connect_id, 0)
 
@@ -96,7 +96,7 @@ def ptti_query_status_ping(fwk_ctx: FixtureBase, connect_id: int) -> bool:
             _recv_msg[QueryStatus_Response].ResponseCode == 0
 
 
-def ptti_query_status_device_list(fwk_ctx: FixtureBase, connect_id: int) -> tuple[bool, list]:
+def ptti_query_status_device_list(fwk_ctx: FwkContext, connect_id: int) -> tuple[bool, list]:
 
     _error_code, _recv_msg, _ = ptti_query_status_ex(fwk_ctx, connect_id, 1)
 
@@ -112,14 +112,14 @@ def ptti_query_status_device_list(fwk_ctx: FixtureBase, connect_id: int) -> tupl
     return False, []
 
 
-def ptti_query_capabilities_ex(fwk_ctx: FixtureBase, connect_id: int) -> tuple[int, Packet|None, Packet]:
+def ptti_query_capabilities_ex(fwk_ctx: FwkContext, connect_id: int) -> tuple[int, Packet|None, Packet]:
 
     _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=connect_id) / QueryCapabilities_Request()
 
     _error_code, _recv_msg = common_send_receive(fwk_ctx, _send_msg)
     return _error_code, _recv_msg, _send_msg
 
-def ptti_query_capabilities(fwk_ctx: FixtureBase, connect_id: int) -> tuple[bool, list]:
+def ptti_query_capabilities(fwk_ctx: FwkContext, connect_id: int) -> tuple[bool, list]:
 
     _error_code, _recv_msg, _ = ptti_query_capabilities_ex(fwk_ctx, connect_id)
 
@@ -134,7 +134,7 @@ def ptti_query_capabilities(fwk_ctx: FixtureBase, connect_id: int) -> tuple[bool
 
     return False, []
 
-def ptti_configure_test_service_ex(fwk_ctx: FixtureBase, connect_id: int, cfg_prm_list: list) -> tuple[int, Packet|None, Packet]:
+def ptti_configure_test_service_ex(fwk_ctx: FwkContext, connect_id: int, cfg_prm_list: list) -> tuple[int, Packet|None, Packet]:
 
     _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=connect_id)
     _send_msg = _send_msg / ConfigureTestService_Request(TestServiceCapabilities=cfg_prm_list)
@@ -142,7 +142,7 @@ def ptti_configure_test_service_ex(fwk_ctx: FixtureBase, connect_id: int, cfg_pr
     _error_code, _recv_msg = common_send_receive(fwk_ctx, _send_msg)
     return _error_code, _recv_msg, _send_msg
 
-def ptti_configure_test_service(fwk_ctx: FixtureBase, connect_id: int, cfg_prm_list: list) -> bool:
+def ptti_configure_test_service(fwk_ctx: FwkContext, connect_id: int, cfg_prm_list: list) -> bool:
 
     _error_code, _recv_msg, _ = ptti_configure_test_service_ex(fwk_ctx, connect_id, cfg_prm_list)
 
@@ -153,14 +153,14 @@ def ptti_configure_test_service(fwk_ctx: FixtureBase, connect_id: int, cfg_prm_l
             _recv_msg[ConfigureTestService_Response].CommandCode == ConfigureTestService_Response.CommandValue and \
             _recv_msg[ConfigureTestService_Response].ResponseCode == 0
 
-def ptti_query_system_inventory_ex(fwk_ctx: FixtureBase, connect_id: int) -> tuple[int, Packet|None, Packet]:
+def ptti_query_system_inventory_ex(fwk_ctx: FwkContext, connect_id: int) -> tuple[int, Packet|None, Packet]:
 
     _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=connect_id) / QuerySystemInventory_Request()
 
     _error_code, _recv_msg = common_send_receive(fwk_ctx, _send_msg)
     return _error_code, _recv_msg, _send_msg
 
-def ptti_query_system_inventory(fwk_ctx: FixtureBase, connect_id: int) -> tuple[bool, str]:
+def ptti_query_system_inventory(fwk_ctx: FwkContext, connect_id: int) -> tuple[bool, str]:
 
     _error_code, _recv_msg, _ = ptti_query_system_inventory_ex(fwk_ctx, connect_id)
 
@@ -175,7 +175,7 @@ def ptti_query_system_inventory(fwk_ctx: FixtureBase, connect_id: int) -> tuple[
 
     return False, ""
 
-def ptti_query_partial_system_inventory_ex(fwk_ctx: FixtureBase, connect_id: int, frag_handle: int) -> tuple[int, Packet|None, Packet]:
+def ptti_query_partial_system_inventory_ex(fwk_ctx: FwkContext, connect_id: int, frag_handle: int) -> tuple[int, Packet|None, Packet]:
 
     _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=connect_id)
     _send_msg = _send_msg / QueryPartialSystemInventory_Request(FragmentHandle=frag_handle)
@@ -183,7 +183,7 @@ def ptti_query_partial_system_inventory_ex(fwk_ctx: FixtureBase, connect_id: int
     _error_code, _recv_msg = common_send_receive(fwk_ctx, _send_msg)
     return _error_code, _recv_msg, _send_msg
 
-def ptti_query_partial_system_inventory(fwk_ctx: FixtureBase, connect_id: int, frag_handle: int) -> tuple[bool, str, int]:
+def ptti_query_partial_system_inventory(fwk_ctx: FwkContext, connect_id: int, frag_handle: int) -> tuple[bool, str, int]:
 
     _error_code, _recv_msg, _ = ptti_query_partial_system_inventory_ex(fwk_ctx, connect_id, frag_handle)
 
@@ -200,7 +200,7 @@ def ptti_query_partial_system_inventory(fwk_ctx: FixtureBase, connect_id: int, f
 
     return False, "", 0
 
-def ptti_query_partial_system_inventory_full(fwk_ctx: FixtureBase, connect_id: int) -> str:
+def ptti_query_partial_system_inventory_full(fwk_ctx: FwkContext, connect_id: int) -> str:
     """ Collect the full system inventory using a sequence of QueryPartialSystemInventory commands """
 
     _inventory_text = ""
@@ -219,7 +219,7 @@ def ptti_query_partial_system_inventory_full(fwk_ctx: FixtureBase, connect_id: i
 
     return _inventory_text
 
-def ptti_configure_device_under_test_ex(fwk_ctx: FixtureBase, connect_id: int, target_id: int, id_list: list) -> tuple[int, Packet|None, Packet]:
+def ptti_configure_device_under_test_ex(fwk_ctx: FwkContext, connect_id: int, target_id: int, id_list: list) -> tuple[int, Packet|None, Packet]:
 
     _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=connect_id)
     _send_msg = _send_msg / ConfigureDeviceUnderTest_Request(TargetIdentifier=target_id, IdentifierList=id_list)
@@ -227,7 +227,7 @@ def ptti_configure_device_under_test_ex(fwk_ctx: FixtureBase, connect_id: int, t
     _error_code, _recv_msg = common_send_receive(fwk_ctx, _send_msg)
     return _error_code, _recv_msg, _send_msg
 
-def ptti_configure_device_under_test(fwk_ctx: FixtureBase, connect_id: int, target_id: int, id_list: list) -> tuple[bool, int, list]:
+def ptti_configure_device_under_test(fwk_ctx: FwkContext, connect_id: int, target_id: int, id_list: list) -> tuple[bool, int, list]:
 
     _error_code, _recv_msg, _ = ptti_configure_device_under_test_ex(fwk_ctx, connect_id, target_id, id_list)
 
@@ -244,7 +244,7 @@ def ptti_configure_device_under_test(fwk_ctx: FixtureBase, connect_id: int, targ
 
     return False, 0, []
 
-def ptti_register_to_protocol_ex(fwk_ctx: FixtureBase, connect_id: int, dut_id: int, protocol_type: int, types_list: list) -> tuple[int, Packet|None, Packet]:
+def ptti_register_to_protocol_ex(fwk_ctx: FwkContext, connect_id: int, dut_id: int, protocol_type: int, types_list: list) -> tuple[int, Packet|None, Packet]:
 
     _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=connect_id) / RegisterToProtocol_Request()
 
@@ -255,7 +255,7 @@ def ptti_register_to_protocol_ex(fwk_ctx: FixtureBase, connect_id: int, dut_id: 
     _error_code, _recv_msg = common_send_receive(fwk_ctx, _send_msg)
     return _error_code, _recv_msg, _send_msg
 
-def ptti_register_to_protocol(fwk_ctx: FixtureBase, connect_id: int, dut_id: int, protocol_type: int, types_list: list) -> bool:
+def ptti_register_to_protocol(fwk_ctx: FwkContext, connect_id: int, dut_id: int, protocol_type: int, types_list: list) -> bool:
 
     _error_code, _recv_msg, _ = ptti_register_to_protocol_ex(fwk_ctx, connect_id, dut_id, protocol_type, types_list)
 
@@ -267,7 +267,7 @@ def ptti_register_to_protocol(fwk_ctx: FixtureBase, connect_id: int, dut_id: int
             _recv_msg[RegisterToProtocol_Response].ResponseCode == 0 and \
             _recv_msg[RegisterToProtocol_Response].DUTConnectionID == dut_id
 
-def ptti_register_async_message_recipient_ex(fwk_ctx: FixtureBase, connect_id: int, dut_id: int, protocol_type: int, types_list: list) -> tuple[int, Packet|None, Packet]:
+def ptti_register_async_message_recipient_ex(fwk_ctx: FwkContext, connect_id: int, dut_id: int, protocol_type: int, types_list: list) -> tuple[int, Packet|None, Packet]:
 
     _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=connect_id) / RegisterAsyncMessageRecipient_Request()
 
@@ -278,7 +278,7 @@ def ptti_register_async_message_recipient_ex(fwk_ctx: FixtureBase, connect_id: i
     _error_code, _recv_msg = common_send_receive(fwk_ctx, _send_msg)
     return _error_code, _recv_msg, _send_msg
 
-def ptti_register_async_message_recipient(fwk_ctx: FixtureBase, connect_id: int, dut_id: int, protocol_type: int, types_list: list) -> bool:
+def ptti_register_async_message_recipient(fwk_ctx: FwkContext, connect_id: int, dut_id: int, protocol_type: int, types_list: list) -> bool:
 
     _error_code, _recv_msg, _ = ptti_register_async_message_recipient_ex(fwk_ctx, connect_id, dut_id, protocol_type, types_list)
 
@@ -290,7 +290,7 @@ def ptti_register_async_message_recipient(fwk_ctx: FixtureBase, connect_id: int,
             _recv_msg[RegisterAsyncMessageRecipient_Response].ResponseCode == 0 and \
             _recv_msg[RegisterAsyncMessageRecipient_Response].DUTConnectionID == dut_id
 
-def ptti_send_test_message_ex(fwk_ctx: FixtureBase, connect_id: int, max_wait_time: int, dut_id: int, protocol_type: int, payload: Packet) -> tuple[int, Packet|None, Packet]:
+def ptti_send_test_message_ex(fwk_ctx: FwkContext, connect_id: int, max_wait_time: int, dut_id: int, protocol_type: int, payload: Packet) -> tuple[int, Packet|None, Packet]:
 
     _send_msg = TestServiceWrapper(ProtocolType=protocol_type, Direction=0, TestClientID=connect_id)
     _send_msg = _send_msg / TestMessage_Request(DUTConnectionID=dut_id, MaximumWaitTime=max_wait_time )
@@ -299,7 +299,7 @@ def ptti_send_test_message_ex(fwk_ctx: FixtureBase, connect_id: int, max_wait_ti
     _error_code, _recv_msg = common_send_receive(fwk_ctx, _send_msg)
     return _error_code, _recv_msg, _send_msg
 
-def ptti_send_test_message(fwk_ctx: FixtureBase, connect_id: int, max_wait_time: int, dut_id: int, protocol_type: int, payload: Packet) -> tuple[bool, int, Packet|None]:
+def ptti_send_test_message(fwk_ctx: FwkContext, connect_id: int, max_wait_time: int, dut_id: int, protocol_type: int, payload: Packet) -> tuple[bool, int, Packet|None]:
 
     _error_code, _recv_msg, _ = ptti_send_test_message_ex(fwk_ctx, connect_id, max_wait_time, dut_id, protocol_type, payload)
 

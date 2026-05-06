@@ -9,10 +9,10 @@
 
 from scapy.packet import Packet, raw
 from pmci_protocol_validator.framework.medium import CommMedium
-from pmci_protocol_validator.framework.fixture_base import FixtureBase
+from pmci_protocol_validator.framework.context import FwkContext
 
 
-def common_send_receive(fwk_ctx: FixtureBase, send_pkt: Packet) -> tuple[int, Packet|None]:
+def common_send_receive(fwk_ctx: FwkContext, send_pkt: Packet) -> tuple[int, Packet|None]:
     """ Send a request packet and receive the response packet """
 
     _error_code, _recv_pkt = common_send_receive_ex(fwk_ctx.commObject, send_pkt, fwk_ctx.show_pkt)
