@@ -84,11 +84,9 @@ def ptti_query_status_ex(fwk_ctx: FixtureBase, connect_id: int, queryType: int) 
     _error_code, _recv_msg = common_send_receive1(fwk_ctx, _send_msg)
     return _error_code, _recv_msg, _send_msg
 
-def ptti_query_status(fwk_ctx: FixtureBase, connect_id: int, query_type: int) -> bool:
+def ptti_query_status_ping(fwk_ctx: FixtureBase, connect_id: int) -> bool:
 
-    _error_code, _recv_msg, _ = ptti_query_status_ex(fwk_ctx, connect_id, query_type)
-
-    ### TODO: Return list IFF "Device List" request
+    _error_code, _recv_msg, _ = ptti_query_status_ex(fwk_ctx, connect_id, 0)
 
     return _error_code == 0 and \
             _recv_msg is not None and \
@@ -96,6 +94,23 @@ def ptti_query_status(fwk_ctx: FixtureBase, connect_id: int, query_type: int) ->
             _recv_msg.haslayer(QueryStatus_Response) is True and \
             _recv_msg[QueryStatus_Response].CommandCode == QueryStatus_Response.CommandValue and \
             _recv_msg[QueryStatus_Response].ResponseCode == 0
+
+
+def ptti_query_status_device_list(fwk_ctx: FixtureBase, connect_id: int) -> tuple[bool, list]:
+
+    _error_code, _recv_msg, _ = ptti_query_status_ex(fwk_ctx, connect_id, 1)
+
+    if _error_code == 0 and \
+            _recv_msg is not None and \
+            ptti_check_tsw(_recv_msg) is True and \
+            _recv_msg.haslayer(QueryStatus_Response) is True and \
+            _recv_msg[QueryStatus_Response].CommandCode == QueryStatus_Response.CommandValue and \
+            _recv_msg[QueryStatus_Response].ResponseCode == 0:
+
+        return True, _recv_msg[QueryStatus_Response].QueryStatusDeviceData
+
+    return False, []
+
 
 def ptti_query_capabilities_ex(fwk_ctx: FixtureBase, connect_id: int) -> tuple[int, Packet|None, Packet]:
 

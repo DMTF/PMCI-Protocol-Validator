@@ -38,7 +38,7 @@ def main():
         assert _rc == True, "ERROR: Connect failed."
 
         # 2. Ping the Test Service (Query Status)
-        _rc = ptti_query_status(fixture, _client_id, 0)
+        _rc = ptti_query_status_ping(fixture, _client_id)
         assert _rc == True, "ERROR: Query Status Ping failed."
 
         # 3. Query Capabilities
@@ -99,7 +99,7 @@ def main():
         assert _rc == True, "ERROR: Register to Async Message Recipient failed."
 
         # 12. Query Status (again)
-        _rc = ptti_query_status(fixture, _client_id, 1)
+        _rc, _device_list = ptti_query_status_device_list(fixture, _client_id)
         assert _rc == True, "ERROR: Query Status Device List failed."
 
         print("SUCCESS: All tests completed successfully")
