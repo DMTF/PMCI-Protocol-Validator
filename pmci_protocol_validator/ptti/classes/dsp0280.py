@@ -12,11 +12,9 @@ from scapy.packet import Packet
 from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
 
 
-# DSP0280 - Section 2.1.5
 DSP0280_COMPLIANCE_VERSION = int.from_bytes([1, 1, 0, 0], 'big')
-VERSION_COMPLIANCE = 0x11   # Compliant to spec DSP0280 version 1.0
+VERSION_COMPLIANCE = 0x11   # Compliant to spec DSP0280 version 1.1
 
-# DSP0280 - Section 10.1.1.1 and DSP0239 - Section 5
 PROTOCOL_TYPE = {
     0x00: "MCTP Control",
     0x01: "Platform Level Data Model",
@@ -27,10 +25,10 @@ PROTOCOL_TYPE = {
     0xFF: "PTTI Admin"
 }
 
-# DSP0280 - Section 10.2.1
 COMMAND_CODES = {
     0x00: "Connect",
     0x01: "Disconnect",
+    0x02: "Query Admin Messages",
     0x10: "Query Capabilities",
     0x11: "Query Status",
     0x12: "Query System Inventory",
@@ -42,7 +40,6 @@ COMMAND_CODES = {
     0x30: "Log Event"
 }
 
-# DSP0280 - Section 10.1.2
 MESSAGE_RESPONSE_CODES = {
     0x00: "SUCCESS",
     0x01: "TIMEOUT",
@@ -146,7 +143,7 @@ class TestServiceWrapper(Packet):
 
 
 class Connect_Request(Packet):
-    """DSP0280 - Section 10.2.2 Connect Request"""
+    """DSP0280 Connect Request"""
 
     name = "PTTI Connect Request"
     CommandValue = 0x00
@@ -169,7 +166,7 @@ class Connect_Request(Packet):
 
 
 class Connect_Response(Packet):
-    """DSP0280 - Section 10.2.2 Connect Response"""
+    """DSP0280 Connect Response"""
 
     name = "PTTI Connect Response"
     CommandValue = Connect_Request.CommandValue
@@ -190,7 +187,7 @@ class Connect_Response(Packet):
 
 
 class Disconnect_Request(Packet):
-    """DSP0280 - Section 10.2.3 Disconnect Request"""
+    """DSP0280 Disconnect Request"""
 
     name = "PTTI Disconnect Request"
     CommandValue = 0x01
@@ -201,7 +198,7 @@ class Disconnect_Request(Packet):
 
 
 class Disconnect_Response(Packet):
-    """DSP0280 - Section 10.2.3 Disconnect Response"""
+    """DSP0280 Disconnect Response"""
 
     name = "PTTI Disconnect Response"
     CommandValue = Disconnect_Request.CommandValue
@@ -212,8 +209,32 @@ class Disconnect_Response(Packet):
     ]
 
 
+class QueryAdminMessages_Request(Packet):
+    """DSP0280 Query Admin Messages Request"""
+
+    name = "PTTI Query Admin Messages Request"
+    CommandValue = 0x02
+
+    fields_desc = [
+        XByteEnumField("CommandCode", CommandValue, COMMAND_CODES)
+    ]
+
+
+class QueryAdminMessages_Response(Packet):
+    """DSP0280 Query Admin Messages Response"""
+
+    name = "PTTI Query Admin Messages Response"
+    CommandValue = QueryAdminMessages_Request.CommandValue
+
+    fields_desc = [
+        XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
+        XByteEnumField("ResponseCode", 0x00, MESSAGE_RESPONSE_CODES),
+        StrFixedLenField("SupportedAdminMessages", b"", length=32)
+    ]
+
+
 class QueryCapabilities_Request(Packet):
-    """DSP0280 - Section 10.2.4 Query Capabilities Request"""
+    """DSP0280 Query Capabilities Request"""
 
     name = "PTTI Query Capabilities Request"
     CommandValue = 0x10
@@ -224,7 +245,7 @@ class QueryCapabilities_Request(Packet):
 
 
 class TestServiceCapabilityEntry(Packet):
-    """DSP0280-Section 10.2.4: Test Service Capabilities table entry format"""
+    """DSP0280 Test Service Capabilities table entry format"""
 
     __test__ = False    # pytest: ignore class
     name = "Test Service Capability Entry"
@@ -239,7 +260,7 @@ class TestServiceCapabilityEntry(Packet):
 
 
 class QueryCapabilities_Response(Packet):
-    """DSP0280 - Section 10.2.4 Query Capabilities Response"""
+    """DSP0280 Query Capabilities Response"""
 
     name = "PTTI Query Capabilities Response"
     CommandValue = QueryCapabilities_Request.CommandValue
@@ -274,7 +295,7 @@ class QueryCapabilities_Response(Packet):
 
 
 class QueryStatus_Request(Packet):
-    """DSP0280 - Section 10.2.5 Query Status Request"""
+    """DSP0280 Query Status Request"""
 
     name = "PTTI Query Status Request"
     CommandValue = 0x11
@@ -293,7 +314,7 @@ class QueryStatus_Request(Packet):
 
 
 class QueryStatusDeviceData(Packet):
-    """Section 10.2.5 Query Status Device Data"""
+    """DSP0280 Query Status Device Data"""
 
     name = "Query Status Device Data"
     fields_desc = [
@@ -307,7 +328,7 @@ class QueryStatusDeviceData(Packet):
 
 
 class QueryStatusDeviceEntry(Packet):
-    """Section 10.2.5 Query Status Device Data"""
+    """DSP0280 Query Status Device Entry"""
 
     fields_desc = [
         XLEIntField("DUTConnectionID", 0x00000000),
@@ -330,7 +351,7 @@ class QueryStatusDeviceEntry(Packet):
 
 
 class QueryStatus_Response(Packet):
-    """DSP0280 - Section 10.2.5 Query Status Response"""
+    """DSP0280 Query Status Response"""
 
     name = "PTTI Query Status Response"
     CommandValue = QueryStatus_Request.CommandValue
@@ -376,7 +397,7 @@ class QueryStatus_Response(Packet):
 
 
 class QuerySystemInventory_Request(Packet):
-    """DSP0280 - Section 10.2.6 Query System Inventory Request"""
+    """DSP0280 Query System Inventory Request"""
 
     name = "PTTI Query System Inventory Request"
     CommandValue = 0x12
@@ -387,7 +408,7 @@ class QuerySystemInventory_Request(Packet):
 
 
 class QuerySystemInventory_Response(Packet):
-    """DSP0280 - Section 10.2.6 Query System Inventory Response"""
+    """DSP0280 Query System Inventory Response"""
 
     name = "PTTI Query System Inventory Response"
     CommandValue = QuerySystemInventory_Request.CommandValue
@@ -404,7 +425,7 @@ class QuerySystemInventory_Response(Packet):
 
 
 class QueryPartialSystemInventory_Request(Packet):
-    """DSP0280 - Query Partial System Inventory Request"""
+    """DSP0280 Query Partial System Inventory Request"""
 
     name = "PTTI Query Partial System Inventory Request"
     CommandValue = 0x13
@@ -416,7 +437,7 @@ class QueryPartialSystemInventory_Request(Packet):
 
 
 class QueryPartialSystemInventory_Response(Packet):
-    """DSP0280 - Query Partial System Inventory Response"""
+    """DSP0280 Query Partial System Inventory Response"""
 
     name = "PTTI Query Partial System Inventory Response"
     CommandValue = QueryPartialSystemInventory_Request.CommandValue
@@ -441,7 +462,7 @@ class QueryPartialSystemInventory_Response(Packet):
 
 
 class ConfigureTestService_Request(Packet):
-    """DSP0280 - Section 10.2.7 Configure Test Service Request"""
+    """DSP0280 Configure Test Service Request"""
 
     name = "PTTI Configure Test Service Request"
     CommandValue = 0x20
@@ -464,7 +485,7 @@ class ConfigureTestService_Request(Packet):
 
 
 class ConfigureTestService_Response(Packet):
-    """DSP0280 - Section 10.2.7 Configure Test Service Response"""
+    """DSP0280 Configure Test Service Response"""
 
     name = "PTTI Configure Test Service Response"
     CommandValue = ConfigureTestService_Request.CommandValue
@@ -476,7 +497,7 @@ class ConfigureTestService_Response(Packet):
 
 
 class ConfigureDeviceUnderTest_Request(Packet):
-    """DSP0280 - Section 10.2.8 Configure Device Under Test Request"""
+    """DSP0280 Configure Device Under Test Request"""
 
     name = "PTTI Configure Device Under Test Request"
     CommandValue = 0x21
@@ -500,7 +521,7 @@ class ConfigureDeviceUnderTest_Request(Packet):
 
 
 class ConfigureDeviceUnderTest_Response(Packet):
-    """DSP0280 - Section 10.2.8 Configure Device Under Test Response"""
+    """DSP0280 Configure Device Under Test Response"""
 
     name = "PTTI Configure Device Under Test Response"
     CommandValue = ConfigureDeviceUnderTest_Request.CommandValue
@@ -536,7 +557,7 @@ class ConfigureDeviceUnderTest_Response(Packet):
 
 
 class RegisterToProtocol_Request(Packet):
-    """DSP0280 - Section 10.2.10 Register to Protocol Request"""
+    """DSP0280 Register to Protocol Request"""
 
     name = "PTTI Register To Protocol Request"
     CommandValue = 0x22
@@ -561,7 +582,7 @@ class RegisterToProtocol_Request(Packet):
 
 
 class RegisterToProtocol_Response(Packet):
-    """DSP0280 - Section 10.2.10 Register to Protocol Response"""
+    """DSP0280 Register to Protocol Response"""
 
     name = "PTTI Register To Protocol Response"
     CommandValue = RegisterToProtocol_Request.CommandValue
@@ -578,7 +599,7 @@ class RegisterToProtocol_Response(Packet):
 
 
 class RegisterAsyncMessageRecipient_Request(Packet):
-    """DSP0280 - Section 10.2.11 Register Async Message Recipient Request"""
+    """DSP0280 Register Async Message Recipient Request"""
 
     name = "PTTI Register Async Message Recipient Request"
     CommandValue = 0x23
@@ -603,7 +624,7 @@ class RegisterAsyncMessageRecipient_Request(Packet):
 
 
 class RegisterAsyncMessageRecipient_Response(Packet):
-    """DSP0280 - Section 10.2.11 Register Async Message Recipient Response"""
+    """DSP0280 Register Async Message Recipient Response"""
 
     name = "PTTI Register Async Message Recipient Response"
     CommandValue = RegisterAsyncMessageRecipient_Request.CommandValue
@@ -620,7 +641,7 @@ class RegisterAsyncMessageRecipient_Response(Packet):
 
 
 class LogEvent_Request(Packet):
-    """DSP0280 - Section 10.2.12 Log Event Request"""
+    """DSP0280 Log Event Request"""
 
     name = "PTTI Log Event Request"
     CommandValue = 0x30
@@ -664,7 +685,7 @@ class LogEvent_Request(Packet):
 
 
 class LogEvent_Response(Packet):
-    """DSP0280 - Section 10.2.12 Log Event Response"""
+    """DSP0280 Log Event Response"""
 
     name = "PTTI Log Event Response"
     CommandValue = LogEvent_Request.CommandValue
@@ -676,7 +697,7 @@ class LogEvent_Response(Packet):
 
 
 class VendorDefinedAdmin_Request(Packet):
-    """DSP0280 - Section 10.3 Vendor Defined Admin Request"""
+    """DSP0280 Vendor Defined Admin Request"""
 
     name = "PTTI Vendor Defined Admin Request"
     CommandValue = 0xF1
@@ -687,7 +708,7 @@ class VendorDefinedAdmin_Request(Packet):
 
 
 class VendorDefinedAdmin_Response(Packet):
-    """DSP0280 - Section 10.3 Vendor Defined Admin Response"""
+    """DSP0280 Vendor Defined Admin Response"""
 
     name = "PTTI Vendor Defined Admin Response"
     CommandValue = VendorDefinedAdmin_Request.CommandValue
@@ -699,7 +720,7 @@ class VendorDefinedAdmin_Response(Packet):
 
 
 class TestMessage_Request(Packet):
-    """DSP0280 - Section 10.5 Test Messages Request"""
+    """DSP0280 Test Messages Request"""
     __test__ = False    # pytest: ignore class
 
     name = "PTTI Test Message Request"
@@ -725,7 +746,7 @@ class TestMessage_Request(Packet):
 
 
 class TestMessage_Response(Packet):
-    """DSP0280 - Section 10.5 Test Messages Response"""
+    """DSP0280 Test Messages Response"""
     __test__ = False    # pytest: ignore class
 
     name = "PTTI Test Message Response"
@@ -763,6 +784,8 @@ register_ptti_handler(Connect_Request)
 register_ptti_handler(Connect_Response)
 register_ptti_handler(Disconnect_Request)
 register_ptti_handler(Disconnect_Response)
+register_ptti_handler(QueryAdminMessages_Request)
+register_ptti_handler(QueryAdminMessages_Response)
 register_ptti_handler(QueryCapabilities_Request)
 register_ptti_handler(QueryCapabilities_Response)
 register_ptti_handler(QueryStatus_Request)

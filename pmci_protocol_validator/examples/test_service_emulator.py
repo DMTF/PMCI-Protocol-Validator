@@ -1,5 +1,5 @@
 # Copyright Notice:
-# Copyright 2024-2025 DMTF. All rights reserved.
+# Copyright 2024-2026 DMTF. All rights reserved.
 # License: BSD 3-Clause License. For full text see link:
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
@@ -35,6 +35,7 @@ class TestServiceBase():
         \"ControlPlane\": { \
         \"Manufacturer\": \"Contoso\", \
         \"Model\": \"ContoBMC\", \
+        \"FirmwareVersions\": [{\"Name\": \"name1\", \"Version\": \"version1\"}], \
         \"Interfaces\": [ \
         {\"Interface\": \"I2C\", \"MessageInitiationSupport\": \"ControlPlaneRequestorOnly\"}]}, \
         \"Devices\": [ \
@@ -121,6 +122,9 @@ class TestServiceBase():
         self._session_connected = False
         return Disconnect_Response()
 
+    def _QueryAdminMessages(self):
+        return QueryAdminMessages_Response(SupportedAdminMessages=b"\x00" * 32)
+
     def _QueryCapabilities(self):
         """ DSP0280 section 10.2.4 Query Capabilities message """
 
@@ -188,6 +192,8 @@ class TestServiceBase():
             response = self._Connect(request)
         elif isinstance(request, Disconnect_Request):
             response = self._Disconnect()
+        elif isinstance(request, QueryAdminMessages_Request):
+            response = self._QueryAdminMessages()
         elif isinstance(request, QueryCapabilities_Request):
             response = self._QueryCapabilities()
         elif isinstance(request, QueryStatus_Request):
