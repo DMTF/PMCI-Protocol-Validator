@@ -9,28 +9,36 @@
 
 from scapy.packet import Packet, raw
 from pmci_protocol_validator.framework.medium import CommMedium
+from pmci_protocol_validator.framework.context import FwkContext
 
 
-def common_send_receive(commObject: CommMedium, send_pkt: Packet, fct_show_pkt=None) -> Packet:
+def common_send_receive(fwk_ctx: FwkContext, send_pkt: Packet) -> tuple[int, Packet|None]:
     """ Send a request packet and receive the response packet """
 
-    assert (isinstance(commObject, CommMedium)), "common_send_receive: commObject is invalid"
+    _error_code, _recv_pkt = common_send_receive_ex(fwk_ctx.commObject, send_pkt, fwk_ctx.show_pkt)
+    return _error_code, _recv_pkt
+
+
+def common_send_receive_ex(comm_obj: CommMedium, send_pkt: Packet, fct_show_pkt=None) -> tuple[int, Packet|None]:
+    """ Send a request packet and receive the response packet """
+
+    assert (isinstance(comm_obj, CommMedium)), "common_send_receive: commObject is invalid"
     assert (isinstance(send_pkt, Packet)), "common_send_receive: SendPacket is NOT type Packet"
 
     if fct_show_pkt is not None:
         assert (callable(fct_show_pkt)), "common_send_receive: fctShowPacket() is NOT callable"
         fct_show_pkt(send_pkt)
 
-    ErrorCode = commObject.write(send_pkt)
-    assert (ErrorCode == CommMedium.ERROR_SUCCESS), f"common_send_receive: {commObject.response_to_str(ErrorCode)}"
+    _error_code = comm_obj.write(send_pkt)
 
-    (ErrorCode, RecvPacket) = commObject.read()
+    _recv_pkt = None
+    if _error_code == CommMedium.ERROR_SUCCESS:
+        _error_code, _recv_pkt = comm_obj.read()
 
-    if ErrorCode == CommMedium.ERROR_SUCCESS and fct_show_pkt is not None:
-        fct_show_pkt(RecvPacket)
+        if _error_code == CommMedium.ERROR_SUCCESS and fct_show_pkt is not None:
+            fct_show_pkt(_recv_pkt)
 
-    assert (ErrorCode == CommMedium.ERROR_SUCCESS), f"common_send_receive: {commObject.response_to_str(ErrorCode)}"
-    return RecvPacket
+    return _error_code, _recv_pkt
 
 
 def render_packet(packet: Packet) -> Packet:

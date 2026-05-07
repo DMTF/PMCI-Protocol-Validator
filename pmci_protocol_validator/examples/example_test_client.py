@@ -1,5 +1,5 @@
 # Copyright Notice:
-# Copyright 2023-2025 DMTF. All rights reserved.
+# Copyright 2023-2026 DMTF. All rights reserved.
 # License: BSD 3-Clause License. For full text see link:
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
@@ -9,17 +9,33 @@
 
 import json
 
-from pmci_protocol_validator.framework.fixture_ptti import PTTI_fixture
-from pmci_protocol_validator.framework.utilities  import common_send_receive
-
+from pmci_protocol_validator.framework.ptti_context import PTTI_Context
+from pmci_protocol_validator.framework.utilities  import common_send_receive_ex
 from pmci_protocol_validator.ptti.classes.dsp0280 import *
+
 from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
-from pmci_protocol_validator.pldm.classes.dsp0240 import GetTID_Request
-from pmci_protocol_validator.tests.tst_pldm0_commands import test_get_tid
+from pmci_protocol_validator.pldm.classes.dsp0240 import GetTID_Request, GetTID_Response
+
 
 # Network parameters for Test Service connection
 CONNECTION_ADDRESS = 'localhost'
 CONNECTION_PORT = 49155
+
+
+def check_tsw(wrapper: Packet, client_id: int =None) -> bool:
+    """ Generic library function for Test Wrapper verification """
+
+    if wrapper.haslayer(TestServiceWrapper) is True:
+
+        if wrapper.Version == VERSION_COMPLIANCE and \
+            wrapper.Reserved_0 == 0 and \
+            wrapper.Reserved_1 == 0 and \
+            wrapper.Reserved_3 == 0:
+
+            _client_id_ok = True if client_id is None else wrapper.TestClientID == client_id
+            return _client_id_ok
+
+    return False
 
 
 def main():
@@ -27,7 +43,7 @@ def main():
 
     # Create the test fixture object
     try:
-        fixture = PTTI_fixture(CONNECTION_ADDRESS, CONNECTION_PORT)
+        fixture = PTTI_Context(CONNECTION_ADDRESS, CONNECTION_PORT, True)
 
         assert (fixture.tcp_address == CONNECTION_ADDRESS), "TPC address mismatch"
         assert (fixture.tcp_port == CONNECTION_PORT), "TPC port mismatch"
@@ -44,7 +60,8 @@ def main():
     SendPacket[Connect_Request].SecurityParameterLength = len(SendPacket[Connect_Request].SecurityParameter)
 
     try:
-        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
+        rc, RecvPacket = common_send_receive_ex(fixture.commObject, SendPacket, fixture.show_pkt)
+        assert rc == 0 and  RecvPacket is not None, f"Comm failed ={rc}"
 
         if RecvPacket[TestServiceWrapper].Version != VERSION_COMPLIANCE or \
             RecvPacket[TestServiceWrapper].ProtocolType != 0xFF or \
@@ -65,8 +82,10 @@ def main():
     SendPacket = SendPacket / QueryStatus_Request(QueryType=0)
 
     try:
-        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
-        fixture.verify_common_fields(RecvPacket, SendPacket)
+        rc, RecvPacket = common_send_receive_ex(fixture.commObject, SendPacket, fixture.show_pkt)
+
+        assert rc == 0 and  RecvPacket is not None, f"Comm failed ={rc}"
+        assert check_tsw(RecvPacket) == True, "ERROR: Invalid test service wrapper"
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: QueryStatus_Request(): " + str(exceptionInfo))
@@ -77,8 +96,10 @@ def main():
     SendPacket = SendPacket / QueryCapabilities_Request()
 
     try:
-        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
-        fixture.verify_common_fields(RecvPacket, SendPacket)
+        rc, RecvPacket = common_send_receive_ex(fixture.commObject, SendPacket, fixture.show_pkt)
+
+        assert rc == 0 and  RecvPacket is not None, f"Comm failed ={rc}"
+        assert check_tsw(RecvPacket) == True, "ERROR: Invalid test service wrapper"
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: QueryCapabilities_Request(): " + str(exceptionInfo))
@@ -97,8 +118,10 @@ def main():
     SendPacket[ConfigureTestService_Request].TestServiceCapabilities = TestConfiguration
 
     try:
-        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
-        fixture.verify_common_fields(RecvPacket, SendPacket)
+        rc, RecvPacket = common_send_receive_ex(fixture.commObject, SendPacket, fixture.show_pkt)
+
+        assert rc == 0 and  RecvPacket is not None, f"Comm failed ={rc}"
+        assert check_tsw(RecvPacket) == True, "ERROR: Invalid test service wrapper"
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: ConfigureTestService_Request(): " + str(exceptionInfo))
@@ -109,8 +132,10 @@ def main():
     SendPacket = SendPacket / QueryCapabilities_Request()
 
     try:
-        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
-        fixture.verify_common_fields(RecvPacket, SendPacket)
+        rc, RecvPacket = common_send_receive_ex(fixture.commObject, SendPacket, fixture.show_pkt)
+
+        assert rc == 0 and  RecvPacket is not None, f"Comm failed ={rc}"
+        assert check_tsw(RecvPacket) == True, "ERROR: Invalid test service wrapper"
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: QueryCapabilities_Request(): " + str(exceptionInfo))
@@ -122,8 +147,10 @@ def main():
     SendPacket = SendPacket / QuerySystemInventory_Request()
 
     try:
-        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
-        fixture.verify_common_fields(RecvPacket, SendPacket)
+        rc, RecvPacket = common_send_receive_ex(fixture.commObject, SendPacket, fixture.show_pkt)
+
+        assert rc == 0 and  RecvPacket is not None, f"Comm failed ={rc}"
+        assert check_tsw(RecvPacket) == True, "ERROR: Invalid test service wrapper"
 
         if RecvPacket[QuerySystemInventory_Response].ResponseCode == 0:
             SystemInventory = json.loads(RecvPacket[QuerySystemInventory_Response].SystemInventory.decode("utf-8"))
@@ -145,8 +172,10 @@ def main():
         while True:
             SendPacket[QueryPartialSystemInventory_Request].FragmentHandle = fragment
 
-            RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
-            fixture.verify_common_fields(RecvPacket, SendPacket)
+            rc, RecvPacket = common_send_receive_ex(fixture.commObject, SendPacket, fixture.show_pkt)
+
+            assert rc == 0 and  RecvPacket is not None, f"Comm failed ={rc}"
+            assert check_tsw(RecvPacket) == True, "ERROR: Invalid test service wrapper"
 
             if RecvPacket[QueryPartialSystemInventory_Response].ResponseCode != 0:
                 break
@@ -176,8 +205,10 @@ def main():
     SendPacket = SendPacket / ConfigureDeviceUnderTest_Request(TargetIdentifier=DeviceIdentifier)
 
     try:
-        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
-        fixture.verify_common_fields(RecvPacket, SendPacket)
+        rc, RecvPacket = common_send_receive_ex(fixture.commObject, SendPacket, fixture.show_pkt)
+
+        assert rc == 0 and  RecvPacket is not None, f"Comm failed ={rc}"
+        assert check_tsw(RecvPacket) == True, "ERROR: Invalid test service wrapper"
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: ConfigureDeviceUnderTest_Request(): " + str(exceptionInfo))
@@ -199,8 +230,10 @@ def main():
     SendPacket[RegisterToProtocol_Request].TypeList = RegisterList
 
     try:
-        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
-        fixture.verify_common_fields(RecvPacket, SendPacket)
+        rc, RecvPacket = common_send_receive_ex(fixture.commObject, SendPacket, fixture.show_pkt)
+
+        assert rc == 0 and  RecvPacket is not None, f"Comm failed ={rc}"
+        assert check_tsw(RecvPacket) == True, "ERROR: Invalid test service wrapper"
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: RegisterToProtocol_Request(): " + str(exceptionInfo))
@@ -217,8 +250,10 @@ def main():
     SendPacket[RegisterAsyncMessageRecipient_Request].TypeList = RegisterList
 
     try:
-        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
-        fixture.verify_common_fields(RecvPacket, SendPacket)
+        rc, RecvPacket = common_send_receive_ex(fixture.commObject, SendPacket, fixture.show_pkt)
+
+        assert rc == 0 and  RecvPacket is not None, f"Comm failed ={rc}"
+        assert check_tsw(RecvPacket) == True, "ERROR: Invalid test service wrapper"
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: RegisterAsyncMessageRecipient_Request(): " + str(exceptionInfo))
@@ -229,18 +264,29 @@ def main():
     SendPacket = SendPacket / QueryStatus_Request(QueryType=1)
 
     try:
-        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
-        fixture.verify_common_fields(RecvPacket, SendPacket)
+        rc, RecvPacket = common_send_receive_ex(fixture.commObject, SendPacket, fixture.show_pkt)
+
+        assert rc == 0 and  RecvPacket is not None, f"Comm failed ={rc}"
+        assert check_tsw(RecvPacket) == True, "ERROR: Invalid test service wrapper"
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: QueryStatus_Request(): " + str(exceptionInfo))
         return 12
 
     # 13. Send a PLDM GetTID request via TestMessage (PTTI-wrapped PLDM)
+    SendPacket = TestServiceWrapper(ProtocolType=0x01, Direction=0, TestClientID=fixture.test_client_id)
+    SendPacket = SendPacket / TestMessage_Request(DUTConnectionID=DUTConnectionID, MaximumWaitTime=1000)
+    SendPacket = SendPacket / PLDM_HEADER(InstanceID=9) / GetTID_Request()
+
     try:
-        SendPacket = TestServiceWrapper(ProtocolType=0x01, Direction=0, TestClientID=fixture.test_client_id)
-        SendPacket = SendPacket / TestMessage_Request(DUTConnectionID=DUTConnectionID, MaximumWaitTime=1000)
-        test_get_tid(fixture, SendPacket)
+        rc, RecvPacket = common_send_receive_ex(fixture.commObject, SendPacket, fixture.show_pkt)
+
+        assert rc == 0 and  RecvPacket is not None, f"Comm failed ={rc}"
+        assert check_tsw(RecvPacket) == True, "ERROR: Invalid test service wrapper"
+
+        assert (RecvPacket[PLDM_HEADER].CommandCode == GetTID_Response.CommandValue)
+        assert (RecvPacket[GetTID_Response].CompletionCode == 0x00)
+        assert (RecvPacket[GetTID_Response].TID != 0xFF)
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: TestMessage(GetTID): " + str(exceptionInfo))
@@ -251,8 +297,10 @@ def main():
     SendPacket = SendPacket / Disconnect_Request()
 
     try:
-        RecvPacket = common_send_receive(fixture.commObject, SendPacket, fixture.show_pkt)
-        fixture.verify_common_fields(RecvPacket, SendPacket)
+        rc, RecvPacket = common_send_receive_ex(fixture.commObject, SendPacket, fixture.show_pkt)
+
+        assert rc == 0 and  RecvPacket is not None, f"Comm failed ={rc}"
+        assert check_tsw(RecvPacket) == True, "ERROR: Invalid test service wrapper"
 
     except Exception as exceptionInfo:
         fixture.log_msg("ERROR: Disconnect(): " + str(exceptionInfo))

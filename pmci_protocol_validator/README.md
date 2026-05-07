@@ -1,10 +1,10 @@
 # PMCI-Protocol-Validator
 
-Copyright 2023 DMTF. All rights reserved.
+Copyright 2023-2026 DMTF. All rights reserved.
 
 ## About
 
-The PMCI-Protocol-Validator is a Python/Scapy based tool set that can be used issue PMCI protocol messages to target devices. Its architecture is based on DSP0280.
+The PMCI-Protocol-Validator is a Python/Scapy based tool set that can be used to issue PMCI protocol messages to target devices. Its architecture is based on DSP0280.
 
 Currently implemented specifications:
 * [DSP0280](https://www.dmtf.org/sites/default/files/standards/documents/DSP0280_1.0.0.pdf)
@@ -13,12 +13,14 @@ Currently implemented specifications:
 * [DSP0248](https://www.dmtf.org/sites/default/files/standards/documents/DSP0248_1.2.2.pdf)
 * [DSP0267](https://www.dmtf.org/sites/default/files/standards/documents/DSP0267_1.2.0.pdf)
 
-
 ## Requirements
 
 To install the PMCI-Protocol-Validator on your system:
 
+1. Install these Python modules:
 * Install [Python 3](https://www.python.org/downloads/) and [pip](https://pip.pypa.io/en/stable/installing/).
-* Install [Scapy](https://scapy.net/ )
+* Install [Scapy](https://scapy.net/)
+* Install [PyTest](https://docs.pytest.org/en/stable/getting-started.html)
 
-
+2. Set the the 'PYTHONPATH' environment variable to the PMCI Protocol Validator source directory.
+For example: PYTHONPATH={your_path}/PMCI-Protocol-Validator/
