@@ -313,12 +313,12 @@ class TestServiceBase():
 
                         response = tsw_rsp / rsp_packet
                         self._client_socket.sendall(raw(response))
+
+                        # If Disconnect invalidate the test client id after response being sent.
+                        if isinstance(rsp_packet, Disconnect_Response):
+                            self._session_test_client_id = 0
                 else:
                     # ERROR: Most likely the Test Client closed the socket.
-                    self._session_connected = False
-
-                # End the session if necessary
-                if self._session_connected == False:
                     self._client_socket.close()
                     break
 

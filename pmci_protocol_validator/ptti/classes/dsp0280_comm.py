@@ -1,5 +1,5 @@
 # Copyright Notice:
-# Copyright 2023-2025 DMTF. All rights reserved.
+# Copyright 2023-2026 DMTF. All rights reserved.
 # License: BSD 3-Clause License. For full text see link:
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 ##############################################################################
@@ -41,6 +41,17 @@ class PTTIMedium(CommMedium):
         """ Override base class method """
 
         self.__TerminateReadThread = True
+
+        try:
+            self._socket.shutdown(socket.SHUT_RDWR)
+        except:
+            pass
+
+        try:
+            self._socket.close()
+        except:
+            pass
+
         return
 
     def _write(self, payload):
