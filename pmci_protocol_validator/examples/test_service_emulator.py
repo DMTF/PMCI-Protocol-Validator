@@ -123,7 +123,11 @@ class TestServiceBase():
         return Disconnect_Response()
 
     def _QueryAdminMessages(self):
-        return QueryAdminMessages_Response(SupportedAdminMessages=b"\x00" * 32)
+        supported_admin_messages = bytearray(32)
+        for command_code in [0x00, 0x01, 0x02, 0x10, 0x11, 0x12, 0x13, 0x20, 0x21, 0x22, 0x23, 0x30]:
+            supported_admin_messages[command_code // 8] |= 1 << (command_code % 8)
+
+        return QueryAdminMessages_Response(SupportedAdminMessages=bytes(supported_admin_messages))
 
     def _QueryCapabilities(self):
         """ DSP0280 section 10.2.4 Query Capabilities message """

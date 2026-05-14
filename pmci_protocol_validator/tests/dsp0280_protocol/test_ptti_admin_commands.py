@@ -9,6 +9,11 @@ import pytest
 from pmci_protocol_validator.tests.conftest import SetupMode
 from pmci_protocol_validator.ptti.lib.lib_dsp0280 import *
 
+
+def _is_admin_message_supported(supported_admin_messages: bytes, command_code: int) -> bool:
+    return (supported_admin_messages[command_code // 8] & (1 << (command_code % 8))) != 0
+
+
 @pytest.mark.parametrize("setup", [SetupMode.COMM_CONNECTION], indirect=True) # Connect must start with only the transport connection established.
 def test_ptti_connect(setup, context):
 
@@ -42,6 +47,45 @@ def test_ptti_disconnect(setup, context):
     assert (_recv_msg[Disconnect_Response].ResponseCode == 0)
 
     context.clear_test_client_id()
+    return
+
+
+def test_ptti_query_admin_messages(setup, context):
+
+    _error_code, _recv_msg, _send_msg = ptti_query_admin_messages_ex(context, context.test_client_id)
+
+    assert (_error_code == 0), f"Comm Error {_error_code}"
+    assert (_recv_msg is not None)
+    assert (ptti_check_tsw(_recv_msg, context.test_client_id) is True)
+    assert (_recv_msg.haslayer(QueryAdminMessages_Response) is True)
+    assert (_recv_msg[QueryAdminMessages_Response].CommandCode == QueryAdminMessages_Response.CommandValue)
+    assert (_recv_msg[QueryAdminMessages_Response].ResponseCode == 0)
+
+    _supported_admin_messages = _recv_msg[QueryAdminMessages_Response].SupportedAdminMessages
+    assert (isinstance(_supported_admin_messages, bytes))
+    assert (len(_supported_admin_messages) == 32)
+
+    _mandatory_command_codes = [
+        0x00,   # Connect
+        0x01,   # Disconnect
+        0x02,   # Query Admin Messages
+        0x10,   # Query Capabilities
+        0x11,   # Query Status
+        0x20,   # Configure Test Service
+        0x21,   # Configure Device Under Test
+        0x23    # Register Async Message Recipient
+    ]
+
+    for _command_code in _mandatory_command_codes:
+        assert (_is_admin_message_supported(_supported_admin_messages, _command_code) is True)
+
+    # The spec requires support for at least one system inventory query command:
+    # 0x12 = Query System Inventory, 0x13 = Query Partial System Inventory.
+    assert (
+        _is_admin_message_supported(_supported_admin_messages, 0x12) is True or
+        _is_admin_message_supported(_supported_admin_messages, 0x13) is True
+    )
+
     return
 
 
