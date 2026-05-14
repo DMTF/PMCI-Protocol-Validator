@@ -37,6 +37,10 @@ def main():
         _rc, _client_id = ptti_connect(fixture, _security_parameter)
         assert _rc == True, "ERROR: Connect failed."
 
+        # 1.5. Query Admin Message Support
+        _rc, _bit_mask = ptti_query_admin_messages(fixture, _client_id)
+        assert _rc == True, "ERROR: Query Admin Message support failed."
+
         # 2. Ping the Test Service (Query Status)
         _rc = ptti_query_status_ping(fixture, _client_id)
         assert _rc == True, "ERROR: Query Status Ping failed."

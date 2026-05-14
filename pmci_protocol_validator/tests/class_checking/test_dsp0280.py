@@ -110,6 +110,35 @@ def test_Disconnect_Response(class_type):
     assert (class_type.ResponseCode == 0)
     return
 
+@pytest.mark.parametrize("class_type", QueryAdminMessages_Request())
+def test_QueryAdminMessages_Request(class_type):
+    """ Verify QueryAdminMessages_Request class structure and initialization """
+
+    assert (class_type.CommandValue == 0x02)
+
+    assert (len(class_type.fields_desc) == 1)
+    assert (isinstance(class_type.fields_desc[0], XByteEnumField))  # CommandCode
+
+    assert (class_type.CommandCode == 0x02)
+    return
+
+
+@pytest.mark.parametrize("class_type", QueryAdminMessages_Response())
+def test_QueryAdminMessages_Response(class_type):
+    """ Validate QueryAdminMessages_Response class structure and initialization """
+
+    assert (class_type.CommandValue == QueryAdminMessages_Request.CommandValue)
+
+    assert (len(class_type.fields_desc) == 3)
+    assert (isinstance(class_type.fields_desc[0], XByteEnumField))  # CommandCode
+    assert (isinstance(class_type.fields_desc[1], XByteEnumField))  # ResponseCode
+    assert (isinstance(class_type.fields_desc[2], StrFixedLenField)) # SupportedAdminMessages
+
+    assert (class_type.CommandCode == class_type.CommandValue)
+    assert (class_type.ResponseCode == 0)
+    assert (class_type.SupportedAdminMessages == b"")
+    return
+
 
 @pytest.mark.parametrize("class_type", QueryCapabilities_Request())
 def test_QueryCapabilities_Request(class_type):

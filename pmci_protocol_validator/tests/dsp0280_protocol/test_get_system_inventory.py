@@ -3,9 +3,11 @@
 # License: BSD 3-Clause License. For full text see link:
 #   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.mdimport pytest
 
-import json
 import pytest
-from pmci_protocol_validator.ptti.lib.lib_dsp0280 import *
+import json
+
+from pmci_protocol_validator.ptti.lib.lib_dsp0280 import ptti_query_system_inventory_ex, ptti_check_tsw
+from pmci_protocol_validator.ptti.classes.dsp0280 import QuerySystemInventory_Response
 
 
 def test_get_system_inventory(setup, context):
@@ -25,7 +27,7 @@ def test_get_system_inventory(setup, context):
 
     assert (_system_inventory_json["ControlPlane"]["Manufacturer"])
     assert (_system_inventory_json["ControlPlane"]["Model"])
-###    assert (_system_inventory_json["ControlPlane"]["FirmwareVersions"])  ### Test Service Emulator does not have this entry.
+    assert (_system_inventory_json["ControlPlane"]["FirmwareVersions"])
     assert (_system_inventory_json["ControlPlane"]["Interfaces"])
     assert (_system_inventory_json["Devices"])
 
