@@ -1,12 +1,14 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Contains all of the base NC-SI protocol functionality as well as the
-#  DMTF defined commands.  OEM commands are in separate files.
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+NC-SI constant definitions
+
+File : dsp0222_enums.py
+
+Brief : DSP0222 standard constant definitions
+"""
 
 STANDARD_RESPONSE_CODE_VALUES = {
     0x0000: "Command Completed",

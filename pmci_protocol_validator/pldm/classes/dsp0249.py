@@ -1,12 +1,15 @@
 # Copyright Notice:
-# Copyright 2025 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Definitions from DSP0249 "Platform Level Data Model (PLDM) State Set
-# #Specification", Version: 1.3.0
-##############################################################################
+# Copyright 2025-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+DSP0249 "Platform Level Data Model (PLDM) State Set Specification" definitions
+
+File : dsp0249.py
+
+Brief : Constant definitions from DSP0249 "Platform Level Data Model (PLDM) State Set
+Specification", Version: 1.3.0
+"""
 
 """ Table 15 - Entity ID Codes """
 

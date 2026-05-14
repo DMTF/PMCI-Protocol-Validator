@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2024-2025 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  MCTP Codes & ID definitions from DSP0239 v1.11.1
-##############################################################################
+# Copyright 2024-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+MCTP Codes & ID definitions from DSP0239 v1.11.1
+
+File : dsp0239.py
+
+Brief : MCTP Codes & ID definitions from DSP0239 v1.11.1
+"""
 
 """ DSP0239 Table 1 - MCTP Message Types """
 MCTP_MESSAGE_TYPES = {

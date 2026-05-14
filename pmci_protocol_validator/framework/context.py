@@ -1,11 +1,14 @@
 # Copyright Notice:
 # Copyright 2024-2026 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Base class to represent the test framework context
-##############################################################################
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Test framework context
+
+File : context.py
+
+Brief : Base class to represent the test framework context
+"""
 
 from scapy.packet import Packet
 from pmci_protocol_validator.framework.medium import CommMedium

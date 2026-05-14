@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2023-2025 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Common library functions to support test cases.
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Common framework helper functions
+
+File : utilities.py
+
+Brief : Common library functions to support test cases.
+"""
 
 from scapy.packet import Packet, raw
 from pmci_protocol_validator.framework.medium import CommMedium

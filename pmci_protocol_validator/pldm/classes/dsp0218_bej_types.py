@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Contains the PLDM Type 6 (PLDM for Redfish) wrappers from DSP0218
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Redfish Device Enablement BEJ types
+
+File : dsp0218_bej_types.py
+
+Brief : Redfish Device Enablement (DSP0218) BEJ types
+"""
 
 from scapy.fields import *
 from scapy.packet import Packet

@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Initialization tests for PLDM Type 5 (PLDM Firmware Update) wrappers
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Verify PLDM Type 5 (PLDM Firmware Update) Scapy classes
+
+File : test_dsp0267.py
+
+Brief : Verify PLDM Type 5 (PLDM Firmware Update) Scapy classes
+"""
 
 import pytest
 from pmci_protocol_validator.pldm.classes.dsp0267 import *

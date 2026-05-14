@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Display PLDM Type 2 over NC-SI request and response packets.
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Display PLDM Type 2 over NC-SI request and response packets.
+
+File : print_dsp0248_over_dsp0222.py
+
+Brief : Display PLDM Type 2 over NC-SI request and response packets.
+"""
 
 import pytest
 import sys

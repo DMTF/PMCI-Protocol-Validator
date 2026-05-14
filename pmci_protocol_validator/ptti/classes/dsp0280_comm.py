@@ -1,11 +1,14 @@
 # Copyright Notice:
 # Copyright 2023-2026 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  DSP0280 communications binding.
-##############################################################################
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+DSP0280 communications binding
+
+File : dsp0280_comm.py
+
+Brief : Defines a socket based communications interface to DSP0280 Test Services.
+"""
 
 import socket
 import threading

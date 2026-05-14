@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  DSP0280 v1.1.0 implementation definitions.
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+DSP0280 v1.1.0 packet definitions
+
+File : dsp0280.py
+
+Brief : Defines Scapy classes for DSP0280 v1.1.0 requests and responses.
+"""
 
 from scapy.fields import *
 from scapy.packet import Packet

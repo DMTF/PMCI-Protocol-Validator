@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2023-2025 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Contains protocol class for MCTP over SMBus (DSP0237)
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Classes for MCTP over SMBus (DSP0237)
+
+File : dsp0237.py
+
+Brief : Contains protocol class for MCTP over SMBus (DSP0237)
+"""
 
 import struct
 from scapy.all import bind_layers

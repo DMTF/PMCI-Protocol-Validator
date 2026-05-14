@@ -1,11 +1,14 @@
 # Copyright Notice:
 # Copyright 2026 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Helper functions for DSP0280 functions.
-##############################################################################
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+DSP0280 helper functions
+
+File : lib_dsp0280.py.py
+
+Brief : Library of helper functions for DSP0280 transactions.
+"""
 
 from pmci_protocol_validator.framework.context import FwkContext
 from pmci_protocol_validator.framework.utilities import common_send_receive
@@ -282,7 +285,7 @@ def ptti_configure_device_under_test(fwk_ctx: FwkContext, connect_id: int, targe
     return False, 0, []
 
 
-def ptti_register_to_protocol_ex(fwk_ctx: FwkContext, connect_id: int, dut_id: int, protocol_type: int, types_list: list) -> tuple[int, Packet|None, Packet]:
+def ptti_register_to_protocol_ex(fwk_ctx: FwkContext, connect_id: int, dut_id: int, protocol_type: int, types_list: list[int]) -> tuple[int, Packet|None, Packet]:
 
     _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=connect_id) / RegisterToProtocol_Request()
 
@@ -307,7 +310,7 @@ def ptti_register_to_protocol(fwk_ctx: FwkContext, connect_id: int, dut_id: int,
             _recv_msg[RegisterToProtocol_Response].DUTConnectionID == dut_id
 
 
-def ptti_register_async_message_recipient_ex(fwk_ctx: FwkContext, connect_id: int, dut_id: int, protocol_type: int, types_list: list) -> tuple[int, Packet|None, Packet]:
+def ptti_register_async_message_recipient_ex(fwk_ctx: FwkContext, connect_id: int, dut_id: int, protocol_type: int, types_list: list[int]) -> tuple[int, Packet|None, Packet]:
 
     _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=connect_id) / RegisterAsyncMessageRecipient_Request()
 
@@ -356,3 +359,28 @@ def ptti_send_test_message(fwk_ctx: FwkContext, connect_id: int, max_wait_time: 
         return True, _recv_msg[TestMessage_Response].ElapsedTime, _recv_msg[TestMessage_Response].payload
 
     return False, 0, None
+
+
+def ptti_send_vendor_admin_msg_ex(fwk_ctx: FwkContext, connect_id: int, iana: int, payload: Packet) -> tuple[int, Packet|None, Packet]:
+
+    _send_msg = TestServiceWrapper(ProtocolType=0xF1, Direction=0, TestClientID=connect_id)
+    _send_msg = _send_msg / VendorDefinedAdmin_Request(IANA=iana)
+    _send_msg = _send_msg / payload
+
+    _error_code, _recv_msg = common_send_receive(fwk_ctx, _send_msg)
+    return _error_code, _recv_msg, _send_msg
+
+def ptti_send_vendor_admin_msg(fwk_ctx: FwkContext, connect_id: int, iana: int, payload: Packet) -> tuple[int, Packet|None]:
+
+    _error_code, _recv_msg, _ = ptti_send_vendor_admin_msg_ex(fwk_ctx, connect_id, iana, payload)
+
+    if _error_code == 0 and \
+            _recv_msg is not None and \
+            ptti_check_tsw(_recv_msg) is True and \
+            _recv_msg.haslayer(VendorDefinedAdmin_Response) is True and \
+            _recv_msg[VendorDefinedAdmin_Response].IANA == iana and \
+            _recv_msg[VendorDefinedAdmin_Response].ResponseCode == 0:
+
+        return True, _recv_msg[VendorDefinedAdmin_Response].payload
+
+    return False, None

@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2024 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Verify PLDM for File Tranfser classes
-##############################################################################
+# Copyright 2024-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Verify PLDM for File Tranfser Scapy classes
+
+File : test_dsp0242.py
+
+Brief : Verify PLDM for File Tranfser Scapy classes
+"""
 
 import pytest
 from pmci_protocol_validator.pldm.classes.dsp0242 import *

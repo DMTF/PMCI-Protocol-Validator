@@ -1,12 +1,15 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Contains all of the base NC-SI protocol functionality as well as the
-#  DMTF defined commands. OEM commands are in separate files.
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Scapy classes for DSP0222
+
+File : dsp0222.py
+
+Brief : Contains all of the base NC-SI protocol functionality as well as the
+DMTF defined commands. OEM commands are in separate files.
+"""
 
 import struct
 from scapy.all import *

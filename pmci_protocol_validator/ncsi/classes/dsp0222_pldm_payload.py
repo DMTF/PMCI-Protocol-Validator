@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  This is where PLDM over NC-SI specific commands and wrappers are implemented
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+PLDM over NC-SI specific Scapy classes
+
+File : dsp0222_pldm_payload.py
+
+Brief : PLDM over NC-SI specific Scapy classes and wrappers
+"""
 
 import struct
 from scapy.fields import *

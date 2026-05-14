@@ -1,11 +1,14 @@
 # Copyright Notice:
 # Copyright 2024-2026 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Class to represent PTTI test fixtures
-##############################################################################
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Class defining PTTI test framework context
+
+File : ptti_context.py
+
+Brief : Class defining PTTI test framework context.
+"""
 
 from scapy.packet import Packet
 from pmci_protocol_validator.framework.context import FwkContext

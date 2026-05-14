@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2024 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Initialization tests for PLDM Type 4 wrappers
-##############################################################################
+# Copyright 2024-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Verify PLDM Type 4 Scapy class definitions
+
+File : test_dsp0257.py
+
+Brief : Verify PLDM Type 4 Scapy class definitions
+"""
 
 import pytest
 from pmci_protocol_validator.pldm.classes.dsp0257 import *
