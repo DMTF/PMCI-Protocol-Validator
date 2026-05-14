@@ -117,7 +117,7 @@ def ptti_query_status_ping(fwk_ctx: FwkContext, connect_id: int) -> bool:
 
     return _error_code == 0 and \
             _recv_msg is not None and \
-            ptti_check_tsw(_recv_msg) is True and \
+            ptti_check_tsw(_recv_msg, connect_id) is True and \
             _recv_msg.haslayer(QueryStatus_Response) is True and \
             _recv_msg[QueryStatus_Response].CommandCode == QueryStatus_Response.CommandValue and \
             _recv_msg[QueryStatus_Response].ResponseCode == 0
