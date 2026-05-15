@@ -1,0 +1,46 @@
+name: Run with test service emulator
+description: Start the test service emulator, wait until it is ready, run a command, and stop the emulator.
+
+inputs:
+  command:
+    description: Command to run after the emulator is ready.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Run command with emulator
+      shell: bash
+      env:
+        COMMAND: ${{ inputs.command }}
+      run: |
+        set -euo pipefail
+
+        python pmci_protocol_validator/examples/test_service_emulator.py > tsw_emulator.log 2>&1 &
+        emulator_pid="$!"
+
+        cleanup() {
+          kill "${emulator_pid}" 2>/dev/null || true
+          wait "${emulator_pid}" 2>/dev/null || true
+        }
+        trap cleanup EXIT
+
+        python - <<'PY'
+        import socket
+        import time
+
+        deadline = time.monotonic() + 30
+        last_error = None
+
+        while time.monotonic() < deadline:
+            try:
+                with socket.create_connection(("localhost", 49155), timeout=1):
+                    break
+            except OSError as exc:
+                last_error = exc
+                time.sleep(0.5)
+        else:
+            raise SystemExit(f"Emulator did not become ready: {last_error}")
+        PY
+
+        bash -euo pipefail -c "${COMMAND}"

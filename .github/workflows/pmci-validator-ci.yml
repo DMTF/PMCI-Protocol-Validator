@@ -1,0 +1,125 @@
+name: PMCI-Protocol-Validator CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.x"
+  PYTHONPATH: ${{ github.workspace }}
+
+jobs:
+  example-client-1:
+    name: Example Client 1 Run
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python dependencies
+        uses: ./.github/actions/setup-ci-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Run example test client 1
+        uses: ./.github/actions/run-with-tsw-emulator
+        with:
+          command: python pmci_protocol_validator/examples/example_test_client.py | tee example-client-1.log
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: example-client-1-logs
+          path: |
+            tsw_emulator.log
+            example-client-1.log
+
+  example-client-2:
+    name: Example Client 2 Run
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python dependencies
+        uses: ./.github/actions/setup-ci-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Run example test client 2
+        uses: ./.github/actions/run-with-tsw-emulator
+        with:
+          command: |
+            python pmci_protocol_validator/examples/example_test_client2.py | tee example-client-2.log
+            grep -q "SUCCESS: All tests completed successfully" example-client-2.log
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: example-client-2-logs
+          path: |
+            tsw_emulator.log
+            example-client-2.log
+
+  class-checking-pytests:
+    name: Class Checking Pytests Run
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python dependencies
+        uses: ./.github/actions/setup-ci-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Run class checking pytests
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest -v pmci_protocol_validator/tests/class_checking | tee class-checking-pytest.log
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: class-checking-pytest-logs
+          path: |
+            class-checking-pytest.log
+
+  test-service-pytests:
+    name: Test Service Pytests Run
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python dependencies
+        uses: ./.github/actions/setup-ci-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Run service pytests
+        uses: ./.github/actions/run-with-tsw-emulator
+        with:
+          command: python -m pytest -v pmci_protocol_validator/tests --ignore=pmci_protocol_validator/tests/class_checking | tee test-service-pytest.log
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-service-pytest-logs
+          path: |
+            tsw_emulator.log
+            test-service-pytest.log
