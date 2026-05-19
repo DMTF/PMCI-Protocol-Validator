@@ -14,25 +14,23 @@ from scapy.packet import Packet
 from pmci_protocol_validator.framework.medium import CommMedium
 
 
-class FwkContext(object):
+class FwkContext:
     """ Test framework context base class """
 
     def __init__(self, comm_if: CommMedium, log_pkts: bool = False):
         """ Class constructor """
 
-        assert (comm_if is not None), "ERROR: comm_if parameter is required"
+        assert (isinstance(comm_if, CommMedium)), "Invalid type for comm_if"
 
         self.commObject: CommMedium = comm_if
         self.log_packets: bool = log_pkts
         return
 
-    def __del__(self):
-        """ Class destructor """
+    def close(self, close_comm_if: bool =False):
+        """ Close down test framework """
 
-        try:
+        if close_comm_if is True:
             self.commObject.close()
-        except:
-            pass
 
         return
 
