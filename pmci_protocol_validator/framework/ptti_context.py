@@ -27,5 +27,4 @@ class PTTI_Context(FwkContext):
         self.tcp_address = prm_tcp_addr
         self.tcp_port = prm_tcp_port
         self.test_client_id = 0
-        self._pldm_instance_id = 0
         return
