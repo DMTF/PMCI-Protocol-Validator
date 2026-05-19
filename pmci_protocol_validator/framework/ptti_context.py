@@ -30,12 +30,6 @@ class PTTI_Context(FwkContext):
         self._pldm_instance_id = 0
         return
 
-    def __del__(self):
-        """ c_PTTI_fixture class destructor """
-
-        super().__del__()
-        return
-
     def getNextInstanceID(self) -> int:
         """Return the next PLDM instance ID (wraps at 32)."""
 

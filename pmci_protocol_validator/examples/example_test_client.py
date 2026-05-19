@@ -323,7 +323,7 @@ def main():
         fixture.log_msg("ERROR: Disconnect(): " + str(exceptionInfo))
         return 15
 
-    fixture.commObject.close()
+    fixture.close(close_comm_if=True)
     return 0
 
 

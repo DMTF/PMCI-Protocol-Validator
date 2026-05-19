@@ -120,7 +120,7 @@ def main():
         if _rc == False:
             "ERROR: DISCONNECT failed."
 
-        fixture.commObject.close()
+        fixture.close(close_comm_if=True)
 
     return
 
