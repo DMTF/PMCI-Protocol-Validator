@@ -29,11 +29,3 @@ class PTTI_Context(FwkContext):
         self.test_client_id = 0
         self._pldm_instance_id = 0
         return
-
-    def getNextInstanceID(self) -> int:
-        """Return the next PLDM instance ID (wraps at 32)."""
-
-        # PLDM InstanceID is 5 bits.
-        instance_id = self._pldm_instance_id & 0x1F
-        self._pldm_instance_id = (self._pldm_instance_id + 1) & 0x1F
-        return instance_id
