@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Contains the PLDM Type 5 (PLDM for Firmware Update) wrappers from DSP 0267
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+PLDM Type 5 (DSP0267) classes
+
+File : xxx
+
+Brief : Scapy classes for PLDM Type 5 (PLDM for Firmware Update) (DSP0267)
+"""
 
 from scapy.fields import *
 from scapy.all import bind_layers, Packet

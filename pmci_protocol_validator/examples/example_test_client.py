@@ -1,11 +1,14 @@
 # Copyright Notice:
 # Copyright 2023-2026 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Example of a basic PTTI session.
-##############################################################################
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Example of a basic PTTI session.
+
+File : example_test_client.py
+
+Brief : Example of a basic PTTI session.
+"""
 
 import json
 
@@ -320,7 +323,7 @@ def main():
         fixture.log_msg("ERROR: Disconnect(): " + str(exceptionInfo))
         return 15
 
-    fixture.commObject.close()
+    fixture.close(close_comm_if=True)
     return 0
 
 

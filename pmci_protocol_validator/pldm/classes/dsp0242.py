@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2024 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Contains the PLDM Type 7 (PLDM for File Transfer) wrappers from DSP0242
-##############################################################################
+# Copyright 2024-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+PLDM Type 7 (PLDM for File Transfer) Scapy classes
+
+File : dsp0242.py
+
+Brief : PLDM Type 7 (PLDM for File Transfer) Scapy classes from DSP0242
+"""
 
 from scapy.fields import *
 from scapy.all import bind_layers, Packet

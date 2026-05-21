@@ -1,12 +1,14 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Contains the PDRs definition for PLDM Type 2 (PLDM for Platform Monitoring
-#  and Control)
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Scapy PDR definition for PLDM Type 2
+
+File : dsp0248_pdrs.py
+
+Brief : Scapy PDR class definitions for PLDM Type 2 (PLDM for Platform Monitoring and Control)
+"""
 
 from scapy.fields import *
 from scapy.packet import Packet

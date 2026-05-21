@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2023-2025 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Wrapper for MCTP Header based on DSP0236 and the MCTP Control commands
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Wrapper for MCTP Header based on DSP0236 and the MCTP Control commands
+
+File : dsp0236.py
+
+Brief : Wrapper for MCTP Header based on DSP0236 and the MCTP Control commands
+"""
 
 import struct
 from scapy.all import *

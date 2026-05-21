@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Additional NC-SI commands for DSP0222 v1.2.0 WIP
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Scapy classes for DSP0222 v1.2.0
+
+File : dsp0222_1_2_0.py
+
+Brief : Additional Scapy classes for NC-SI DSP0222 v1.2.0
+"""
 
 from scapy.all import *
 from scapy.fields import *

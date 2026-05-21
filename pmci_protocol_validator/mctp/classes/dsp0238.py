@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2023-2025 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Contains protocol classe for MCTP over PCIe VDM (DSP0238)
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Class for MCTP over PCIe VDM (DSP0238)
+
+File : dsp0238.py
+
+Brief : Contains protocol class for MCTP over PCIe VDM (DSP0238)
+"""
 
 import struct
 from scapy.all import bind_layers

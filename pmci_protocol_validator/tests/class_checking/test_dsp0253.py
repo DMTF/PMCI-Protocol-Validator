@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2025 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Verify DSP0253 classes
-########################################################
+# Copyright 2025-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Verify DSP0253 Scapy classes
+
+File : test_dsp0253.py
+
+Brief : Verify DSP0253 Scapy classes
+"""
 
 import pytest
 from scapy.fields import *

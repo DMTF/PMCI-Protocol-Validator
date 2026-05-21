@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Contains the PLDM Type 2 (PLDM for Platform Monitoring and Control) wrappers
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+PLDM Type 2 (PLDM for Platform Monitoring and Control) Scapy classes
+
+File : dsp0248.py
+
+Brief : PLDM Type 2 (PLDM for Platform Monitoring and Control) Scapy classes
+"""
 
 from scapy.fields import *
 from scapy.all import bind_layers

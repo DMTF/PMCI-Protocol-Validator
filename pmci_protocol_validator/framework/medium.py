@@ -1,11 +1,15 @@
 # Copyright Notice:
-# Copyright 2023-2025 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Base class defining a common communications interface object.
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Framework Communications interface
+
+File : medium.py
+
+Brief : Base class defining a common communications interface object for the
+test framework
+"""
 
 import time
 import queue

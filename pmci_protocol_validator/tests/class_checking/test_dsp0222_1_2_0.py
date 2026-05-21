@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2023 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Verify additional NC-SI definitions
-##############################################################################
+# Copyright 2023-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Verify additional NC-SI v1.2.0 Scapy class definitions
+
+File : test_dsp0222_1_2_0.py
+
+Brief : Verify additional NC-SI v1.2.0 Scapy class definitions
+"""
 
 import pytest
 from pmci_protocol_validator.ncsi.classes.dsp0222_1_2_0 import *

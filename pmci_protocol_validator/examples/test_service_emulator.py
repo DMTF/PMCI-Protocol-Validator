@@ -1,11 +1,14 @@
 # Copyright Notice:
 # Copyright 2024-2026 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Example DSP0280 Test Service.
-##############################################################################
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Example DSP0280 Test Service
+
+File : test_service_emulator.py
+
+Brief : Example DSP0280 Test Service.
+"""
 
 import socket
 from scapy.all import *
@@ -21,6 +24,7 @@ CONNECTION_PORT = 49155
 ERROR_OEM_INVALID_PARAMETER = 0xF0
 ERROR_OEM_UNSUPPORTED = 0xF1
 
+DMTF_VENDOR_ID = 0x1AB4
 
 class TestServiceBase():
     """
@@ -134,9 +138,11 @@ class TestServiceBase():
 
         capabilities = [
             # Maximum Watchdog timeout in seconds
-            TestServiceCapabilityEntry(CapabilityID=1, CapabilityValue=0),
+            TestServiceCapabilityEntry(CapabilityID=1, CapabilityValue=60),
             # Current Watchdog timeout in seconds
-            TestServiceCapabilityEntry(CapabilityID=2, CapabilityValue=0)
+            TestServiceCapabilityEntry(CapabilityID=2, CapabilityValue=60),
+            # Maximum Transfer Size
+            TestServiceCapabilityEntry(CapabilityID=3, CapabilityValue=1500)
         ]
 
         response = QueryCapabilities_Response()
@@ -228,7 +234,7 @@ class TestServiceBase():
 
         response = VendorDefinedAdmin_Response()
         response.IANA = request.IANA
-        response.ResponseCode = ERROR_OEM_UNSUPPORTED
+        response.ResponseCode = ERROR_OEM_UNSUPPORTED if request.IANA != DMTF_VENDOR_ID else 0
         return response
 
     def proccess_test_message(self, protocol_type, request):

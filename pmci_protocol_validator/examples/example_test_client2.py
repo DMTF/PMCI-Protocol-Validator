@@ -1,11 +1,14 @@
 # Copyright Notice:
 # Copyright 2023-2026 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Example PTTI test session demonstrating the use of library helper functions.
-##############################################################################
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Example PTTI test session demonstrating the use of library helper functions.
+
+File : example_test_client2.py
+
+Brief : Example PTTI test session demonstrating the use of library helper functions.
+"""
 
 import json
 
@@ -117,7 +120,7 @@ def main():
         if _rc == False:
             "ERROR: DISCONNECT failed."
 
-        fixture.commObject.close()
+        fixture.close(close_comm_if=True)
 
     return
 

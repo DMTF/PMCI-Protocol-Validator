@@ -1,7 +1,14 @@
 # Copyright Notice:
 # Copyright 2026 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Test cases for DSP0280 protocol
+
+File : test_ptti_admin_commands.py
+
+Brief : Test cases for DSP0280 protocol
+"""
 
 import json
 import pytest
@@ -103,16 +110,19 @@ def test_ptti_query_capabilities(setup, context):
     assert (_recv_msg[QueryCapabilities_Response].NumberOfCapabilitiesFields ==
             len(_recv_msg[QueryCapabilities_Response].TestServiceCapabilities))
 
+    ### TODO parameterze????
+
+    _expected_capabilities = [1, 2, 3]
+
     for _capability in _recv_msg[QueryCapabilities_Response].TestServiceCapabilities:
-        assert (_capability.CapabilityID > 0)
+        assert (_capability.CapabilityID in _expected_capabilities)
 
     return
 
 
 def test_ptti_query_status_ping(setup, context):
 
-    _query_type = 0
-    _error_code, _recv_msg, _send_msg = ptti_query_status_ex(context, context.test_client_id, _query_type)
+    _error_code, _recv_msg, _send_msg = ptti_query_status_ex(context, context.test_client_id, 0)
 
     assert (_error_code == 0), f"Comm Error {_error_code}"
     assert (_recv_msg is not None)
@@ -120,9 +130,27 @@ def test_ptti_query_status_ping(setup, context):
     assert (_recv_msg.haslayer(QueryStatus_Response) is True)
     assert (_recv_msg[QueryStatus_Response].CommandCode == QueryStatus_Response.CommandValue)
     assert (_recv_msg[QueryStatus_Response].ResponseCode == 0)
-    assert (_recv_msg[QueryStatus_Response].QueryType == _query_type)
+    assert (_recv_msg[QueryStatus_Response].QueryType == 0)
     assert (_recv_msg[QueryStatus_Response].QueryResponseDataLength == 0)
 
+    return
+
+
+def test_query_status_device_list(setup, context):
+
+    _error_code, _recv_msg, _send_msg = ptti_query_status_ex(context, context.test_client_id, 1)
+
+    assert (_error_code == 0), f"Comm Error {_error_code}"
+    assert (_recv_msg is not None)
+    assert (ptti_check_tsw(_recv_msg) is True)
+    assert (_recv_msg.haslayer(QueryStatus_Response) is True)
+    assert (_recv_msg[QueryStatus_Response].CommandCode == QueryStatus_Response.CommandValue)
+    assert (_recv_msg[QueryStatus_Response].ResponseCode == 0)
+    assert (_recv_msg[QueryStatus_Response].QueryType == 1)
+
+    ### TODO Process QueryStatusDeviceData[]
+
+###    assert (_recv_msg[QueryStatus_Response].QueryResponseDataLength == 0)
     return
 
 
@@ -193,4 +221,93 @@ def test_ptti_query_partial_system_inventory(setup, context):
     assert (_system_inventory_json["ControlPlane"]["Interfaces"])
     assert (_system_inventory_json["Devices"])
 
+    return
+
+
+@pytest.mark.parametrize("expected_result, capabilities", [
+    (0, []),
+    (0, [(1, 90)])
+])
+
+def test_configure_test_service(setup, context, expected_result, capabilities):
+
+    ### TODO Build proper capabilities list
+
+    _error_code, _recv_msg, _send_msg = ptti_configure_test_service_ex(context, context.test_client_id, capabilities)
+
+    assert (_error_code == 0), f"Comm Error {_error_code}"
+    assert (_recv_msg is not None)
+    assert (ptti_check_tsw(_recv_msg) is True)
+    assert (_recv_msg.haslayer(ConfigureTestService_Response) is True)
+    assert (_recv_msg[ConfigureTestService_Response].CommandCode == ConfigureTestService_Response.CommandValue)
+    assert (_recv_msg[ConfigureTestService_Response].ResponseCode == expected_result)
+
+    if _recv_msg[ConfigureTestService_Response].ResponseCode == 0:
+
+        ### TODO Read back value
+        pass
+
+    return
+
+
+@pytest.mark.parametrize("expected_result, dut_id, protocol_type, types_list",[
+    (0, 10, 0, [])
+])
+
+def test_register_to_protocol(setup, context, expected_result, dut_id, protocol_type, types_list):
+    """
+    NOTE: DSP0280 has deprecated this command. This test case is present for completeness.
+    """
+
+    _error_code, _recv_msg, _send_msg = ptti_register_to_protocol_ex(context, context.test_client_id, dut_id, protocol_type, types_list)
+
+    assert (_error_code == 0), f"Comm Error {_error_code}"
+    assert (_recv_msg is not None)
+    assert (ptti_check_tsw(_recv_msg) is True)
+    assert (_recv_msg.haslayer(RegisterToProtocol_Response) is True)
+    assert (_recv_msg[RegisterToProtocol_Response].CommandCode == RegisterToProtocol_Response.CommandValue)
+    assert (_recv_msg[RegisterToProtocol_Response].ResponseCode == expected_result)
+
+    assert (_recv_msg[RegisterToProtocol_Response].DUTConnectionID == dut_id)
+    return
+
+
+@pytest.mark.parametrize("expected_result, dut_id, protocol_type, types_list",[
+    (0, 10, 2, [])
+])
+
+def test_register_async_message_recipient(setup, context, expected_result, dut_id, protocol_type, types_list):
+    """
+    NOTE: DSP0280 has deprecated the TypeCount and TypesList parameters. They are ingored by the Test Service.
+    """
+
+    _error_code, _recv_msg, _send_msg = ptti_register_async_message_recipient_ex(context, context.test_client_id, dut_id, protocol_type, types_list)
+
+    assert (_error_code == 0), f"Comm Error {_error_code}"
+    assert (_recv_msg is not None)
+    assert (ptti_check_tsw(_recv_msg) is True)
+    assert (_recv_msg.haslayer(RegisterAsyncMessageRecipient_Response) is True)
+    assert (_recv_msg[RegisterAsyncMessageRecipient_Response].CommandCode == RegisterAsyncMessageRecipient_Response.CommandValue)
+    assert (_recv_msg[RegisterAsyncMessageRecipient_Response].ResponseCode == expected_result)
+
+    assert (_recv_msg[RegisterAsyncMessageRecipient_Response].DUTConnectionID == dut_id)
+    return
+
+
+@pytest.mark.parametrize("expected_result, iana, payload", [
+    (0x00, 0x1AB4, b''),
+    (0xF1, 0x0001, b'\x00\x00')
+    ])
+
+def test_send_vendor_admin_msg(setup, context, expected_result, iana, payload):
+
+    _error_code, _recv_msg, _send_msg = ptti_send_vendor_admin_msg_ex(context, context.test_client_id, iana, Packet(payload))
+
+    assert (_error_code == 0), f"Comm Error {_error_code}"
+    assert (_recv_msg is not None)
+    assert (ptti_check_tsw(_recv_msg) is True)
+    assert (_recv_msg.haslayer(VendorDefinedAdmin_Response) is True)
+
+    assert (_recv_msg[VendorDefinedAdmin_Response].IANA == iana)
+    assert (_recv_msg[VendorDefinedAdmin_Response].ResponseCode == expected_result)
     return

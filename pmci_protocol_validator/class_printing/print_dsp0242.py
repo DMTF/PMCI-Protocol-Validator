@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2024 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Display the default PLDM Type 7 request and response packets.
-##############################################################################
+# Copyright 2024-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+Display the default PLDM Type 7 request and response packets.
+
+File : print_dsp0242.py
+
+Brief : Display the default PLDM Type 7 request and response packets.
+"""
 
 import sys
 import binascii

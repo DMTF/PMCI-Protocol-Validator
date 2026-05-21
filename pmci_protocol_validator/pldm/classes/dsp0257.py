@@ -1,11 +1,14 @@
 # Copyright Notice:
-# Copyright 2024 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link:
-#   https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
-##############################################################################
-#  File Abstract:
-#  Contains the PLDM Type 4 (PLDM for FRU) wrappers from DSP 0257
-##############################################################################
+# Copyright 2024-2026 DMTF. All rights reserved.
+# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+
+"""
+ PLDM Type 4 (DSP0257) Scapy classes
+
+File : dsp0257.py
+
+Brief : DSP0257 PLDM Type 4 (PLDM for FRU) Scapy classes
+"""
 
 from scapy.fields import *
 from scapy.all import bind_layers, Packet
