@@ -126,7 +126,7 @@ class PLDM_TYPE_2_PAYLOAD(PLDM_PAYLOAD):
 
     LogClearingPolicy = {0: "fillAndStop", 1: "FIFO", 2: "clearOnAge"}
 
-    # DSP0218, Table 3
+    # DSP0218
     schemaClass = {
         0: "MAJOR",
         1: "EVENT",
@@ -244,7 +244,7 @@ class GetEventReceiver_Response(PLDM_TYPE_2_PAYLOAD):
 
 
 class SensorOpState(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 19"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "SensorOpState"
     fields_desc = [
@@ -261,7 +261,7 @@ class SensorOpState(Packet):
 
 
 class StateSensorState(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 19"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "StateSensorState"
     fields_desc = [
@@ -275,7 +275,7 @@ class StateSensorState(Packet):
 
 
 class NumericSensorState(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 19"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "NumericSensorState"
     fields_desc = [
@@ -306,7 +306,7 @@ class NumericSensorState(Packet):
 
 
 class SensorEventData(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 19"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "SensorEventData"
     fields_desc = [
@@ -344,7 +344,7 @@ class SensorEventData(Packet):
 
 
 class EffecterOpState(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 20"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "EffecterOpState"
     fields_desc = [
@@ -361,7 +361,7 @@ class EffecterOpState(Packet):
 
 
 class EffecterEventData(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 20"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "EffecterEventData"
 
@@ -388,7 +388,7 @@ class EffecterEventData(Packet):
 
 
 class RedfishTaskExecutedEventData(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 21"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "RedfishTaskExecutedEventData"
     fields_desc = [
@@ -401,7 +401,7 @@ class RedfishTaskExecutedEventData(Packet):
 
 
 class PldmMessagePollEventData(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 25"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "PldmMessagePollEventData"
     fields_desc = [
@@ -415,7 +415,7 @@ class PldmMessagePollEventData(Packet):
 
 
 class HeartbeatTimerElapsedEventData(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 26"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "HeartbeatTimerElapsedEventData"
     fields_desc = [
@@ -461,7 +461,7 @@ class RedfishMessageEventDataResources(Packet):
 
 
 class RedfishMessageEventData(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 22"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "RedfishMessageEventData"
     fields_desc = [
@@ -481,7 +481,7 @@ class RedfishMessageEventData(Packet):
 
 
 class ChangeRecord(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 24"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "ChangeRecord"
     fields_desc = [
@@ -509,7 +509,7 @@ class ChangeRecord(Packet):
 
 
 class PldmPDRRepositoryChgEventData(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 23"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "PldmPDRRepositoryChgEventData"
     fields_desc = [
@@ -1314,7 +1314,7 @@ class InitNumericSensor_Request(PLDM_TYPE_2_PAYLOAD):
         XByteField(
             "SetNumericReading", 0x00
         )   # True directs receiver to accept the following numericReadingSetting
-            # numericReadingSetting[] (DSP0248 - Table 36)
+            # numericReadingSetting[] (DSP0248)
     ]
 
 
@@ -1331,7 +1331,7 @@ class InitNumericSensor_Response(PLDM_TYPE_2_PAYLOAD):
 ### State Sensor commands ###
 
 class SetStateSensorField(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 39"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Set State Sensor Operational Field"
 
@@ -1407,7 +1407,7 @@ class GetStateSensorReadings_Request(PLDM_TYPE_2_PAYLOAD):
 
 
 class GetStateSensorField(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 41"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Get State Sensor Reading Field"
 
@@ -1451,7 +1451,7 @@ class GetStateSensorReadings_Response(PLDM_TYPE_2_PAYLOAD):
 
 
 class InitStateSensorField(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 43"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Init State Sensor Operational Field"
 
@@ -1648,7 +1648,7 @@ class GetNumericEffecterValue_Response(PLDM_TYPE_2_PAYLOAD):
 
 
 class SetStateEffecterField(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 49"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Init State Sensor Operational Field"
 
@@ -1895,7 +1895,7 @@ class FindPDR_Request(PLDM_TYPE_2_PAYLOAD):
         ),
         XLEShortField("RequestCount", 0x0000),
         XLEShortField("PDRType", 0x0000),  # 0x0000 = match any PDRType
-        XByteField("ParameterFormatNumber", 0x00),  # Table 71 DSP0248
+        XByteField("ParameterFormatNumber", 0x00),  # DSP0248
         BitEnumField("Wildcard_8", 0, 1, PLDM_TYPE_2_PAYLOAD.wildcards_enum),
         BitEnumField("Wildcard_7", 0, 1, PLDM_TYPE_2_PAYLOAD.wildcards_enum),
         BitEnumField("Wildcard_6", 0, 1, PLDM_TYPE_2_PAYLOAD.wildcards_enum),

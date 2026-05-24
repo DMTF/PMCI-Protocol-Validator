@@ -21,11 +21,11 @@ from pmci_protocol_validator.pldm.classes.dsp0240_base import (
 
 DSP0257_COMPLIANCE_VERSION = int.from_bytes([1, 0, 0, 0], 'big')
 
-# [DSP0257] Table 4 – FRU Record Type Definitions
+# [DSP0257] – FRU Record Type Definitions
 RECORD_TYPE_GENERAL_FRU_RECORD = 1
 RECORD_TYPE_OEM_FRU_RECORD = 254
 
-# [DSP0257] Table 5 – General FRU Record Field Type Definitions
+# [DSP0257] – General FRU Record Field Type Definitions
 GENERAL_FIELD_TYPE_RESERVED = 0
 GENERAL_FIELD_TYPE_CHASSIS_TYPE = 1
 GENERAL_FIELD_TYPE_MODEL = 2
@@ -43,7 +43,7 @@ GENERAL_FIELD_TYPE_ENGINEERING_CHANGE_LEVEL = 13
 GENERAL_FIELD_TYPE_OTHER_INFORMATION = 14
 GENERAL_FIELD_TYPE_VENDOR_IANA = 15
 
-# [DSP0257] Table 6 – OEM FRU Record Field Type Definitions
+# [DSP0257] – OEM FRU Record Field Type Definitions
 OEM_FRU_RECORD_VENDOR_IANA = 1
 
 
@@ -62,7 +62,7 @@ class FRU_Field(Packet):
 
 
 class FRU_Record(Packet):
-    """ [DSP0257] Table 2 - PLDM FRU Record Data Format """
+    """ [DSP0257] - PLDM FRU Record Data Format """
 
     fields_desc = [
         ShortField("FRURecordSetIdentifier", 0),
@@ -97,14 +97,14 @@ class PLDM_TYPE_4_PAYLOAD(PLDM_PAYLOAD):
 
 
 class GetFRUTableMetadata_Request(PLDM_TYPE_4_PAYLOAD):
-    """ [DSP0257] Table 9 - GetFRUTableMetadata Request """
+    """ [DSP0257] - GetFRUTableMetadata Request """
 
     name = "GetFRUTableMetadata Request"
     CommandValue = 0x01
 
 
 class GetFRUTableMetadata_Response(PLDM_TYPE_4_PAYLOAD):
-    """ [DSP0257] Table 9 - GetFRUTableMetadata Response """
+    """ [DSP0257] - GetFRUTableMetadata Response """
 
     name = "GetFRUTableMetadata Response"
     CommandValue = GetFRUTableMetadata_Request.CommandValue

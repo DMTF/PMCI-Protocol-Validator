@@ -10,7 +10,7 @@ File : dsp0239.py
 Brief : MCTP Codes & ID definitions from DSP0239 v1.11.1
 """
 
-""" DSP0239 Table 1 - MCTP Message Types """
+""" DSP0239 MCTP Message Types """
 MCTP_MESSAGE_TYPES = {
     0x00: "MCTP Control",
     0x01: "Platform Level Data Model (PLDM)",
@@ -27,7 +27,7 @@ MCTP_MESSAGE_TYPES = {
     0x7F: "Vendor Defined - IANA"
 }
 
-""" DSP0239 Table 2 - MCTP Physical Medium Identifiers """
+""" DSP0239 MCTP Physical Medium Identifiers """
 MCTP_PHYSICAL_MEDIUM_IDS = {
     0x00: "Unspecified",
     0x01: "SMBus 2.0 100 kHz compatible",
@@ -61,7 +61,7 @@ MCTP_PHYSICAL_MEDIUM_IDS = {
     # All other values are reserved
 }
 
-""" Table 3 - MCTP Physical Transport Binding Identifiers """
+""" DSP0239 MCTP Physical Transport Binding Identifiers """
 MCTP_PHYSICAL_TRANPORT_IDS = {
     0x01: "MCTP over SMBus (DSP0237)",
     0x02: "MCTP over PCIe VDM (DSP0238)",

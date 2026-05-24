@@ -33,7 +33,6 @@ class PLDM_TYPE_6_PAYLOAD(PLDM_PAYLOAD):
     PldmPayloadType = 0x06
 
 
-# DSP0218, Table 3
 schemaClass = {
     0: "MAJOR",
     1: "EVENT",
@@ -98,8 +97,6 @@ class BejTupleF(Packet):
 
 
 class nnint_encoding(Packet):
-    """DSP0218, Table 4"""
-
     name = "nnint"
 
     fields_desc = [
@@ -117,8 +114,6 @@ class nnint_encoding(Packet):
 
 
 class bejLocator(Packet):
-    """DSP0218, Table 4"""
-
     name = "bejLocator"
     fields_desc = [
         PacketField("Format", nnint_encoding(), nnint_encoding)

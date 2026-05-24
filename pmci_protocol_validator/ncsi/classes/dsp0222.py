@@ -198,7 +198,6 @@ class NcsiReversePadField(ReversePadField):
         return s + struct.pack("%is" % (self.padlen(len(s), pkt)), self._padwith) + sval
 
 
-# DSP0222 - Table 10
 class NCSI_HEADER(Packet):
     """The NC-SI Header layer definition"""
 
@@ -341,7 +340,6 @@ class NCSI_PAYLOAD(Packet):
 
 """ ------------------- NC-SI Commands ------------------- """
 
-# DSP0222 - Table 25
 class ClearInitialState_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Clear Initial State Request"""
 
@@ -353,7 +351,6 @@ class ClearInitialState_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 26
 class ClearInitialState_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Clear Initial State Response"""
 
@@ -367,7 +364,6 @@ class ClearInitialState_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 27
 class SelectPackage_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Select Package Request"""
 
@@ -384,7 +380,6 @@ class SelectPackage_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 28
 class SelectPackage_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Select Package Response"""
 
@@ -398,7 +393,6 @@ class SelectPackage_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 30
 class DeselectPackage_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Deselect Package Request"""
 
@@ -410,7 +404,6 @@ class DeselectPackage_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 31
 class DeselectPackage_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Deselect Package Response"""
 
@@ -424,7 +417,6 @@ class DeselectPackage_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  32
 class EnableChannel_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Enable Channel Request"""
 
@@ -436,7 +428,6 @@ class EnableChannel_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 33
 class EnableChannel_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Enable Channel Response"""
 
@@ -450,7 +441,6 @@ class EnableChannel_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 34
 class DisableChannel_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Disable Channel Request"""
 
@@ -465,7 +455,6 @@ class DisableChannel_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 35
 class DisableChannel_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Disable Channel Response"""
 
@@ -479,7 +468,6 @@ class DisableChannel_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 37
 class ResetChannel_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Reset Channel Request"""
 
@@ -493,7 +481,6 @@ class ResetChannel_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 37
 class ResetChannel_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Reset Channel Response"""
 
@@ -507,7 +494,6 @@ class ResetChannel_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 38
 class EnableChannelNetworkTx_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Enable Channel Network TX Request"""
 
@@ -519,7 +505,6 @@ class EnableChannelNetworkTx_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 39
 class EnableChannelNetworkTx_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Enable Channel Network TX Response"""
 
@@ -533,7 +518,6 @@ class EnableChannelNetworkTx_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 40
 class DisableChannelNetworkTx_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Disable Channel Network TX Request"""
 
@@ -545,7 +529,6 @@ class DisableChannelNetworkTx_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 41
 class DisableChannelNetworkTx_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Disable Channel Network TX Response"""
 
@@ -559,7 +542,6 @@ class DisableChannelNetworkTx_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 42
 class AenEnable_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 AEN Enable Request"""
 
@@ -595,7 +577,6 @@ class AenEnable_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 44
 class AenEnable_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 AEN Enable Response"""
 
@@ -609,7 +590,6 @@ class AenEnable_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 45
 class SetLink_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Set Link Request"""
 
@@ -663,7 +643,6 @@ class SetLink_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 48
 class SetLink_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Set Link Response"""
 
@@ -681,7 +660,6 @@ class SetLink_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 50
 class GetLinkStatus_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get Link Status Request"""
 
@@ -693,7 +671,6 @@ class GetLinkStatus_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 51
 class GetLinkStatus_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get Link Status Response"""
 
@@ -821,7 +798,6 @@ class GetLinkStatus_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 57
 class SetVlanFilter_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Set VLAN Filter Request"""
 
@@ -845,7 +821,6 @@ class SetVlanFilter_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 60
 class SetVlanFilter_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Set VLAN Filter Response"""
 
@@ -866,7 +841,6 @@ class SetVlanFilter_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 62
 class EnableVlan_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Enable VLAN Request"""
 
@@ -890,7 +864,6 @@ class EnableVlan_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 64
 class EnableVlan_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Enable VLAN Response"""
 
@@ -904,7 +877,6 @@ class EnableVlan_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 65
 class DisableVlan_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 DisableVLAN Request"""
 
@@ -916,7 +888,6 @@ class DisableVlan_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 66
 class DisableVlan_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Disable VLAN Response"""
 
@@ -930,7 +901,6 @@ class DisableVlan_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 17
 class AEN(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Asynchronous Event Notification"""
 
@@ -946,7 +916,6 @@ class AEN(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 67
 class SetMACAddress_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Set MAC Address Request"""
 
@@ -978,7 +947,6 @@ class SetMACAddress_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 71
 class SetMACAddress_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Set MAC Address Response"""
 
@@ -999,7 +967,6 @@ class SetMACAddress_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 73
 class EnableBroadcastFilter_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Enable Broadcast Filter Request"""
 
@@ -1025,7 +992,6 @@ class EnableBroadcastFilter_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 75
 class EnableBroadcastFilter_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Enable Broadcast Filter Response"""
 
@@ -1039,7 +1005,6 @@ class EnableBroadcastFilter_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 87
 class GetVersionID_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get Version ID Request"""
 
@@ -1051,7 +1016,6 @@ class GetVersionID_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 88
 class GetVersionID_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get Version ID Response"""
 
@@ -1107,7 +1071,6 @@ class GetVersionID_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 89
 class GetCapabilities_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get Capabilities Request"""
 
@@ -1119,7 +1082,6 @@ class GetCapabilities_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 90
 class GetCapabilities_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get Capabilities Response"""
 
@@ -1234,7 +1196,6 @@ class GetCapabilities_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 93
 class GetParameters_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get Parameters Request"""
 
@@ -1259,7 +1220,6 @@ class VLANTags(Packet):
         return "", s
 
 
-# DSP0222 -  Table 94
 class GetParameters_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get Parameters Response"""
 
@@ -1270,11 +1230,11 @@ class GetParameters_Response(NCSI_PAYLOAD):
         fields_desc = [
             XByteField("MACAddressCount", 0x00),
             XShortField("Reserved_1", 0x0000),
-            BitField("MACAddressFlags", 0, 8),  # Table 91 DSP0222
+            BitField("MACAddressFlags", 0, 8),
 
             XByteField("VLANTagCount", 0x00),
             XByteField("Reserved_2", 0x00),
-            BitField("VLANTagFlags", 0, 16),    # Table 92 DSP0222
+            BitField("VLANTagFlags", 0, 16),
 
             # Link Settings
 
@@ -1378,7 +1338,7 @@ class GetParameters_Response(NCSI_PAYLOAD):
 
             PacketListField(
                 "VlanTagsFields",
-                VLANTags(),
+                None,
                 VLANTags,
                 count_from=lambda pkt: pkt.VLANTagCount,
             )
@@ -1400,7 +1360,6 @@ class GetParameters_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 99
 class GetControllerPacketStatistics_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get Controller Packet Statistics Request"""
 
@@ -1412,7 +1371,6 @@ class GetControllerPacketStatistics_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 100
 class GetControllerPacketStatistics_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get Controller Packet Statistics Response"""
 
@@ -1479,7 +1437,6 @@ class GetControllerPacketStatistics_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 103
 class GetNCSIStatistics_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get NC-SI Statistics Request"""
 
@@ -1491,7 +1448,6 @@ class GetNCSIStatistics_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 104
 class GetNCSIStatistics_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get NC-SI Statistics Response"""
 
@@ -1523,7 +1479,6 @@ class GetNCSIStatistics_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 276
 class PendingPLDMRequestAEN_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Pending PLDM Request AEN Request"""
 
@@ -1538,7 +1493,6 @@ class PendingPLDMRequestAEN_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 76
 class DisableBroadcastFilter_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Disable Broadcast Filter Request"""
 
@@ -1550,7 +1504,6 @@ class DisableBroadcastFilter_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 77
 class DisableBroadcastFilter_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Disable Broadcast Filter Response"""
 
@@ -1564,7 +1517,6 @@ class DisableBroadcastFilter_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 78
 class EnableGlobalMulticastFilter_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Enable Global Multicast Filter Request"""
 
@@ -1592,7 +1544,6 @@ class EnableGlobalMulticastFilter_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 80
 class EnableGlobalMulticastFilter_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Enable Global Multicast Filter Response"""
 
@@ -1606,7 +1557,6 @@ class EnableGlobalMulticastFilter_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 81
 class DisableGlobalMulticastFilter_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Disable Global Multicast Filter Request"""
 
@@ -1618,7 +1568,6 @@ class DisableGlobalMulticastFilter_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 82
 class DisableGlobalMulticastFilter_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Disable Global Multicast Filter Response"""
 
@@ -1632,7 +1581,6 @@ class DisableGlobalMulticastFilter_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 83
 class SetNCSIFlowControl_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Set NC-SI Flow Control Request"""
 
@@ -1656,7 +1604,6 @@ class SetNCSIFlowControl_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 85
 class SetNCSIFlowControl_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Set NC-SI Flow Control Response"""
 
@@ -1677,7 +1624,6 @@ class SetNCSIFlowControl_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 106
 class GetNCSIPassthroughStatistics_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get NC-SI Pass-through Statistics Request"""
 
@@ -1689,7 +1635,6 @@ class GetNCSIPassthroughStatistics_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 107
 class GetNCSIPassthroughStatistics_Response(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get NC-SI Pass-through Statistics Response"""
 
@@ -1730,7 +1675,6 @@ class GetNCSIPassthroughStatistics_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 108
 class GetPackageStatus_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Get Package Status Request"""
 
@@ -1742,7 +1686,6 @@ class GetPackageStatus_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 110
 class GetPackageStatus_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Package Status Response"""
 

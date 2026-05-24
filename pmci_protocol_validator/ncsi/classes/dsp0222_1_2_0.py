@@ -17,7 +17,7 @@ from scapy.packet import Packet
 from pmci_protocol_validator.ncsi.classes.dsp0222_enums import *
 from pmci_protocol_validator.ncsi.classes.dsp0222 import *
 
-# DSP0222 - Table 260
+
 class NCSI_UUID(Packet):
     """This is the NC-SI format, per DSP0222"""
 
@@ -41,7 +41,6 @@ class NCSI_UUID(Packet):
         )  # this has no padding, but may have something following it (like an array of things, so override behavior)
 
 
-# DSP0222 - Table 111
 class GetNcCapabilitiesSettings_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get NC Capabilities and Settings Request"""
 
@@ -53,7 +52,6 @@ class GetNcCapabilitiesSettings_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 112
 class GetNcCapabilitiesSettings_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get NC Capabilities and Settings Response"""
 
@@ -127,7 +125,6 @@ class GetNcCapabilitiesSettings_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 116
 class SetNcConfiguration_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set NC Configuration Request"""
 
@@ -143,7 +140,6 @@ class SetNcConfiguration_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 117
 class SetNcConfiguration_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set NC Configuration Response"""
 
@@ -157,7 +153,6 @@ class SetNcConfiguration_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 118
 class GetPfAssignment_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get PF Assignment Request"""
 
@@ -169,7 +164,6 @@ class GetPfAssignment_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 119
 class GetPfAssignment_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get PF Assignment Response"""
 
@@ -186,7 +180,6 @@ class GetPfAssignment_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 127
 class SetPfAssignment_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set PF Assignment Request"""
 
@@ -201,7 +194,6 @@ class SetPfAssignment_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 128
 class SetPfAssignment_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set PF Assignment Response"""
 
@@ -215,7 +207,6 @@ class SetPfAssignment_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 129
 class GetChannelConfiguration_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Channel Configuration Request"""
 
@@ -240,7 +231,6 @@ class ChannelConfigurationEntry(Packet):
         return ("", s)
 
 
-# DSP0222 v1.2.0 - Table 130
 class GetChannelConfiguration_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Channel Configuration Response"""
 
@@ -325,7 +315,6 @@ class GetChannelConfiguration_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 129
 class SetChannelConfiguration_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set Channel Configuration Request"""
 
@@ -354,7 +343,6 @@ class SetChannelConfiguration_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 130
 class SetChannelConfiguration_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set Channel Configuration Response"""
 
@@ -368,7 +356,6 @@ class SetChannelConfiguration_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 136
 class GetPartitionConfiguration_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Partition Configuration Request"""
 
@@ -382,9 +369,8 @@ class GetPartitionConfiguration_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 141
 class AddressTlvEntry(Packet):
-    """Table 141 - Address Type-Length-Value Field Bit Definitions"""
+    """Address Type-Length-Value Field Bit Definitions"""
 
     fields_desc = [
         FieldLenField(
@@ -423,7 +409,6 @@ class AddressTlvEntry(Packet):
         return ("", s)
 
 
-# DSP0222 v1.2.0 - Table 137
 class GetPartitionConfiguration_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Partition Configuration Response"""
 
@@ -662,7 +647,6 @@ class GetPartitionConfiguration_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 142
 class SetPartitionConfiguration_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set Partition Configuration Request"""
 
@@ -754,7 +738,6 @@ class SetPartitionConfiguration_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 146
 class SetPartitionConfiguration_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set Partition Configuration Response"""
 
@@ -769,7 +752,7 @@ class SetPartitionConfiguration_Response(NCSI_PAYLOAD):
 
 
 class BootProtocolTlvPXE(Packet):
-    """DSP0222 v1.2.0 - Table 151"""
+    """DSP0222 v1.2.0 Boot Protocol TLV PXE"""
 
     fields_desc = [
         XByteEnumField(
@@ -798,7 +781,7 @@ class BootProtocolTlvPXE(Packet):
 
 
 class BootProtocolTlvFC(Packet):
-    """DSP0222 v1.2.0 - Table 152"""
+    """DSP0222 v1.2.0 Boot Protocol TLV FC"""
 
     fields_desc = [
         XByteEnumField(
@@ -842,7 +825,7 @@ class BootProtocolTlvFC(Packet):
 
 
 class BootProtocolTlvFCoE(Packet):
-    """DSP0222 v1.2.0 - Table 153"""
+    """DSP0222 v1.2.0 Boot Protocol TLV FCoE"""
 
     fields_desc = [
         XByteEnumField(
@@ -874,7 +857,7 @@ class BootProtocolTlvFCoE(Packet):
 
 
 class BootProtocolTlvISCSI(Packet):
-    """DSP0222 v1.2.0 - Table 154"""
+    """DSP0222 v1.2.0 Boot Protocol TLV ISCSI"""
 
     fields_desc = [
         XByteEnumField(
@@ -929,7 +912,7 @@ class BootProtocolTlvISCSI(Packet):
 
 
 class BootProtocolTlvNVMeoFC(Packet):
-    """DSP0222 v1.2.0 - Table 155"""
+    """DSP0222 v1.2.0 Boot Protocol TLV NVMeoFC"""
 
     fields_desc = [
         XByteEnumField(
@@ -1035,7 +1018,6 @@ class BootProtocolTlvGeneric(Packet):
         return ("", s)
 
 
-# DSP0222 v1.2.0 - Table 147
 class GetBootConfig_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Boot Config Request"""
 
@@ -1060,7 +1042,6 @@ class GetBootConfig_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 147
 class GetBootConfig_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Boot Config Response"""
 
@@ -1110,7 +1091,6 @@ class GetBootConfig_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 156
 class SetBootConfig_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set Boot Config Request"""
 
@@ -1134,7 +1114,6 @@ class SetBootConfig_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 157
 class SetBootConfig_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set Boot Config Response"""
 
@@ -1148,7 +1127,6 @@ class SetBootConfig_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 159
 class GetPartitionStatistics_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Partition Statist Request"""
 
@@ -1175,7 +1153,7 @@ class GetPartitionStatistics_Request(NCSI_PAYLOAD):
 
 
 class GetPartitionStatisticsEthernet(Packet):
-    """Table 161 - Get Partition Statistics (Ethernet) response"""
+    """Get Partition Statistics (Ethernet) response"""
 
     fields_desc = [
         # Counter Sizes field
@@ -1413,7 +1391,7 @@ class GetPartitionStatisticsEthernet(Packet):
 
 
 class GetPartitionStatisticsFCoE(Packet):
-    """Table 164 - Get Partition Statistics (FCoE) response"""
+    """Get Partition Statistics (FCoE) response"""
 
     fields_desc = [
         # Counter Sizes field
@@ -1516,7 +1494,7 @@ class GetPartitionStatisticsFCoE(Packet):
 
 
 class GetPartitionStatisticsISCSI(Packet):
-    """Table 167 - Get Partition Statistics (iSCSI) response"""
+    """Get Partition Statistics (iSCSI) response"""
 
     fields_desc = [
         # Counter Sizes field
@@ -1624,7 +1602,7 @@ class GetPartitionStatisticsISCSI(Packet):
 
 
 class GetPartitionStatisticsIB(Packet):
-    """Table 170 - Get Partition Statistics (IB) response"""
+    """Get Partition Statistics (IB) response"""
 
     fields_desc = [
         # Counter Sizes field
@@ -1805,7 +1783,7 @@ class GetPartitionStatisticsIB(Packet):
 
 
 class GetPartitionStatisticsFC(Packet):
-    """Table 176 - Get Partition Statistics (FC) response"""
+    """Get Partition Statistics (FC) response"""
 
     fields_desc = [
         XByteField("Reserved_0", 0x00),
@@ -1910,7 +1888,7 @@ class GetPartitionStatisticsFC(Packet):
 
 
 class GetPartitionStatisticsRDMA(Packet):
-    """Table 176 - Get Partition Statistics (FC) response"""
+    """Get Partition Statistics (FC) response"""
 
     fields_desc = [
         # Counter sizes
@@ -2070,7 +2048,6 @@ class GetPartitionStatisticsRDMA(Packet):
         return ("", s)
 
 
-# DSP0222 v1.2.0 - Table 161
 class GetPartitionStatistics_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Partition Statist Response"""
 
@@ -2143,7 +2120,6 @@ class GetPartitionStatistics_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 179
 class SetModuleManagementData_Request(NCSI_PAYLOAD):
     "DSP0222 v1.2.0 Set Module Management Data Request"
 
@@ -2169,7 +2145,6 @@ class SetModuleManagementData_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 180
 class SetModuleManagementData_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set Module Management Data Response"""
 
@@ -2182,7 +2157,7 @@ class SetModuleManagementData_Response(NCSI_PAYLOAD):
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
-# DSP0222 - Table 187
+
 class GetModuleManagementData_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Module Management Data Request"""
 
@@ -2209,7 +2184,6 @@ class GetModuleManagementData_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 188
 class GetModuleManagementData_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Module Management Data Response"""
 
@@ -2249,7 +2223,7 @@ class GetModuleManagementData_Response(NCSI_PAYLOAD):
         NcsiReversePadField(XIntField("Checksum", None), 4)
     ]
 
-# DSP0222 - Table 192
+
 class SetPassThroughModeControl_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set Pass-through Mode Control Request"""
 
@@ -2267,7 +2241,6 @@ class SetPassThroughModeControl_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 193
 class SetPassThroughModeControl_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set Pass-through Mode Control Response"""
 
@@ -2281,7 +2254,6 @@ class SetPassThroughModeControl_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 194
 class GetPassThroughModeControl_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Pass-through Mode Request"""
 
@@ -2293,7 +2265,6 @@ class GetPassThroughModeControl_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 195
 class GetPassThroughModeControl_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Pass-through Mode Response"""
 
@@ -2334,7 +2305,6 @@ class GetPassThroughModeControl_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 198
 class GetVfAllocation_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get VF Allocation Request"""
 
@@ -2346,7 +2316,6 @@ class GetVfAllocation_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 199
 class GetVfAllocation_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get VF Allocation Response"""
 
@@ -2370,7 +2339,6 @@ class GetVfAllocation_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 201
 class SetVfAllocation_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set VF Allocation Request"""
 
@@ -2387,7 +2355,6 @@ class SetVfAllocation_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 203
 class SetVfAllocation_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Set VF Allocation Response"""
 
@@ -2401,7 +2368,6 @@ class SetVfAllocation_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 210
 class SettingsCommit_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Settings Commit Request"""
 
@@ -2413,7 +2379,6 @@ class SettingsCommit_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 211
 class SettingsCommit_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Settings Commit Response"""
 
@@ -2427,7 +2392,6 @@ class SettingsCommit_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 212
 class GetAsicTemperature_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get ASIC Temperature Request"""
 
@@ -2440,7 +2404,6 @@ class GetAsicTemperature_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 213
 class GetAsicTemperature_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get ASIC Temperature Response"""
 
@@ -2462,7 +2425,6 @@ class GetAsicTemperature_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 214
 class GetAmbientTemperature_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Ambient Temperature Request"""
 
@@ -2475,7 +2437,6 @@ class GetAmbientTemperature_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 215
 class GetAmbientTemperature_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Ambient Temperature Response"""
 
@@ -2507,7 +2468,6 @@ class GetAmbientTemperature_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 216
 class GetTransceiverTemperature_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Transceiver Temperature Request"""
 
@@ -2520,7 +2480,6 @@ class GetTransceiverTemperature_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 217
 class GetTransceiverTemperature_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Transceiver Temperature Response"""
 
@@ -2552,7 +2511,6 @@ class GetTransceiverTemperature_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 218
 class ThermalShutdownControl_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Thermal Shutdown Control Request"""
 
@@ -2574,7 +2532,6 @@ class ThermalShutdownControl_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 219
 class ThermalShutdownControl_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Thermal Shutdown Control Response"""
 
@@ -2624,7 +2581,6 @@ class ThermalShutdownControl_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 222
 class TransmitDataNC_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Transmit Data to NC Request"""
 
@@ -2656,7 +2612,6 @@ class TransmitDataNC_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 224
 class TransmitDataNC_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Transmit Data to NC Response"""
 
@@ -2670,7 +2625,6 @@ class TransmitDataNC_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 226
 class RetrieveDataFromNC_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Receive Data from NC Request"""
 
@@ -2694,7 +2648,6 @@ class RetrieveDataFromNC_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 229
 class RetrieveDataFromNC_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Receive Data from NC Response"""
 
@@ -2735,7 +2688,6 @@ class RetrieveDataFromNC_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 232
 class GetInventoryInformation_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Inventory Information Request"""
 
@@ -2747,7 +2699,6 @@ class GetInventoryInformation_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 234
 class InventoryInfoEntry(Packet):
     """"DSP0222 v1.2.0 Get Inventory Information Response Data"""
 
@@ -2779,7 +2730,6 @@ class InventoryInfoEntry(Packet):
         return ("", s)
 
 
-# DSP0222 v1.2.0 - Table 233
 class GetInventoryInformation_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Inventory Information Response"""
 
@@ -2808,7 +2758,6 @@ class GetInventoryInformation_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 258
 class GetPackageUUID_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Package UUID Request"""
 
@@ -2820,7 +2769,6 @@ class GetPackageUUID_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 259
 class GetPackageUUID_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get Package UUID Response"""
 
@@ -2838,7 +2786,6 @@ class GetPackageUUID_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0261 - Table 10
 class GetSupportedMedia_Request(NCSI_PAYLOAD):
     """DSP0261 v1.3.1 Get Supported Media Request"""
 
@@ -2850,7 +2797,6 @@ class GetSupportedMedia_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0261 - Table 12
 class MediaDescriptor(Packet):
     """Repeated data within the GetSupportedMedia_Response"""
 
@@ -2872,7 +2818,6 @@ class MediaDescriptor(Packet):
         return "", s
 
 
-# DSP0261 - Table 11
 class GetSupportedMedia_Response(NCSI_PAYLOAD):
     """DSP0261 v1.3.1 Get Supported Media Response"""
 
@@ -2905,7 +2850,6 @@ class GetSupportedMedia_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 244
 class TransportSpecificAENEnable_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Transport-specific AEN Enable Request"""
 
@@ -2946,7 +2890,6 @@ class TransportSpecificAENEnable_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 246
 class TransportSpecificAENEnable_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Transport-specific AEN Enable Response"""
 
@@ -2960,7 +2903,6 @@ class TransportSpecificAENEnable_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 250
 class SendNCPLDMReply_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Send NC PLDM Reply Request"""
 
@@ -2979,7 +2921,6 @@ class SendNCPLDMReply_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 251
 class SendNCPLDMReply_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Send NC PLDM Reply Response"""
 
@@ -3009,7 +2950,6 @@ class SendNCPLDMReply_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 256
 class GetMcMacAddress_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get MC MAC Address Request"""
 
@@ -3021,7 +2961,6 @@ class GetMcMacAddress_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 -  Table 257
 class GetMcMacAddress_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Get MC MAC Address Response"""
 
@@ -3054,7 +2993,6 @@ class GetMcMacAddress_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 255
 class SPDM_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 SPDM Request"""
 
@@ -3070,7 +3008,6 @@ class SPDM_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 256
 class SPDM_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 SPDM Response"""
 
@@ -3100,7 +3037,6 @@ class SPDM_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 257
 class QueryPendingNcSpdmRequest_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Query Pending NC SPDM Request"""
 
@@ -3112,7 +3048,6 @@ class QueryPendingNcSpdmRequest_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 258
 class QueryPendingNcSpdmRequest_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Query Pending NC SPDM Response"""
 
@@ -3145,7 +3080,6 @@ class QueryPendingNcSpdmRequest_Response(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 - Table 260
 class SendNcSpdmReply_Request(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Send NC SPDM Reply"""
 
@@ -3164,7 +3098,6 @@ class SendNcSpdmReply_Request(NCSI_PAYLOAD):
     ]
 
 
-# DSP0222 v1.2.0 - Table 261
 class SendNcSpdmReply_Response(NCSI_PAYLOAD):
     """DSP0222 v1.2.0 Send NC SPDM Reply Response"""
 
