@@ -1711,6 +1711,29 @@ class GetPackageStatus_Response(NCSI_PAYLOAD):
     ]
 
 
+class OEMCommand_Request(NCSI_PAYLOAD):
+    name = "NC-SI OEM Command Request"
+    CommandValue = 0x50
+
+    fields_desc = [
+        XIntField("ManufacturerID", 0x00000000), # https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
+        # Vendor-Data[]
+    ]
+
+
+class OEMCommand_Response(NCSI_PAYLOAD):
+    name = "NC-SI OEM Command Response"
+    CommandValue = 0xD0
+
+    fields_desc = [
+        XShortEnumField("ResponseCode", 0x0000, STANDARD_RESPONSE_CODE_VALUES),
+        XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
+
+        XIntField("ManufacturerID", 0x00000000), # https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
+        # Return Data[] (optional)
+    ]
+
+
 class UnsupportedNcsi_Request(NCSI_PAYLOAD):
     """DSP0222 v1.1.0 Test Unsupported NCSI Command Request"""
 
