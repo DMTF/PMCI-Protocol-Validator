@@ -22,7 +22,7 @@ from pmci_protocol_validator.pldm.classes.dsp0240_base import (
 
 DSP0242_COMPLIANCE_VERSION = int.from_bytes([1, 0, 0, 0], 'big')
 
-""" DSP0242 Table 16 - PLDM File Transfer Completion Codes """
+""" DSP0242 - PLDM File Transfer Completion Codes """
 DSP0242_RESPONSE_CODE_VALUES = {
     0x80: "INVALID_FILE_DESCRIPTOR",
     0x81: "INVALID_DF_ATTRIBUTE",

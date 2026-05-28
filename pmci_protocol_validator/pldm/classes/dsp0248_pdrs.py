@@ -76,7 +76,7 @@ TerminusLocatorType = {
     3: "systemSoftware"
 }
 
-""" this is the PLDM V1.2 format, per DSP0248 -> Table 74"""
+""" this is the PLDM V1.2 format, per DSP0248"""
 SensorUnitsEnumeration = {
     0: "None",
     1: "Unspecified",
@@ -192,7 +192,7 @@ class LEIeeeFloatField(Field[int, int]):
 
 
 class TerminusLocatorPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 77"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Terminus Locator"
 
@@ -218,7 +218,7 @@ class TerminusLocatorPDR(Packet):
 
 
 class NumericSensorPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 78"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Numeric Sensor"
 
@@ -538,7 +538,7 @@ class NumericSensorPDR(Packet):
 
 
 class NumericSensorInitializationPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 79"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Numeric Sensor Initialization"
 
@@ -705,7 +705,7 @@ class StateSensorFields(Packet):
 
 
 class StateSensorPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 80"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "State Sensor"
 
@@ -740,7 +740,7 @@ class StateSensorPDR(Packet):
 
 
 class StateSensorInitializationPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 82"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "State Sensor Initialization"
 
@@ -822,7 +822,7 @@ class SensorAuxiliaryNamesFields(Packet):
 
 
 class SensorAuxiliaryNamesPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 83"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Sensor Auxiliary Names"
 
@@ -855,7 +855,7 @@ class OEMUnitStrings(Packet):
 
 
 class OEMUnitPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 84"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "OEM Unit"
 
@@ -907,7 +907,7 @@ class OEMStateValueRecordFields(Packet):
 
 
 class OEMStatePDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 85"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "OEM State Set"
 
@@ -938,7 +938,7 @@ class OEMStatePDR(Packet):
 
 
 class NumericEffecterPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 87"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Numeric Effecter"
 
@@ -1130,7 +1130,7 @@ class NumericEffecterPDR(Packet):
 
 
 class NumericEffecterInitializationPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 88"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Numeric Effecter Initialization"
 
@@ -1209,7 +1209,7 @@ class StateEffecterFields(Packet):
 
 
 class StateEffecterPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 89"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "State Effecter"
 
@@ -1245,7 +1245,7 @@ class StateEffecterPDR(Packet):
 
 
 class StateEffecterInitializationPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 91"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "State Effecter Initialization"
 
@@ -1322,7 +1322,7 @@ class EffecterAuxiliaryNamesFields(Packet):
 
 
 class EffecterAuxiliaryNamesPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 92"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Effecter Auxiliary Names"
 
@@ -1355,7 +1355,7 @@ class OEMEffecterSemanticStrings(Packet):
 
 
 class OEMEffecterSemanticPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 93"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "OEM Effecter Semantics"
 
@@ -1391,7 +1391,7 @@ class EntityAssociationContained(Packet):
 
 
 class EntityAssociationPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 94"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Entity Association"
 
@@ -1431,7 +1431,7 @@ class EntityAuxiliaryNamesStrings(Packet):
 
 
 class EntityAuxiliaryNamesPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 95"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Entity Auxiliary Names"
 
@@ -1466,7 +1466,7 @@ class OEMEntityIDStrings(Packet):
 
 
 class OEMEntityIDPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 96"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "OEM EntityID"
 
@@ -1504,7 +1504,7 @@ class InterruptAssociationFields(Packet):
 
 
 class InterruptAssociationPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 97"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Interrupt Association"
 
@@ -1531,7 +1531,7 @@ class InterruptAssociationPDR(Packet):
 
 
 class EventLogPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 98"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Event Log"
 
@@ -1552,7 +1552,7 @@ class EventLogPDR(Packet):
 
 
 class FRURecordSetPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 99"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "FRU Record Set"
 
@@ -1569,7 +1569,7 @@ class FRURecordSetPDR(Packet):
 
 
 class OEMDevicePDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 100"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "OEM Device"
 
@@ -1598,7 +1598,7 @@ class OEMDevicePDR(Packet):
 
 
 class OEMPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 101"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "OEM PDR"
 
@@ -1619,7 +1619,7 @@ class OEMPDR(Packet):
 
 
 class CompactNumericSensorPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 102"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Compact Numeric Sensor"
 
@@ -1700,7 +1700,7 @@ class RedfishResourceOEMNames(Packet):
 
 
 class RedfishResourcePDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 103"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Redfish Resource"
 
@@ -1782,7 +1782,7 @@ class RedfishResourcePDR(Packet):
 
 
 class RedfishEntityAssociationPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 104"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Redfish Entity Association"
 
@@ -1835,7 +1835,7 @@ class RedfishActionNames(Packet):
 
 
 class RedfishActionPDR(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 104"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "Redfish Action"
 
@@ -1862,7 +1862,7 @@ class RedfishActionPDR(Packet):
 
 
 class PDR_HEADER(Packet):
-    """this is the PLDM V1.2 format, per DSP0248 -> Table 75"""
+    """this is the PLDM V1.2 format, per DSP0248"""
 
     name = "PDR Header"
 

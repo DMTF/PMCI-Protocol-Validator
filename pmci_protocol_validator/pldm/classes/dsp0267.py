@@ -47,7 +47,7 @@ class PLDM_TYPE_5_PAYLOAD(PLDM_PAYLOAD):
 
 
 class RecordDescriptor(Packet):
-    """Table 7 in DSP 0267"""
+    """DSP 0267 Record Descriptor"""
 
     name = "Descriptor"
     fields_desc = [
@@ -170,8 +170,6 @@ class RecordDescriptor(Packet):
 
 
 class ComponentParameterTableEntry(Packet):
-    """Table 14 in DSP 0267"""
-
     name = "Component Parameter Table Entry"
 
     fields_desc = [
@@ -510,8 +508,6 @@ class QueryDownstreamIdentifiers_Request(PLDM_TYPE_5_PAYLOAD):
 
 
 class DownstreamDevice(Packet):
-    """DSP0267 -> Table 18"""
-
     name = "Downstream Device"
     fields_desc = [
         XLEShortField("DownstreamDeviceIndex", 0x0000),
@@ -615,8 +611,6 @@ class GetDownstreamFirmwareParameters_Request(PLDM_TYPE_5_PAYLOAD):
 
 
 class DownstreamDeviceParameterTableEntry(Packet):
-    """DSP0267 -> Table 21"""
-
     name = "Downstream Device Parameter Table Entry"
 
     fields_desc = [
@@ -722,7 +716,7 @@ class GetDownstreamFirmwareParameters_Response(PLDM_TYPE_5_PAYLOAD):
         fields_desc = [
             XLEIntField("NextDataTransferHandle", 0x00000000),
             ByteEnumField("TransferFlag", 0x01, TransferFlags),
-            # portion of GetDownstreamFirmwareParameters -> Table 20
+            # portion of GetDownstreamFirmwareParameters
             # FDPCapabilitiesDuringUpdate
             # byte 0 bits 7:5
             BitField("FDPCapabilitiesDuringUpdateReserved_1", 0, 3),

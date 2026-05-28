@@ -42,7 +42,6 @@ TransferOperation = {
 }
 
 StringTypeValues = {
-    # ''' Table 20 '''
     0: "Unknown",
     1: "ASCII",
     2: "UTF-8",
@@ -101,7 +100,6 @@ RecordDescriptorTypes = {
 }
 
 ComponentClassificationValues = {
-    # ''' Table 27 '''
     0x0000: "Unknown",
     0x0001: "Other",
     0x0002: "Driver",

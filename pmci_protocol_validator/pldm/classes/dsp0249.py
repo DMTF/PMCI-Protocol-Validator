@@ -11,7 +11,7 @@ Brief : Constant definitions from DSP0249 "Platform Level Data Model (PLDM) Stat
 Specification", Version: 1.3.0
 """
 
-""" Table 15 - Entity ID Codes """
+""" Entity ID Codes """
 
 entity_id_codes = {
     0: "Unspecified",

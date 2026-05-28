@@ -23,7 +23,6 @@ DSP0236_COMPLIANCE_VERSION = int.from_bytes([1, 3, 1, 0], 'big')
 
 DMTF_MCTP_COMMANDS = {}     # Dictionary of the MCTP Command for DMTF commands
 
-# DMTF0236 - Table 13
 COMPLETION_CODES = {
     0x00: "SUCCESS",
     0x01: "ERROR",
@@ -64,9 +63,8 @@ def register_mctp_control_class(cls):
     validateRegisteredClass(cls)
 
 
-# DSP0236 - Figure 4
 class MCTP_MESSAGE_TYPE(Packet):
-    """MCTP message type"""
+    """DSP0236 MCTP message type"""
 
     name = "MCTP Message Type"
 
@@ -76,9 +74,8 @@ class MCTP_MESSAGE_TYPE(Packet):
     ]
 
 
-# DSP0236 - Figure 4
 class MCTP_HEADER(Packet):
-    """MCTP Header Layer"""
+    """DSP0236 MCTP Header Layer"""
 
     name = "MCTP Header"
 
@@ -96,7 +93,7 @@ class MCTP_HEADER(Packet):
 
 
 class MCTP_COMMAND_HEADER(Packet):
-    """MCTP Control Packet Header"""
+    """DSP0236 MCTP Control Packet Header"""
 
     PayloadType = 0x00  # all control commands are MCTP Message type 0
     name = "MCTP Control Header"
@@ -176,7 +173,7 @@ class PhysicalAddressPCIe(Packet):
 
 
 class MCTP_UUID(Packet):
-    """UUID format. This is the PLDM V1.0 format per DSP0236 - Table 17"""
+    """UUID format. This is the PLDM V1.0 format per DSP0236."""
 
     name = "UUID"
     UUID_NODE_LEN = 6
@@ -196,7 +193,7 @@ class MCTP_UUID(Packet):
 
 
 class SetEndpointID_Request(MCTP_COMMAND):
-    """ Set Endpoint ID Request (DSP0236 - Table 14)"""
+    """DSP0236 Set Endpoint ID Request"""
 
     name = "Set Endpoint ID Request"
     CommandValue = 0x01
@@ -214,7 +211,7 @@ class SetEndpointID_Request(MCTP_COMMAND):
 
 
 class SetEndpointID_Response(MCTP_COMMAND):
-    """Set Endpoint ID Response (DSP0236 - Table 14)"""
+    """DSP0236 Set Endpoint ID Response"""
 
     name = "Set Endpoint ID Response"
     CommandValue = 0x01
@@ -263,14 +260,14 @@ class SetEndpointID_Response(MCTP_COMMAND):
 
 
 class GetEndpointID_Request(MCTP_COMMAND):
-    """Get Endpoint ID Request (DSP0236 - Table 15)"""
+    """DSP0236 Get Endpoint ID Request"""
 
     name = "Get Endpoint ID Request"
     CommandValue = 0x02
 
 
 class GetEndpointID_Response(MCTP_COMMAND):
-    """Get Endpoint ID Response (DSP0236 - Table 15)"""
+    """DSP0236 Get Endpoint ID Response"""
 
     name = "Get Endpoint ID Response"
     CommandValue = 0x02
@@ -318,14 +315,14 @@ class GetEndpointID_Response(MCTP_COMMAND):
 
 
 class GetEndpointUUID_Request(MCTP_COMMAND):
-    """Get Endpoint UUID Request (DSP0236 - Table 16)"""
+    """DSP0236 Get Endpoint UUID Request"""
 
     name = "Get Endpoint UUID Request"
     CommandValue = 0x03
 
 
 class GetEndpointUUID_Response(MCTP_COMMAND):
-    """Get Endpoint UUID Response (DSP0236 - Table 16)"""
+    """DSP0236 Get Endpoint UUID Response"""
 
     name = "Get Endpoint UUID Response"
     CommandValue = 0x03
@@ -341,7 +338,7 @@ class GetEndpointUUID_Response(MCTP_COMMAND):
 
 
 class GetMCTPVersionSupport_Request(MCTP_COMMAND):
-    """Get MCTP Version Support Request (DSP0236 - Table 18)"""
+    """DSP0236 Get MCTP Version Support Request"""
 
     name = "Get MCTP Version Support Request"
     CommandValue = 0x04
@@ -380,7 +377,7 @@ class VersionNumberEntry(Packet):
 
 
 class GetMCTPVersionSupport_Response(MCTP_COMMAND):
-    """Get MCTP Version Support Response (DSP0236 - Table 18)"""
+    """DSP0236 Get MCTP Version Support Response"""
 
     name = "Get MCTP Version Support Response"
     CommandValue = 0x04
@@ -406,14 +403,14 @@ class GetMCTPVersionSupport_Response(MCTP_COMMAND):
 
 
 class GetMessageTypeSupport_Request(MCTP_COMMAND):
-    """Get Message Type Support Request (DSP0236 - Table 19)"""
+    """DSP0236 Get Message Type Support Request"""
 
     name = "Get Message Type Support Request"
     CommandValue = 0x05
 
 
 class GetMessageTypeSupport_Response(MCTP_COMMAND):
-    """Get Message Type Support Respons (DSP0236 - Table 19)"""
+    """DSP0236 Get Message Type Support Response"""
 
     name = "Get Message Type Support Response"
     CommandValue = 0x05
@@ -439,7 +436,7 @@ class GetMessageTypeSupport_Response(MCTP_COMMAND):
 
 
 class GetVendorDefinedMessageSupport_Request(MCTP_COMMAND):
-    """Get Vendor Defined Message Support Request (SP0236 - Table 20)"""
+    """DSP0236 Get Vendor Defined Message Support Request"""
 
     name = "Get Vendor Defined Message Support Request"
     CommandValue = 0x06
@@ -450,7 +447,7 @@ class GetVendorDefinedMessageSupport_Request(MCTP_COMMAND):
 
 
 class GetVendorDefinedMessageSupport_Response(MCTP_COMMAND):
-    """Get Vendor Defined Message Support Response (DSP0236 - Table 20)"""
+    """DSP0236 Get Vendor Defined Message Support Response"""
 
     name = "Get Vendor Defined Message Support Response"
     CommandValue = 0x06
@@ -486,7 +483,7 @@ class GetVendorDefinedMessageSupport_Response(MCTP_COMMAND):
 
 
 class ResolveEndpointID_Request(MCTP_COMMAND):
-    """Resolve Endpoint ID Request ( DSP0236 - Table 22)"""
+    """DSP0236 Resolve Endpoint ID Request"""
 
     name = "Resolve Endpoint ID Request"
     CommandValue = 0x07
@@ -497,7 +494,7 @@ class ResolveEndpointID_Request(MCTP_COMMAND):
 
 
 class ResolveEndpointID_Response(MCTP_COMMAND):
-    """Resolve Endpoint ID Response (DSP0236 - Table 22)"""
+    """DSP0236 Resolve Endpoint ID Response"""
 
     name = "Resolve Endpoint ID Response"
     CommandValue = 0x07
@@ -536,7 +533,7 @@ class ResolveEndpointID_Response(MCTP_COMMAND):
 
 
 class AllocateEndpointIDs_Request(MCTP_COMMAND):
-    """Allocate Endpoint ID Request (DSP0236 - Table 23)"""
+    """DSP0236 Allocate Endpoint ID Request)"""
 
     name = "Allocate Endpoint ID Request"
     CommandValue = 0x08
@@ -560,7 +557,7 @@ class AllocateEndpointIDs_Request(MCTP_COMMAND):
 
 
 class AllocateEndpointIDs_Response(MCTP_COMMAND):
-    """Allocate Endpoint ID Response (DSP0236 - Table 23)"""
+    """DSP0236 Allocate Endpoint ID Response"""
 
     name = "Allocate Endpoint ID Response"
     CommandValue = 0x08
@@ -597,7 +594,7 @@ class AllocateEndpointIDs_Response(MCTP_COMMAND):
 
 
 class RoutingInformationFields(Packet):
-    """"Fields for Routing Information entries (DSP0236 - Table 25)"""
+    """"DSP0236 Fields for Routing Information entries"""
 
     name = "Fields for entries"
 
@@ -639,7 +636,7 @@ class RoutingInformationFields(Packet):
 
 
 class RoutingInformationUpdate_Request(MCTP_COMMAND):
-    """Routing Information Update Request (DSP0236 - Table 24)"""
+    """DSP0236 Routing Information Update Request"""
 
     name = "Routing Information Update Request"
     CommandValue = 0x09
@@ -656,7 +653,7 @@ class RoutingInformationUpdate_Request(MCTP_COMMAND):
 
 
 class RoutingInformationUpdate_Response(MCTP_COMMAND):
-    """Routing Information Update Response (DSP0236 - Table 24)"""
+    """DSP0236 Routing Information Update Response"""
 
     name = "Routing Information Update Response"
     CommandValue = 0x09
@@ -667,7 +664,7 @@ class RoutingInformationUpdate_Response(MCTP_COMMAND):
 
 
 class GetRoutingTableEntries_Request(MCTP_COMMAND):
-    """Get Routing Table Entries Request (DSP0236 - Table 26)"""
+    """DSP0236 Get Routing Table Entries Request"""
 
     name = "Get Routing Table Entries Request"
     CommandValue = 0x0A
@@ -678,7 +675,7 @@ class GetRoutingTableEntries_Request(MCTP_COMMAND):
 
 
 class RoutingTableEntry(Packet):
-    """Routing Table Entry (DSP0236 - Table 27)"""
+    """DSP0236 Routing Table Entry"""
 
     name = "Routing Table Entry fields"
 
@@ -730,7 +727,7 @@ class RoutingTableEntry(Packet):
 
 
 class GetRoutingTableEntries_Response(MCTP_COMMAND):
-    """Get Routing Table Entries Response (DSP0236 - Table 26)"""
+    """DSP0236 Get Routing Table Entries Response"""
 
     name = "Get Routing Table Entries Response"
     CommandValue = 0x0A
@@ -762,14 +759,14 @@ class GetRoutingTableEntries_Response(MCTP_COMMAND):
 
 
 class PrepareForEndpointDiscovery_Request(MCTP_COMMAND):
-    """Prepare For Endpoint Discovery Request (DSP0236 - Table 28)"""
+    """DSP0236 Prepare For Endpoint Discovery Request"""
 
     name = "Prepare For Endpoint Discovery Request"
     CommandValue = 0x0B
 
 
 class PrepareForEndpointDiscovery_Response(MCTP_COMMAND):
-    """Prepare For Endpoint Discovery Respons (DSP0236 - Table 28)"""
+    """DSP0236 Prepare For Endpoint Discovery Response"""
 
     name = "Prepare For Endpoint Discovery Response"
     CommandValue = 0x0B
@@ -780,14 +777,14 @@ class PrepareForEndpointDiscovery_Response(MCTP_COMMAND):
 
 
 class EndpointDiscovery_Request(MCTP_COMMAND):
-    """Endpoint Discovery Request (DSP0236 - Table 29)"""
+    """DSP0236 Endpoint Discovery Request"""
 
     name = "Endpoint Discovery Request"
     CommandValue = 0x0C
 
 
 class EndpointDiscovery_Response(MCTP_COMMAND):
-    """Endpoint Discovery Response (DSP0236 - Table 29)"""
+    """DSP0236 Endpoint Discovery Response"""
 
     name = "Endpoint Discovery Response"
     CommandValue = 0x0C
@@ -798,14 +795,14 @@ class EndpointDiscovery_Response(MCTP_COMMAND):
 
 
 class DiscoveryNotify_Request(MCTP_COMMAND):
-    """Discovery Notify Request (DSP0236 - Table 30)"""
+    """DSP0236 Discovery Notify Request)"""
 
     name = "Discovery Notify Request"
     CommandValue = 0x0D
 
 
 class DiscoveryNotify_Response(MCTP_COMMAND):
-    """Discovery Notify Response (DSP0236 - Table 30)"""
+    """DSP0236 Discovery Notify Response"""
 
     name = "Discovery Notify Response"
     CommandValue = 0x0D
@@ -816,14 +813,14 @@ class DiscoveryNotify_Response(MCTP_COMMAND):
 
 
 class GetNetworkID_Request(MCTP_COMMAND):
-    """Get Network ID Request (DSP0236 - Table 31)"""
+    """DSP0236 Get Network ID Request"""
 
     name = "Get Network ID Request"
     CommandValue = 0x0E
 
 
 class GetNetworkID_Response(MCTP_COMMAND):
-    """Get Network ID Response (DSP0236 - Table 31)"""
+    """DSP0236 Get Network ID Response"""
 
     name = "Get Network ID Response"
     CommandValue = 0x0E
@@ -839,7 +836,7 @@ class GetNetworkID_Response(MCTP_COMMAND):
 
 
 class QueryHop_Request(MCTP_COMMAND):
-    """Query Hop Request (DSP0236 - Table 32)"""
+    """DSP0236 Query Hop Request"""
 
     name = "Query Hop Request"
     CommandValue = 0x0F
@@ -851,7 +848,7 @@ class QueryHop_Request(MCTP_COMMAND):
 
 
 class QueryHop_Response(MCTP_COMMAND):
-    """Query Hop Response (DSP0236 - Table 32)"""
+    """DSP0236 Query Hop Response"""
 
     name = "Query Hop Response"
     CommandValue = 0x0F
@@ -877,7 +874,7 @@ class QueryHop_Response(MCTP_COMMAND):
     ]
 
 class ResolveUUID_Request(MCTP_COMMAND):
-    """Resolve UUID Request (DSP0236 - Table 33)"""
+    """DSP0236 Resolve UUID Request"""
 
     name = "Resolve UUID Request"
     CommandValue = 0x10
@@ -892,7 +889,7 @@ class ResolveUUID_Request(MCTP_COMMAND):
 
 
 class ResolveUUIDMessageEntry(Packet):
-    """Resolve UUID Message Entry (DSP0236 - Table 34)"""
+    """DSP0236 Resolve UUID Message Entry"""
 
     name = "Resolve UUID Message Entry"
 
@@ -927,7 +924,7 @@ class ResolveUUIDMessageEntry(Packet):
 
 
 class ResolveUUID_Response(MCTP_COMMAND):
-    """Resolve UUID Response (DSP0236 - Table 33)"""
+    """DSP0236 Resolve UUID Response"""
 
     name = "Resolve UUID Response"
     CommandValue = 0x10
@@ -958,14 +955,14 @@ class ResolveUUID_Response(MCTP_COMMAND):
 
 
 class QueryRateLimit_Request(MCTP_COMMAND):
-    """Query Rate Limit Request (DSP0236 - Table 35)"""
+    """DSP0236 Query Rate Limit Request"""
 
     name = "Query Rate Limit Request"
     CommandValue = 0x11
 
 
 class QueryRateLimit_Response(MCTP_COMMAND):
-    """Query Rate Limit Response (DSP0236 - Table 35)"""
+    """DSP0236 Query Rate Limit Response"""
 
     name = "Query Rate Limit Response"
     CommandValue = 0x11
@@ -1013,7 +1010,7 @@ class QueryRateLimit_Response(MCTP_COMMAND):
     ]
 
 class TXRateLimit_Request(MCTP_COMMAND):
-    """TX Rate Limit Request (DSP0236 - Table 36)"""
+    """DSP0236 TX Rate Limit Request"""
 
     name = "TX Rate Limit Request"
     CommandValue = 0x12
@@ -1025,7 +1022,7 @@ class TXRateLimit_Request(MCTP_COMMAND):
 
 
 class TXRateLimit_Response(MCTP_COMMAND):
-    """TX Rate Limit Response (DSP0236 - Table 36)"""
+    """DSP0236 TX Rate Limit Response"""
 
     name = "TX Rate Limit Response"
     CommandValue = 0x12
@@ -1046,7 +1043,7 @@ class TXRateLimit_Response(MCTP_COMMAND):
 
 
 class UpdateRateLimit_Request(MCTP_COMMAND):
-    """Update Rate Limit Request (DSP0236 - Table 37)"""
+    """DSP0236 Update Rate Limit Request"""
 
     name = "Update Rate Limit Request"
     CommandValue = 0x13
@@ -1058,7 +1055,7 @@ class UpdateRateLimit_Request(MCTP_COMMAND):
 
 
 class UpdateRateLimit_Response(MCTP_COMMAND):
-    """Update Rate Limit Response (DSP0236 - Table 37)"""
+    """DSP0236 Update Rate Limit Response"""
 
     name = "Update Rate Limit Response"
     CommandValue = 0x13
@@ -1069,13 +1066,12 @@ class UpdateRateLimit_Response(MCTP_COMMAND):
 
 
 class QuerySupportedInterfaces_Request(MCTP_COMMAND):
-    """Query Supported Interfaces Request (DSP0236 - Table 38)"""
+    """DSP0236 Query Supported Interfaces Request"""
 
     name = "Query Supported Interfaces Request"
     CommandValue = 0x14
 
 
-# DSP0236 - Table 38
 class SupportedInterfacesFields(Packet):
     """Fields for supported Interfaces"""
 
@@ -1088,7 +1084,7 @@ class SupportedInterfacesFields(Packet):
 
 
 class QuerySupportedInterfaces_Response(MCTP_COMMAND):
-    """Query Supported Interfaces Response (DSP0236 - Table 38)"""
+    """DSP0236 Query Supported Interfaces Response"""
 
     name = "Query Supported Interfaces Response"
     CommandValue = 0x14
