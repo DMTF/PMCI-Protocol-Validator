@@ -1076,3 +1076,34 @@ def test_GetPackageStatus_Response(class_type):
     assert (class_type.HardwareArbitrationStatus == 0)
     assert (class_type.Checksum is None)
     return
+
+
+@pytest.mark.parametrize("class_type", OEMCommand_Request())
+def test_OEMCommand_Request(class_type):
+    """Verify OEM Command Request class structure and initialization"""
+
+    assert (class_type.CommandValue == 0x50), "Incorrect command code"
+    assert (len(class_type.fields_desc) == 1), "Incorrect number of fields"
+
+    assert (isinstance(class_type.fields_desc[0], XIntField))  # ManufacturerID
+    assert (class_type.ManufacturerID == 0)
+
+    return
+
+
+@pytest.mark.parametrize("class_type", OEMCommand_Response())
+def test_OEMCommand_Response(class_type):
+    """Verify OEM Command Response class structure and initialization"""
+
+    assert (class_type.CommandValue == 0xD0), "Incorrect command code"
+    assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
+
+    assert (isinstance(class_type.fields_desc[0], XShortEnumField))  # Response Code
+    assert (isinstance(class_type.fields_desc[1], XShortEnumField))  # Reason Code
+    assert (isinstance(class_type.fields_desc[2], XIntField))        # ManufacturerID
+
+    assert (class_type.ResponseCode == 0)
+    assert (class_type.ReasonCode == 0)
+    assert (class_type.ManufacturerID == 0)
+
+    return
