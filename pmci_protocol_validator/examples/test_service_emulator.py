@@ -66,6 +66,12 @@ class TestServiceBase:
         self._session_connected = False
         self._session_test_client_id = 0
 
+        self._capabilities = {
+            1: 60,
+            2: 60,
+            3: 1500
+        }
+
         return
 
     def __del__(self) -> None:
@@ -133,14 +139,11 @@ class TestServiceBase:
     def _query_capabilities(self) -> QueryCapabilities_Response:
         """ Process Query Capabilities message """
 
-        capabilities = [
-            # Maximum Watchdog timeout in seconds
-            TestServiceCapabilityEntry(CapabilityID=1, CapabilityValue=60),
-            # Current Watchdog timeout in seconds
-            TestServiceCapabilityEntry(CapabilityID=2, CapabilityValue=60),
-            # Maximum Transfer Size
-            TestServiceCapabilityEntry(CapabilityID=3, CapabilityValue=1500)
-        ]
+        capabilities = []
+
+        for _key, _value in self._capabilities.items():
+            item = TestServiceCapabilityEntry(CapabilityID=_key, CapabilityValue=_value)
+            capabilities.append(item)
 
         response = QueryCapabilities_Response()
         response.NumberOfCapabilitiesFields = len(capabilities)
@@ -169,7 +172,18 @@ class TestServiceBase:
 
     def _configure_test_service(self, request: ConfigureTestService_Request) -> ConfigureTestService_Response:
         """ Process Configure Test Service message """
-        return ConfigureTestService_Response()
+
+        _response_code = 0
+
+        for _entry in request.TestServiceCapabilities:
+            try:
+                if self._capabilities[_entry.CapabilityID]:
+                    self._capabilities[_entry.CapabilityID] = _entry.CapabilityValue
+            except:
+                _response_code = 0x0B
+                break
+
+        return ConfigureTestService_Response(ResponseCode=_response_code)
 
     def _configure_device_under_test(self, request: ConfigureDeviceUnderTest_Request) -> ConfigureDeviceUnderTest_Response:
         """ Process Configure Device Under Test message """
