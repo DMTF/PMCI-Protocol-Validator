@@ -1717,7 +1717,7 @@ class OEMCommand_Request(NCSI_PAYLOAD):
 
     fields_desc = [
         XIntField("ManufacturerID", 0x00000000), # https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
-        # Vendor-Data[]
+        PacketField("Request", None, Packet),    # Vendor-Data[]
     ]
 
 
@@ -1730,7 +1730,7 @@ class OEMCommand_Response(NCSI_PAYLOAD):
         XShortEnumField("ReasonCode", 0x0000, STANDARD_REASON_CODE_VALUES),
 
         XIntField("ManufacturerID", 0x00000000), # https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
-        # Return Data[] (optional)
+        PacketField("Response", None, Packet),   # Return Data[] (optional)
     ]
 
 
