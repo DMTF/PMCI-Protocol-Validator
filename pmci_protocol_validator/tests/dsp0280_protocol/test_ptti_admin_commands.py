@@ -296,7 +296,7 @@ def test_register_async_message_recipient(setup, context, expected_result, dut_i
 
 @pytest.mark.parametrize("expected_result, iana, payload", [
     (0x00, 0x1AB4, b''),
-    (0xF1, 0x0001, b'\x00\x00')
+    (0x0D, 0x0001, b'\x00\x00')
     ])
 
 def test_send_vendor_admin_msg(setup, context, expected_result, iana, payload):
