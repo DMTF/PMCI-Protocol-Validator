@@ -30,7 +30,7 @@ jobs:
       - name: Run example test client 1
         uses: ./.github/actions/run-with-tsw-emulator
         with:
-          command: python pmci_protocol_validator/examples/example_test_client.py | tee example-client-1.log
+          command: python examples/example_test_client.py | tee example-client-1.log
 
       - name: Upload logs
         if: always()
@@ -58,7 +58,7 @@ jobs:
         uses: ./.github/actions/run-with-tsw-emulator
         with:
           command: |
-            python pmci_protocol_validator/examples/example_test_client2.py | tee example-client-2.log
+            python examples/example_test_client2.py | tee example-client-2.log
             grep -q "SUCCESS: All tests completed successfully" example-client-2.log
 
       - name: Upload logs
