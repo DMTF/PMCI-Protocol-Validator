@@ -87,7 +87,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          python -m pytest -v pmci_protocol_validator/tests/class_checking | tee class-checking-pytest.log
+          python -m pytest -v tests/class_checking | tee class-checking-pytest.log
 
       - name: Upload logs
         if: always()
@@ -113,7 +113,7 @@ jobs:
       - name: Run service pytests
         uses: ./.github/actions/run-with-tsw-emulator
         with:
-          command: python -m pytest -v pmci_protocol_validator/tests --ignore=pmci_protocol_validator/tests/class_checking | tee test-service-pytest.log
+          command: python -m pytest -v tests --ignore=tests/class_checking | tee test-service-pytest.log
 
       - name: Upload logs
         if: always()

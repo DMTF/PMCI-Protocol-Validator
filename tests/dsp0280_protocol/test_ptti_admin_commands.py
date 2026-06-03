@@ -14,7 +14,7 @@ Brief : Test cases for DSP0280 protocol
 import json
 import pytest
 
-from pmci_protocol_validator.tests.conftest import SetupMode
+from tests.conftest import SetupMode
 from pmci_protocol_validator.ptti.lib.lib_dsp0280 import *
 
 
