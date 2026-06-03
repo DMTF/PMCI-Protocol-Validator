@@ -13,14 +13,46 @@ Currently implemented specifications:
 * [DSP0248](https://www.dmtf.org/sites/default/files/standards/documents/DSP0248_1.2.2.pdf)
 * [DSP0267](https://www.dmtf.org/sites/default/files/standards/documents/DSP0267_1.2.0.pdf)
 
-## Requirements
+## Installation
 
-To install the PMCI-Protocol-Validator on your system:
+### System Installation
 
-1. Install these Python modules:
-* Install [Python 3](https://www.python.org/downloads/) and [pip](https://pip.pypa.io/en/stable/installing/).
-* Install [Scapy](https://scapy.net/)
-* Install [PyTest](https://docs.pytest.org/en/stable/getting-started.html)
+Install [Python 3](https://www.python.org/downloads/) and [pip](https://pip.pypa.io/en/stable/installing/).
 
-2. Set the the 'PYTHONPATH' environment variable to the PMCI Protocol Validator source directory.
-For example: PYTHONPATH={your_path}/PMCI-Protocol-Validator/
+Clone this repository and build the source distribution:
+
+```sh
+python setup.py sdist
+```
+
+Install the generated source distribution:
+
+```sh
+python -m pip install dist/pmci_protocol_validator-x.x.x.tar.gz
+```
+
+### Development Installation
+
+For development, install the package in editable mode from the repository root:
+
+```sh
+python -m pip install -e .
+```
+
+> **Note:** In editable mode, Python imports the package from your working tree
+> instead of copying it into site-packages. So if you edit files under
+> `pmci_protocol_validator/`, those changes are immediately reflected without
+> reinstalling.
+>
+> As an alternative for development, you can set `PYTHONPATH` to the repository
+> root, for example `PYTHONPATH={your_path}/PMCI-Protocol-Validator/`. This
+> also imports the package from your working tree, but it only applies to the
+> shell session or command where `PYTHONPATH` is set.
+
+### Pytest
+
+To run tests, install [PyTest](https://docs.pytest.org/en/stable/getting-started.html):
+
+```sh
+python -m pip install pytest
+```

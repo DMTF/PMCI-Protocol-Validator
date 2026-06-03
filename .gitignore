@@ -8,6 +8,8 @@
 *.pcap
 
 .pytest_cache/
+*.egg-info/
+dist/
 .vs/
 .vscode/
 __pycache__/
