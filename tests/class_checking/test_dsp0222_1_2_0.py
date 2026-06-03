@@ -12,7 +12,7 @@ Brief : Verify additional NC-SI v1.2.0 Scapy class definitions
 """
 
 import pytest
-from pmci_protocol_validator.ncsi.classes.dsp0222_1_2_0 import *
+from pmci_protocol_validator.ncsi.dsp0222_1_2_0 import *
 
 
 @pytest.mark.parametrize("class_type", GetNcCapabilitiesSettings_Request())

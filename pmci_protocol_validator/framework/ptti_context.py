@@ -13,8 +13,8 @@ Brief : Class defining PTTI test framework context.
 
 from scapy.packet import Packet
 from pmci_protocol_validator.framework.context import FwkContext
-from pmci_protocol_validator.ptti.classes.dsp0280 import VERSION_COMPLIANCE, TestServiceWrapper
-from pmci_protocol_validator.ptti.classes.dsp0280_comm import PTTIMedium
+from pmci_protocol_validator.ptti.dsp0280 import VERSION_COMPLIANCE, TestServiceWrapper
+from pmci_protocol_validator.ptti.dsp0280_comm import PTTIMedium
 
 
 class PTTI_Context(FwkContext):

@@ -13,7 +13,7 @@ Brief : Verify DSP0253 Scapy classes
 
 import pytest
 from scapy.fields import *
-from pmci_protocol_validator.mctp.classes.dsp0253 import SERIAL
+from pmci_protocol_validator.mctp.dsp0253 import SERIAL
 
 
 @pytest.mark.parametrize("class_type", SERIAL())

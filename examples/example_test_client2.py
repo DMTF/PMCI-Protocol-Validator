@@ -14,8 +14,8 @@ Brief : Example PTTI test session demonstrating the use of library helper functi
 import json
 
 from pmci_protocol_validator.framework.ptti_context import PTTI_Context
-from pmci_protocol_validator.ptti.classes.dsp0280 import *
-from pmci_protocol_validator.ptti.lib.lib_dsp0280 import *
+from pmci_protocol_validator.ptti.dsp0280 import *
+from pmci_protocol_validator.ptti.lib_dsp0280 import *
 
 
 # Network parameters for Test Service connection

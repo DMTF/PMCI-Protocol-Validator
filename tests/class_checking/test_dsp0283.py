@@ -13,7 +13,7 @@ Brief : Verify DSP0283 Scapy classes
 
 import pytest
 from scapy.fields import *
-from pmci_protocol_validator.mctp.classes.dsp283 import USB
+from pmci_protocol_validator.mctp.dsp283 import USB
 
 
 @pytest.mark.parametrize("class_type", USB())

@@ -12,7 +12,7 @@ Brief : Verify PLDM Type 4 Scapy class definitions
 """
 
 import pytest
-from pmci_protocol_validator.pldm.classes.dsp0257 import *
+from pmci_protocol_validator.pldm.dsp0257 import *
 
 
 @pytest.mark.parametrize("class_type", FRU_Field())

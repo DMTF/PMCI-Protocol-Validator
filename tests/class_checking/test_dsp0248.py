@@ -12,7 +12,7 @@ Brief : PLDM Type 2 (PLDM for Platform Monitoring and Control) Scapy classes
 """
 
 import pytest
-from pmci_protocol_validator.pldm.classes.dsp0248 import *
+from pmci_protocol_validator.pldm.dsp0248 import *
 
 
 @pytest.mark.parametrize("class_type", PLDM_TYPE_2_PAYLOAD())

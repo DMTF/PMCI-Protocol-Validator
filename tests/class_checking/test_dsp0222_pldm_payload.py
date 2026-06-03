@@ -12,7 +12,7 @@ Brief : Verify the PLDM Payload Scapy classes
 """
 
 import pytest
-from pmci_protocol_validator.ncsi.classes.dsp0222_pldm_payload import *
+from pmci_protocol_validator.ncsi.dsp0222_pldm_payload import *
 
 
 @pytest.mark.parametrize("class_type", NcsiPldm_Request())

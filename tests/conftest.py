@@ -14,8 +14,8 @@ Brief : PyTest session configuration
 from enum import Enum
 import pytest
 from pmci_protocol_validator.framework.ptti_context import PTTI_Context
-from pmci_protocol_validator.ptti.classes.dsp0280_comm import PTTIMedium
-from pmci_protocol_validator.ptti.lib.lib_dsp0280 import *
+from pmci_protocol_validator.ptti.dsp0280_comm import PTTIMedium
+from pmci_protocol_validator.ptti.lib_dsp0280 import *
 
 CONNECTION_ADDRESS = 'localhost'
 CONNECTION_PORT = 49155

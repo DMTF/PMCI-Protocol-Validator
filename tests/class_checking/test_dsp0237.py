@@ -13,7 +13,7 @@ Brief : Verify DSP0237 Scapy classes
 
 import pytest
 from scapy.fields import *
-from pmci_protocol_validator.mctp.classes.dsp0237 import SMBUS
+from pmci_protocol_validator.mctp.dsp0237 import SMBUS
 
 
 @pytest.mark.parametrize("class_type", SMBUS())

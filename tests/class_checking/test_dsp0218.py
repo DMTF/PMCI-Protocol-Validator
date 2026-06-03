@@ -12,7 +12,7 @@ Brief : Verify RDE Scapy classes
 """
 
 import pytest
-from pmci_protocol_validator.pldm.classes.dsp0218 import *
+from pmci_protocol_validator.pldm.dsp0218 import *
 
 @pytest.mark.parametrize("class_type", PLDM_TYPE_6_PAYLOAD())
 def test_PLDM_TYPE_6_PAYLOAD_class(class_type):

@@ -13,7 +13,7 @@ Brief : PyTest suite to validate DSP0280 Scapy class definitions and initializat
 
 import pytest
 from scapy.fields import *
-from pmci_protocol_validator.ptti.classes.dsp0280 import *
+from pmci_protocol_validator.ptti.dsp0280 import *
 
 EXPECTED_VERSION_COMPLIANCE = 0x11
 

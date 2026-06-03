@@ -15,7 +15,7 @@ import json
 import pytest
 
 from tests.conftest import SetupMode
-from pmci_protocol_validator.ptti.lib.lib_dsp0280 import *
+from pmci_protocol_validator.ptti.lib_dsp0280 import *
 
 
 def _is_admin_message_supported(supported_admin_messages: bytes, command_code: int) -> bool:

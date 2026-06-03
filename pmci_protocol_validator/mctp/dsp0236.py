@@ -16,9 +16,9 @@ from scapy.all import *
 from scapy.fields import *
 from scapy.packet import Packet
 
-from pmci_protocol_validator.ncsi.classes.dsp0222 import NCSI_HEADER, validateRegisteredClass
-from pmci_protocol_validator.pldm.classes.dsp0240 import PLDM_HEADER
-from pmci_protocol_validator.mctp.classes.dsp0239 import MCTP_MESSAGE_TYPES
+from pmci_protocol_validator.ncsi.dsp0222 import NCSI_HEADER, validateRegisteredClass
+from pmci_protocol_validator.pldm.dsp0240 import PLDM_HEADER
+from pmci_protocol_validator.mctp.dsp0239 import MCTP_MESSAGE_TYPES
 
 DSP0236_COMPLIANCE_VERSION = int.from_bytes([1, 3, 1, 0], 'big')
 

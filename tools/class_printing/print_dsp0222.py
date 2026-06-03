@@ -15,7 +15,7 @@ import sys
 import binascii
 from scapy.packet import Raw
 
-from pmci_protocol_validator.ncsi.classes.dsp0222 import *
+from pmci_protocol_validator.ncsi.dsp0222 import *
 
 test_ncsi_commands = [
     "ClearInitialState",

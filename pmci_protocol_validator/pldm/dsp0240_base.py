@@ -16,7 +16,7 @@ import scapy
 
 from scapy.fields import *
 from scapy.packet import Packet
-from pmci_protocol_validator.ncsi.classes.dsp0222 import validateRegisteredClass
+from pmci_protocol_validator.ncsi.dsp0222 import validateRegisteredClass
 
 
 DMTF_PLDM_COMMANDS = {}  # Dictionary with keys for PLDM Commands

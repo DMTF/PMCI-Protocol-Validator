@@ -13,7 +13,7 @@ Brief : Library of helper functions for DSP0280 transactions.
 
 from pmci_protocol_validator.framework.context import FwkContext
 from pmci_protocol_validator.framework.utilities import common_send_receive
-from pmci_protocol_validator.ptti.classes.dsp0280 import *
+from pmci_protocol_validator.ptti.dsp0280 import *
 
 
 def ptti_check_tsw(wrapper: Packet, client_id: int =None) -> bool:

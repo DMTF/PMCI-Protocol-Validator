@@ -13,7 +13,7 @@ Brief : Verify DSP0238 Scapy classes
 
 import pytest
 from scapy.fields import *
-from pmci_protocol_validator.mctp.classes.dsp0238 import PCIE_VDM
+from pmci_protocol_validator.mctp.dsp0238 import PCIE_VDM
 
 
 @pytest.mark.parametrize("class_type", PCIE_VDM())

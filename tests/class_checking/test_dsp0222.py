@@ -12,7 +12,7 @@ Brief : Verify the NC-SI Scapy classes
 """
 
 import pytest
-from pmci_protocol_validator.ncsi.classes.dsp0222 import *
+from pmci_protocol_validator.ncsi.dsp0222 import *
 
 
 @pytest.mark.parametrize("class_type", NCSI_HEADER())

@@ -15,7 +15,7 @@ import struct
 from scapy.all import bind_layers
 from scapy.packet import Packet
 from scapy.fields import XByteField, XShortField, PacketField, ByteField, ConditionalField
-from pmci_protocol_validator.mctp.classes.dsp0236 import MCTP_HEADER
+from pmci_protocol_validator.mctp.dsp0236 import MCTP_HEADER
 
 DSP0253_COMPLIANCE_VERSION = int.from_bytes([1, 0, 0, 0], 'big')
 

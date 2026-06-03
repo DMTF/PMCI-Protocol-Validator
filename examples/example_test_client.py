@@ -15,10 +15,10 @@ import json
 
 from pmci_protocol_validator.framework.ptti_context import PTTI_Context
 from pmci_protocol_validator.framework.utilities  import common_send_receive_ex
-from pmci_protocol_validator.ptti.classes.dsp0280 import *
+from pmci_protocol_validator.ptti.dsp0280 import *
 
-from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
-from pmci_protocol_validator.pldm.classes.dsp0240 import GetTID_Request, GetTID_Response
+from pmci_protocol_validator.pldm.dsp0240_base import PLDM_HEADER
+from pmci_protocol_validator.pldm.dsp0240 import GetTID_Request, GetTID_Response
 
 
 # Network parameters for Test Service connection

@@ -15,10 +15,10 @@ import struct
 from scapy.fields import *
 from scapy.packet import Packet
 from scapy.all import bind_layers, checksum
-from pmci_protocol_validator.ncsi.classes.dsp0222_enums import STANDARD_RESPONSE_CODE_VALUES, STANDARD_REASON_CODE_VALUES
+from pmci_protocol_validator.ncsi.dsp0222_enums import STANDARD_RESPONSE_CODE_VALUES, STANDARD_REASON_CODE_VALUES
 
-from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
-from pmci_protocol_validator.ncsi.classes.dsp0222 import (
+from pmci_protocol_validator.pldm.dsp0240_base import PLDM_HEADER
+from pmci_protocol_validator.ncsi.dsp0222 import (
     register_ncsi_class,
     NCSI_PAYLOAD,
     NCSI_HEADER

@@ -12,7 +12,7 @@ Brief : Verify PLDM Platform Descriptor Records (PDRs) Scapy classes
 """
 
 import pytest
-from pmci_protocol_validator.pldm.classes.dsp0248_pdrs import *
+from pmci_protocol_validator.pldm.dsp0248_pdrs import *
 
 
 @pytest.mark.parametrize("class_type", PDR_HEADER())

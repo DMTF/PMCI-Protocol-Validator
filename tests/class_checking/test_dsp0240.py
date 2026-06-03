@@ -12,7 +12,7 @@ Brief : Verify PLDM Type 0 (PLDM Messaging Control and Discovery) Scapy classes
 """
 
 import pytest
-from pmci_protocol_validator.pldm.classes.dsp0240 import *
+from pmci_protocol_validator.pldm.dsp0240 import *
 
 
 @pytest.mark.parametrize("class_type", PLDM_TYPE_0_PAYLOAD())

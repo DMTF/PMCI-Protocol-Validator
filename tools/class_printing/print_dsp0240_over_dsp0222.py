@@ -15,10 +15,10 @@ import sys
 import binascii
 from scapy.packet import Raw
 
-from pmci_protocol_validator.ncsi.classes.dsp0222 import NCSI_HEADER
-from pmci_protocol_validator.ncsi.classes.dsp0222_pldm_payload import NcsiPldm_Request
-from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
-from pmci_protocol_validator.pldm.classes.dsp0240 import *
+from pmci_protocol_validator.ncsi.dsp0222 import NCSI_HEADER
+from pmci_protocol_validator.ncsi.dsp0222_pldm_payload import NcsiPldm_Request
+from pmci_protocol_validator.pldm.dsp0240_base import PLDM_HEADER
+from pmci_protocol_validator.pldm.dsp0240 import *
 
 
 test_pldm0_commands = [

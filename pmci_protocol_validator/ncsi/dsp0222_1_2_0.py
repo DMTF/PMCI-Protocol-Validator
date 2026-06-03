@@ -15,8 +15,8 @@ from scapy.all import *
 from scapy.fields import *
 from scapy.packet import Packet
 
-from pmci_protocol_validator.ncsi.classes.dsp0222_enums import *
-from pmci_protocol_validator.ncsi.classes.dsp0222 import *
+from pmci_protocol_validator.ncsi.dsp0222_enums import *
+from pmci_protocol_validator.ncsi.dsp0222 import *
 
 
 class NCSI_UUID(Packet):

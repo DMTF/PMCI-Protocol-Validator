@@ -13,7 +13,7 @@ Brief : Verify the Binary Encoded JSON Scapy classes
 
 import pytest
 from scapy.fields import *
-from pmci_protocol_validator.pldm.classes.dsp0218_bej_types import *
+from pmci_protocol_validator.pldm.dsp0218_bej_types import *
 
 
 # Validate bejTupleS[]

@@ -16,7 +16,7 @@ import threading
 
 from scapy.all import raw
 from pmci_protocol_validator.framework.medium import CommMedium
-from pmci_protocol_validator.ptti.classes.dsp0280 import TestServiceWrapper
+from pmci_protocol_validator.ptti.dsp0280 import TestServiceWrapper
 
 
 class PTTIMedium(CommMedium):

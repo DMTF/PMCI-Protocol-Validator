@@ -13,7 +13,7 @@ Brief : Defines Scapy classes for DSP0280 v1.1.0 requests and responses.
 
 from scapy.fields import *
 from scapy.packet import Packet
-from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
+from pmci_protocol_validator.pldm.dsp0240_base import PLDM_HEADER
 
 
 DSP0280_COMPLIANCE_VERSION = int.from_bytes([1, 1, 0, 0], 'big')

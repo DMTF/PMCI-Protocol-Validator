@@ -13,9 +13,9 @@ Brief : Example DSP0280 Test Service.
 
 import socket
 from scapy.packet import Packet
-from pmci_protocol_validator.ptti.classes.dsp0280 import *
-from pmci_protocol_validator.pldm.classes.dsp0240_base import PLDM_HEADER
-from pmci_protocol_validator.pldm.classes.dsp0240 import GetTID_Request, GetTID_Response
+from pmci_protocol_validator.ptti.dsp0280 import *
+from pmci_protocol_validator.pldm.dsp0240_base import PLDM_HEADER
+from pmci_protocol_validator.pldm.dsp0240 import GetTID_Request, GetTID_Response
 
 
 ### Network parameters for client connections ###

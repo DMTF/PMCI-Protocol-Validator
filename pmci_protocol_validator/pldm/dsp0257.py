@@ -14,7 +14,7 @@ Brief : DSP0257 PLDM Type 4 (PLDM for FRU) Scapy classes
 from scapy.fields import *
 from scapy.all import bind_layers, Packet
 
-from pmci_protocol_validator.pldm.classes.dsp0240_base import (
+from pmci_protocol_validator.pldm.dsp0240_base import (
     PLDM_BASE_CODES,
     PLDM_HEADER,
     PLDM_PAYLOAD

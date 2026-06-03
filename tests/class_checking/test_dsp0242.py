@@ -12,7 +12,7 @@ Brief : Verify PLDM for File Tranfser Scapy classes
 """
 
 import pytest
-from pmci_protocol_validator.pldm.classes.dsp0242 import *
+from pmci_protocol_validator.pldm.dsp0242 import *
 
 
 @pytest.mark.parametrize("class_type", PLDM_TYPE_7_PAYLOAD())
