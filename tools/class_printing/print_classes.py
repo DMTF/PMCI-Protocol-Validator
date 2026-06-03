@@ -8,17 +8,22 @@
 ##############################################################################
 
 import argparse
+import sys
+from pathlib import Path
 
-from pmci_protocol_validator.class_printing.print_dsp0222 import dump_packets as dump_ncsi
-from pmci_protocol_validator.class_printing.print_dsp0240_over_dsp0222 import dump_packets as dump_ncsi_pldm0
-from pmci_protocol_validator.class_printing.print_dsp0248_over_dsp0222 import dump_packets as dump_ncsi_pldm2
-from pmci_protocol_validator.class_printing.print_dsp0240 import dump_packets as dump_pldm0
-from pmci_protocol_validator.class_printing.print_dsp0248 import dump_packets as dump_pldm2
-from pmci_protocol_validator.class_printing.print_dsp0257 import dump_packets as dump_pldm4
-from pmci_protocol_validator.class_printing.print_dsp0267 import dump_packets as dump_pldm5
-from pmci_protocol_validator.class_printing.print_dsp0218 import dump_packets as dump_pldm6
-from pmci_protocol_validator.class_printing.print_dsp0242 import dump_packets as dump_pldm7
-from pmci_protocol_validator.class_printing.print_dsp0280 import show_packets as dump_ptti
+# Allow direct execution from tools/class_printing while resolving repo imports.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from tools.class_printing.print_dsp0222 import dump_packets as dump_ncsi
+from tools.class_printing.print_dsp0240_over_dsp0222 import dump_packets as dump_ncsi_pldm0
+from tools.class_printing.print_dsp0248_over_dsp0222 import dump_packets as dump_ncsi_pldm2
+from tools.class_printing.print_dsp0240 import dump_packets as dump_pldm0
+from tools.class_printing.print_dsp0248 import dump_packets as dump_pldm2
+from tools.class_printing.print_dsp0257 import dump_packets as dump_pldm4
+from tools.class_printing.print_dsp0267 import dump_packets as dump_pldm5
+from tools.class_printing.print_dsp0218 import dump_packets as dump_pldm6
+from tools.class_printing.print_dsp0242 import dump_packets as dump_pldm7
+from tools.class_printing.print_dsp0280 import show_packets as dump_ptti
 
 # Configure the command line parser
 Parser = argparse.ArgumentParser(description="Dumps packet structures")

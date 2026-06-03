@@ -6,7 +6,7 @@
 """
 Display the default PLDM Type 2 request and response packets.
 
-File : class_printing\print_dsp0248.py
+File : print_dsp0248.py
 
 Brief : Display the default PLDM Type 2 request and response packets.
 """
