@@ -17,5 +17,7 @@ runs:
     - name: Install dependencies
       shell: bash
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install pytest scapy
+        python -m pip install --upgrade pip setuptools
+        python setup.py sdist
+        python -m pip install dist/pmci_protocol_validator-*.tar.gz
+        python -m pip install pytest
