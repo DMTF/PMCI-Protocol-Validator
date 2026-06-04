@@ -16,7 +16,7 @@ runs:
       run: |
         set -euo pipefail
 
-        python pmci_protocol_validator/examples/test_service_emulator.py > tsw_emulator.log 2>&1 &
+        python examples/test_service_emulator.py > tsw_emulator.log 2>&1 &
         emulator_pid="$!"
 
         cleanup() {

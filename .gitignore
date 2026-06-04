@@ -1,0 +1,17 @@
+*.code-workspace
+*.zip
+*.txt
+*.log
+*.filters
+*.user
+*.pcapng
+*.pcap
+
+.pytest_cache/
+*.egg-info/
+dist/
+.vs/
+.vscode/
+__pycache__/
+x64/
+x32/

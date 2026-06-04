@@ -1,6 +1,7 @@
 # Copyright Notice:
 # Copyright 2024-2026 DMTF. All rights reserved.
-# License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/pmci_protocol_validator/LICENSE.md
+# License: BSD 3-Clause License. For full text see link:
+# https://github.com/DMTF/PMCI-Protocol-Validator/blob/main/LICENSE.md
 
 """
 Class defining PTTI test framework context
@@ -12,8 +13,8 @@ Brief : Class defining PTTI test framework context.
 
 from scapy.packet import Packet
 from pmci_protocol_validator.framework.context import FwkContext
-from pmci_protocol_validator.ptti.classes.dsp0280 import VERSION_COMPLIANCE, TestServiceWrapper
-from pmci_protocol_validator.ptti.classes.dsp0280_comm import PTTIMedium
+from pmci_protocol_validator.ptti.dsp0280 import VERSION_COMPLIANCE, TestServiceWrapper
+from pmci_protocol_validator.ptti.dsp0280_comm import PTTIMedium
 
 
 class PTTI_Context(FwkContext):

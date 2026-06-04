@@ -11,7 +11,6 @@ on:
 
 env:
   PYTHON_VERSION: "3.x"
-  PYTHONPATH: ${{ github.workspace }}
 
 jobs:
   example-client-1:
@@ -30,7 +29,7 @@ jobs:
       - name: Run example test client 1
         uses: ./.github/actions/run-with-tsw-emulator
         with:
-          command: python pmci_protocol_validator/examples/example_test_client.py | tee example-client-1.log
+          command: python examples/example_test_client.py | tee example-client-1.log
 
       - name: Upload logs
         if: always()
@@ -58,7 +57,7 @@ jobs:
         uses: ./.github/actions/run-with-tsw-emulator
         with:
           command: |
-            python pmci_protocol_validator/examples/example_test_client2.py | tee example-client-2.log
+            python examples/example_test_client2.py | tee example-client-2.log
             grep -q "SUCCESS: All tests completed successfully" example-client-2.log
 
       - name: Upload logs
@@ -87,7 +86,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          python -m pytest -v pmci_protocol_validator/tests/class_checking | tee class-checking-pytest.log
+          python -m pytest -v tests/class_checking | tee class-checking-pytest.log
 
       - name: Upload logs
         if: always()
@@ -113,7 +112,7 @@ jobs:
       - name: Run service pytests
         uses: ./.github/actions/run-with-tsw-emulator
         with:
-          command: python -m pytest -v pmci_protocol_validator/tests --ignore=pmci_protocol_validator/tests/class_checking | tee test-service-pytest.log
+          command: python -m pytest -v tests --ignore=tests/class_checking | tee test-service-pytest.log
 
       - name: Upload logs
         if: always()
