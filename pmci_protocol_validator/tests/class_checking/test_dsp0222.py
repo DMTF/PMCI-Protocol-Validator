@@ -1083,10 +1083,13 @@ def test_OEMCommand_Request(class_type):
     """Verify OEM Command Request class structure and initialization"""
 
     assert (class_type.CommandValue == 0x50), "Incorrect command code"
-    assert (len(class_type.fields_desc) == 1), "Incorrect number of fields"
+    assert (len(class_type.fields_desc) == 2), "Incorrect number of fields"
 
-    assert (isinstance(class_type.fields_desc[0], XIntField))  # ManufacturerID
+    assert (isinstance(class_type.fields_desc[0], XIntField))    # ManufacturerID
+    assert (isinstance(class_type.fields_desc[1], PacketField))  # Request
+
     assert (class_type.ManufacturerID == 0)
+    assert (class_type.Request == None)
 
     return
 
@@ -1096,14 +1099,16 @@ def test_OEMCommand_Response(class_type):
     """Verify OEM Command Response class structure and initialization"""
 
     assert (class_type.CommandValue == 0xD0), "Incorrect command code"
-    assert (len(class_type.fields_desc) == 3), "Incorrect number of fields"
+    assert (len(class_type.fields_desc) == 4), "Incorrect number of fields"
 
     assert (isinstance(class_type.fields_desc[0], XShortEnumField))  # Response Code
     assert (isinstance(class_type.fields_desc[1], XShortEnumField))  # Reason Code
     assert (isinstance(class_type.fields_desc[2], XIntField))        # ManufacturerID
+    assert (isinstance(class_type.fields_desc[3], PacketField))      # Response
 
     assert (class_type.ResponseCode == 0)
     assert (class_type.ReasonCode == 0)
     assert (class_type.ManufacturerID == 0)
+    assert (class_type.Response == None)
 
     return
