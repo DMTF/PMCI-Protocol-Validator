@@ -6,7 +6,7 @@
 """
 Class for MCTP over USB (DSP0283)
 
-File : dsp283.py
+File : dsp0283.py
 
 Brief : Contains protocol class for MCTP over USB (DSP0283)
 """
