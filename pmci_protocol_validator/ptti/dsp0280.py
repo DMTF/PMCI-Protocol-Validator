@@ -340,9 +340,9 @@ class QueryStatusDeviceEntry(Packet):
         FieldLenField(
             "DeviceRegisteredProtocolTypeCount",
             0,
-            count_of=lambda pkt: pkt.DeviceData,
+            count_of="DeviceData",
             fmt="B"
-        ),
+       ),
         PacketListField(
             "DeviceData",
             [],
