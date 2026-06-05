@@ -36,9 +36,7 @@ def ptti_connect_ex(fwk_ctx: FwkContext, sec_prm: bytes) -> tuple[int, Packet|No
     """ Advanced function for sending/receiving a CONNECT message. The caller is responsible for checking the response. """
 
     _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=0) / Connect_Request()
-
     _send_msg[Connect_Request].SecurityParameter = RawVal(sec_prm)
-    _send_msg[Connect_Request].SecurityParameterLength = len(sec_prm)
 
     _error_code, _recv_msg = common_send_receive(fwk_ctx, _send_msg)
     return _error_code, _recv_msg, _send_msg
@@ -169,8 +167,13 @@ def ptti_query_capabilities(fwk_ctx: FwkContext, connect_id: int) -> tuple[bool,
 
 def ptti_configure_test_service_ex(fwk_ctx: FwkContext, connect_id: int, cfg_prm_list: list) -> tuple[int, Packet|None, Packet]:
 
+    _capabilities = []
+
+    for _cap_id, _value in cfg_prm_list:
+        _capabilities.append(TestServiceCapabilityEntry(CapabilityID=_cap_id, CapabilityValue=_value))
+
     _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=connect_id)
-    _send_msg = _send_msg / ConfigureTestService_Request(TestServiceCapabilities=cfg_prm_list)
+    _send_msg = _send_msg / ConfigureTestService_Request(TestServiceCapabilities=_capabilities)
 
     _error_code, _recv_msg = common_send_receive(fwk_ctx, _send_msg)
     return _error_code, _recv_msg, _send_msg

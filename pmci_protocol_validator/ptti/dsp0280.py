@@ -158,14 +158,13 @@ class Connect_Request(Packet):
         XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         FieldLenField(
             "SecurityParameterLength",
-            0,
-            "SecurityParameter",
+            None,
+            length_of="SecurityParameter",
             fmt="<I"
         ),
-        FieldListField(
+        XStrLenField(
             "SecurityParameter",
-            [],
-            XByteField("", 0x00),
+            b"",
             length_from=lambda pkt: pkt.SecurityParameterLength
         )
     ]
@@ -477,7 +476,7 @@ class ConfigureTestService_Request(Packet):
         XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         FieldLenField(
             "NumberOfCapabilitiesFields",
-            0x0000,
+            None,
             count_of="TestServiceCapabilities",
             fmt="<H"
         ),

@@ -111,8 +111,6 @@ def test_ptti_query_capabilities(setup, context):
     assert (_recv_msg[QueryCapabilities_Response].NumberOfCapabilitiesFields ==
             len(_recv_msg[QueryCapabilities_Response].TestServiceCapabilities))
 
-    ### TODO parameterze????
-
     _expected_capabilities = [1, 2, 3]
 
     for _capability in _recv_msg[QueryCapabilities_Response].TestServiceCapabilities:
@@ -219,6 +217,7 @@ def test_ptti_query_partial_system_inventory(setup, context):
     assert (_system_inventory_json["SchemaDefinition"] == "SystemInventory.v1_0_0")
     assert (_system_inventory_json["ControlPlane"]["Manufacturer"])
     assert (_system_inventory_json["ControlPlane"]["Model"])
+    assert (_system_inventory_json["ControlPlane"]["FirmwareVersions"])
     assert (_system_inventory_json["ControlPlane"]["Interfaces"])
     assert (_system_inventory_json["Devices"])
 
@@ -227,12 +226,11 @@ def test_ptti_query_partial_system_inventory(setup, context):
 
 @pytest.mark.parametrize("expected_result, capabilities", [
     (0, []),
-    (0, [(1, 90)])
+    (0, [(1, 90)]),
+    (0x0B, [(4, 100)])
 ])
 
 def test_configure_test_service(setup, context, expected_result, capabilities):
-
-    ### TODO Build proper capabilities list
 
     _error_code, _recv_msg, _send_msg = ptti_configure_test_service_ex(context, context.test_client_id, capabilities)
 
@@ -244,9 +242,15 @@ def test_configure_test_service(setup, context, expected_result, capabilities):
     assert (_recv_msg[ConfigureTestService_Response].ResponseCode == expected_result)
 
     if _recv_msg[ConfigureTestService_Response].ResponseCode == 0:
+        _error_code, _caps_read_back = ptti_query_capabilities(context, context.test_client_id)
 
-        ### TODO Read back value
-        pass
+        assert (_error_code is True), "ERROR: ptti_query_capabilities() failed"
+
+        for _set_cap in _send_msg[ConfigureTestService_Request].TestServiceCapabilities:
+            for _read_cap in _caps_read_back:
+                if _read_cap.CapabilityID == _set_cap.CapabilityID:
+                    assert (_read_cap.CapabilityValue == _set_cap.CapabilityValue)
+                    break
 
     return
 
