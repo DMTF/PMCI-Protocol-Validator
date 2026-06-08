@@ -147,9 +147,6 @@ def test_query_status_device_list(setup, context):
     assert (_recv_msg[QueryStatus_Response].ResponseCode == 0)
     assert (_recv_msg[QueryStatus_Response].QueryType == 1)
 
-    ### TODO Process QueryStatusDeviceData[]
-
-###    assert (_recv_msg[QueryStatus_Response].QueryResponseDataLength == 0)
     return
 
 

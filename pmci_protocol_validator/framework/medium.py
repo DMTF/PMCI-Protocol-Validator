@@ -53,7 +53,7 @@ class CommMedium:
 
         self._timeout = timeout          # Read/write timeout in seconds
         self.__recvPktQ = queue.Queue()  # Raw received packet queue
-        self.__pcapFileName = None       # Name of PCAP file if logging packets
+        self.__pcapFileName = ""         # Name of PCAP file if logging packets
         self.__pcapFileAppend = False    # Flags PCAP log file write operations
 
         self.ErrorStrings = {
@@ -72,7 +72,7 @@ class CommMedium:
         self.close()
         return
 
-    def set_pcap_file(self, fileName: str = None) -> None:
+    def set_pcap_file(self, fileName: str = "") -> None:
         """ public: Specify a PCAP file for packet tracing """
 
         self.__pcapFileName = fileName
@@ -92,11 +92,11 @@ class CommMedium:
         self._write_to_pcap(payload)
         return _error_code
 
-    def read(self, timeoutOverride: int = None) -> tuple:
+    def read(self, timeoutOverride: int = None) -> tuple[int, Packet|None]:
         """ public: Read a received packet """
 
+        _retPkt = None
         try:
-            _retPkt = None
             _status = self._check_status()
 
             if _status == self.ERROR_SUCCESS:
@@ -107,7 +107,7 @@ class CommMedium:
 
                 _status, _rawData, _timestamp = self._read(_timeoutValue)
 
-                if _status == self.ERROR_SUCCESS:
+                if _status == self.ERROR_SUCCESS and _rawData is not None:
                     _retPkt = self._packetize(_rawData)
                     self._write_to_pcap(_rawData)
                     _retPkt.ReceiveTimeStamp = _timestamp
@@ -116,7 +116,7 @@ class CommMedium:
 
         return _status, _retPkt
 
-    def _read(self, readTimeout: float) -> tuple:
+    def _read(self, readTimeout: float) -> tuple[int, bytes|None, int|None]:
         """ protected virtual: Read a raw packet data from comm interface """
 
         _timestamp = None
@@ -135,7 +135,7 @@ class CommMedium:
     def _packetize(self, rawData: bytes) -> Packet:
         """ protected pure virtual: Create a packet from raw binary data """
 
-        raise Exception("physicalMedium: ERROR: Derived class MUST implement this method")
+        raise Exception("ERROR: Derived class MUST implement this method")
         return Packet(rawData)
 
     def _add_read_packet(self, rawPkt: bytes) -> None:
@@ -157,7 +157,7 @@ class CommMedium:
     def _write(self, payload: bytes) -> int:
         """ protected pure virtual: Send a message """
 
-        raise Exception("physicalMedium: ERROR: Derived class MUST implement this method")
+        raise Exception("ERROR: Derived class MUST implement this method")
         return self.ERROR_WRITE_FAILED
 
     def _check_status(self) -> int:
@@ -171,7 +171,7 @@ class CommMedium:
     def _write_to_pcap(self, packet: bytes) -> None:
         """ private: Log packet to PCAP trace file """
 
-        if self.__pcapFileName is not None:
+        if self.__pcapFileName is not "":
             try:
                 wrpcap(self.__pcapFileName, packet, append=self.__pcapFileAppend, linktype=12)
                 self.__pcapFileAppend = True

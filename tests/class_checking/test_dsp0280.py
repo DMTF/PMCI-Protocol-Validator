@@ -42,7 +42,7 @@ def test_TestServiceWrapper(class_type):
     assert (class_type.Reserved_1 == 0)
     assert (class_type.TestClientID == 0)
     assert (class_type.TransferLength == 0)
-    assert (class_type.Reserved_3 == 0)
+    assert (class_type.Reserved_2 == 0)
     return
 
 

@@ -88,7 +88,7 @@ class FrameworkContext(PTTI_Context):
             if check_response is True:
                 assert _rc == True, "ERROR: Disconnect failed."
 
-    def close(self):
+    def close(self, close_comm_if: bool = False):
         if self.comm_connected is True:
             self.commObject.close()
             self.comm_connected = False

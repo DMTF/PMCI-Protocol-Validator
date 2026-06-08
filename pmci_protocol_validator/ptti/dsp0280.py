@@ -126,7 +126,7 @@ class TestServiceWrapper(Packet):
         BitField("Reserved_1", 0x00, 8),
         XLEIntField("TestClientID", 0x00000000),
         LEShortField("TransferLength", 0x0000),
-        NBytesField("Reserved_3", 0, 6)
+        NBytesField("Reserved_2", 0, 6)
     ]
 
     def guess_payload_class(self, payload):
