@@ -34,7 +34,7 @@ def check_tsw(wrapper: Packet, client_id: int =None) -> bool:
         if wrapper.Version == VERSION_COMPLIANCE and \
             wrapper.Reserved_0 == 0 and \
             wrapper.Reserved_1 == 0 and \
-            wrapper.Reserved_3 == 0:
+            wrapper.Reserved_2 == 0:
 
             _client_id_ok = True if client_id is None else wrapper.TestClientID == client_id
             return _client_id_ok
