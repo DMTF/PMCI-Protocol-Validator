@@ -58,8 +58,7 @@ def test_ptti_tsw_set_rsvd(setup, context, reserved_0, reserved_1, reserved_2):
     if reserved_0 == 0 and reserved_1 == 0 and reserved_2 == 0:
         assert (_response[QueryStatus_Response].ResponseCode == 0)
     else:
-        ### TODO: Should Test Service reject request?
-        assert (_response[QueryStatus_Response].ResponseCode == 0)
+        assert (_response[QueryStatus_Response].ResponseCode == 0x0b)
 
     return
 

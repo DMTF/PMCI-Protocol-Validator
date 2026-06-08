@@ -112,6 +112,22 @@ class TestServiceBase:
         print(message)
         return
 
+    def _verify_tsw(self, tsw: TestServiceWrapper) -> int:
+        """ Verify the fields in the Test Service Wrapper """
+
+        if tsw.Version != VERSION_COMPLIANCE:
+            return 0x08
+
+        elif tsw.Direction != 0:
+            return 0x11
+
+        elif tsw.Reserved_0 != 0 or \
+                tsw.Reserved_1 != 0 or \
+                tsw.Reserved_2 != 0:
+            return 0x0B
+
+        return 0x00
+
     def _connect(self, request: Connect_Request) -> Connect_Response:
         """ Process Connect message """
 
@@ -313,7 +329,14 @@ class TestServiceBase:
                     tsw_req = TestServiceWrapper(req_raw_data)
                     rsp_proto_type = tsw_req.ProtocolType
 
-                    if tsw_req.ProtocolType == 0xFF:
+                    rc = self._verify_tsw(tsw_req)
+
+                    if rc != 0:
+                        cmd_code = bytes(tsw_req[TestServiceWrapper].payload)[0]
+                        rsp_packet = Packet(bytearray([cmd_code, rc]))
+
+
+                    elif tsw_req.ProtocolType == 0xFF:
                         rsp_packet = self.process_admin_request(tsw_req.payload)
 
                     elif tsw_req.ProtocolType == 0xF1:
@@ -324,7 +347,8 @@ class TestServiceBase:
                             tsw_req.ProtocolType,
                             tsw_req.payload)
                     else:
-                        rsp_packet = self.process_unknown_request(tsw_req.payload[0])
+                        cmd_code = bytes(tsw_req[TestServiceWrapper].payload)[0]
+                        rsp_packet = self.process_unknown_request(cmd_code)
 
                     if rsp_packet != None:
                         tsw_rsp = TestServiceWrapper()
