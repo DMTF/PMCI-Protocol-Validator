@@ -54,10 +54,7 @@ def main():
         assert _rc == True, "ERROR: Query Capabilities failed."
 
         # 4. Configure Test Service
-        _test_cfg = [
-            TestServiceCapabilityEntry(CapabilityID=1, CapabilityValue=15),
-            TestServiceCapabilityEntry(CapabilityID=2, CapabilityValue=1000)
-        ]
+        _test_cfg = [(1, 15), (2, 1000)]
 
         _rc = ptti_configure_test_service(fixture, _client_id, _test_cfg)
         assert _rc == True, "ERROR: Configure Test Service failed."
