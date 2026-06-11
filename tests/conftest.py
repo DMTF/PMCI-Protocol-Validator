@@ -30,7 +30,7 @@ class SetupMode(str, Enum):
 
 class FrameworkContext(PTTI_Context):
     def __init__(self, tcp_address: str, tcp_port: int, security_parameter: bytes):
-        super().__init__(tcp_address, tcp_port)
+        super().__init__(tcp_address, tcp_port, True)
 
         self.security_parameter = security_parameter
         self.test_client_id = 0
@@ -88,7 +88,7 @@ class FrameworkContext(PTTI_Context):
             if check_response is True:
                 assert _rc == True, "ERROR: Disconnect failed."
 
-    def close(self):
+    def close(self, close_comm_if: bool = False):
         if self.comm_connected is True:
             self.commObject.close()
             self.comm_connected = False

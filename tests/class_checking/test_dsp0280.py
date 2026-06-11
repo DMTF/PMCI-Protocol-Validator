@@ -42,7 +42,7 @@ def test_TestServiceWrapper(class_type):
     assert (class_type.Reserved_1 == 0)
     assert (class_type.TestClientID == 0)
     assert (class_type.TransferLength == 0)
-    assert (class_type.Reserved_3 == 0)
+    assert (class_type.Reserved_2 == 0)
     return
 
 
@@ -58,12 +58,12 @@ def test_Connect_Request(class_type):
 
     assert (isinstance(class_type.fields_desc[0], XByteEnumField))  # CommandCode
     assert (isinstance(class_type.fields_desc[1], FieldLenField))   # SecurityParameterLength
-    assert (isinstance(class_type.fields_desc[2], FieldListField))  # SecurityParameter
+    assert (isinstance(class_type.fields_desc[2], XStrLenField))    # SecurityParameter
 
     # Verify the class field names and initial values
     assert (class_type.CommandCode == 0x00)
-    assert (class_type.SecurityParameterLength == 0)
-    assert (class_type.SecurityParameter == [])
+    assert (class_type.SecurityParameterLength is None)
+    assert (class_type.SecurityParameter == b"")
 
     return
 
@@ -304,7 +304,7 @@ def test_ConfigureTestService_Request(class_type):
     assert (isinstance(class_type.fields_desc[2], PacketListField))  # TestServiceCapabilities
 
     assert (class_type.CommandCode == 0x20)
-    assert (class_type.NumberOfCapabilitiesFields == 0)
+    assert (class_type.NumberOfCapabilitiesFields is None)
     assert (class_type.TestServiceCapabilities == [])
     return
 

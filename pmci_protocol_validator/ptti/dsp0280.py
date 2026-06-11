@@ -60,7 +60,17 @@ MESSAGE_RESPONSE_CODES = {
     0x0C: "INSUFFICIENT_RESOURCES",
     0x0D: "COMMAND_NOT_SUPPORTED",
     0x0E: "PARAMETER_NOT_SUPPORTED",
-    0x7F: "UNSPECIFIED_ERROR"
+    0x0F: "DUT_IN_USE",
+    0x10: "INVALID_PROTOCOL_TYPE",
+    0x11: "INVALID_FLAGS",
+    0x12: "INVALID_TEST_CLIENT_ID",
+    0x13: "INVALID_TRANSFER_LENGTH",
+    0x14: "INVALID_COMMAND_CODE",
+    0x7F: "UNSPECIFIED_ERROR",
+    0xD0: "MISSING_API_FUNCTION",
+    0xD1: "INVALID_POINTER",
+    0xD2: "BUFFER_TOO_SMALL",
+    0xD3: "INVALID_RESPONSE_PARMS"
 }
 
 # Dictionary of registered PTTI command and responses handlers
@@ -116,7 +126,7 @@ class TestServiceWrapper(Packet):
         BitField("Reserved_1", 0x00, 8),
         XLEIntField("TestClientID", 0x00000000),
         LEShortField("TransferLength", 0x0000),
-        NBytesField("Reserved_3", 0, 6)
+        NBytesField("Reserved_2", 0, 6)
     ]
 
     def guess_payload_class(self, payload):
@@ -158,14 +168,13 @@ class Connect_Request(Packet):
         XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         FieldLenField(
             "SecurityParameterLength",
-            0,
-            "SecurityParameter",
+            None,
+            length_of="SecurityParameter",
             fmt="<I"
         ),
-        FieldListField(
+        XStrLenField(
             "SecurityParameter",
-            [],
-            XByteField("", 0x00),
+            b"",
             length_from=lambda pkt: pkt.SecurityParameterLength
         )
     ]
@@ -341,9 +350,9 @@ class QueryStatusDeviceEntry(Packet):
         FieldLenField(
             "DeviceRegisteredProtocolTypeCount",
             0,
-            count_of=lambda pkt: pkt.DeviceData,
+            count_of="DeviceData",
             fmt="B"
-        ),
+       ),
         PacketListField(
             "DeviceData",
             [],
@@ -477,7 +486,7 @@ class ConfigureTestService_Request(Packet):
         XByteEnumField("CommandCode", CommandValue, COMMAND_CODES),
         FieldLenField(
             "NumberOfCapabilitiesFields",
-            0x0000,
+            None,
             count_of="TestServiceCapabilities",
             fmt="<H"
         ),

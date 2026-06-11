@@ -34,7 +34,7 @@ def check_tsw(wrapper: Packet, client_id: int =None) -> bool:
         if wrapper.Version == VERSION_COMPLIANCE and \
             wrapper.Reserved_0 == 0 and \
             wrapper.Reserved_1 == 0 and \
-            wrapper.Reserved_3 == 0:
+            wrapper.Reserved_2 == 0:
 
             _client_id_ok = True if client_id is None else wrapper.TestClientID == client_id
             return _client_id_ok
@@ -60,8 +60,7 @@ def main():
     SendPacket = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=0)
     SendPacket = SendPacket / Connect_Request()
 
-    SendPacket[Connect_Request].SecurityParameter = RawVal(b'\x31\x32\x33\x34\x35\x36')
-    SendPacket[Connect_Request].SecurityParameterLength = len(SendPacket[Connect_Request].SecurityParameter)
+    SendPacket[Connect_Request].SecurityParameter = b'\x31\x32\x33\x34\x35\x36'
 
     try:
         rc, RecvPacket = common_send_receive_ex(fixture.commObject, SendPacket, fixture.show_pkt)
