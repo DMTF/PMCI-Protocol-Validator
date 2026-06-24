@@ -252,6 +252,34 @@ def test_configure_test_service(setup, context, expected_result, capabilities):
     return
 
 
+@pytest.mark.parametrize("target_id, identifier_list, expected_result", [
+    (2, [], 0x00),
+    (0, [], 0x90)
+])
+def test_configure_device_under_test(setup, context, target_id, identifier_list, expected_result):
+
+    _error_code, _recv_msg, _send_msg = ptti_configure_device_under_test_ex(
+        context,
+        context.test_client_id,
+        target_id,
+        identifier_list
+    )
+
+    assert (_error_code == 0), f"Comm Error {_error_code}"
+    assert (_recv_msg is not None)
+    assert (ptti_check_tsw(_recv_msg, context.test_client_id) is True)
+    assert (_recv_msg.haslayer(ConfigureDeviceUnderTest_Response) is True)
+    assert (_recv_msg[ConfigureDeviceUnderTest_Response].CommandCode ==
+            ConfigureDeviceUnderTest_Response.CommandValue)
+    assert (_recv_msg[ConfigureDeviceUnderTest_Response].ResponseCode == expected_result)
+
+    if expected_result == 0:
+        assert (_recv_msg[ConfigureDeviceUnderTest_Response].IdentifierCount ==
+                len(_recv_msg[ConfigureDeviceUnderTest_Response].IdentifierList))
+
+    return
+
+
 @pytest.mark.parametrize("expected_result, dut_id, protocol_type, types_list",[
     (0, 10, 0, [])
 ])
@@ -293,6 +321,36 @@ def test_register_async_message_recipient(setup, context, expected_result, dut_i
     assert (_recv_msg[RegisterAsyncMessageRecipient_Response].ResponseCode == expected_result)
 
     assert (_recv_msg[RegisterAsyncMessageRecipient_Response].DUTConnectionID == dut_id)
+    return
+
+
+@pytest.mark.parametrize("reason_code, log_data_format, log_data", [
+    (2, 1, [ord(_char) for _char in "hello test service"])
+])
+def test_log_event(setup, context, reason_code, log_data_format, log_data):
+
+    _rc, _supported_admin_messages = ptti_query_admin_messages(context, context.test_client_id)
+    assert (_rc is True), "ERROR: ptti_query_admin_messages() failed"
+
+    if _is_admin_message_supported(_supported_admin_messages, LogEvent_Request.CommandValue) is False:
+        pytest.skip("Log Event admin command is not supported by the Test Service.")
+
+    _send_msg = TestServiceWrapper(ProtocolType=0xFF, Direction=0, TestClientID=context.test_client_id)
+    _send_msg = _send_msg / LogEvent_Request(
+        ReasonCode=reason_code,
+        LogDataFormat=log_data_format,
+        LogData=log_data
+    )
+
+    _error_code, _recv_msg = common_send_receive(context, _send_msg)
+
+    assert (_error_code == 0), f"Comm Error {_error_code}"
+    assert (_recv_msg is not None)
+    assert (ptti_check_tsw(_recv_msg, context.test_client_id) is True)
+    assert (_recv_msg.haslayer(LogEvent_Response) is True)
+    assert (_recv_msg[LogEvent_Response].CommandCode == LogEvent_Response.CommandValue)
+    assert (_recv_msg[LogEvent_Response].ResponseCode == 0)
+
     return
 
 
