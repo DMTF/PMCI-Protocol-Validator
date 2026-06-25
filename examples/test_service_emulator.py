@@ -205,6 +205,14 @@ class TestServiceBase:
     def _configure_device_under_test(self, request: ConfigureDeviceUnderTest_Request) -> ConfigureDeviceUnderTest_Response:
         """ Process Configure Device Under Test message """
 
+        if request.TargetIdentifier not in (2, 12):
+            return ConfigureDeviceUnderTest_Response(
+                ResponseCode=0x90,
+                DUTConnectionID=0,
+                IdentifierCount=0,
+                IdentifierList=[]
+            )
+
         response = ConfigureDeviceUnderTest_Response()
         response[ConfigureDeviceUnderTest_Response].DUTConnectionID = 0xabcdef
         response[ConfigureDeviceUnderTest_Response].IdentifierCount = 0
