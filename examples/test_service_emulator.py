@@ -12,6 +12,10 @@ Brief : Example DSP0280 Test Service.
 """
 
 import socket
+import argparse
+import ssl
+import pathlib
+
 from scapy.packet import Packet
 from pmci_protocol_validator.ptti.dsp0280 import *
 from pmci_protocol_validator.pldm.dsp0240_base import PLDM_HEADER
@@ -309,8 +313,13 @@ class TestServiceBase:
 
         return rsp_packet
 
-    def main(self, host_name: str, host_port: int) -> int:
+    def main(self, host_name: str, host_port: int, tls_cert_fname: str = "", tls_key_fname: str = "") -> int:
         """ Main application """
+
+        # Verify parameters
+        if (tls_cert_fname == "") != (tls_key_fname == ""):
+            self._log("ERROR: TLS parameter mismatch")
+            return 1
 
         # Create the server socket
         try:
@@ -320,7 +329,7 @@ class TestServiceBase:
 
         except:
             self._log("ERROR: server socket creation failed")
-            return (1)
+            return 2
 
         # Main application processing
         _run_main = True
@@ -328,6 +337,20 @@ class TestServiceBase:
 
             # Wait for connections
             (self._client_socket, address) = self._server_socket.accept()
+
+            # If using TLS, initialize TLS connection
+            try:
+                if tls_cert_fname != "" and tls_key_fname != "":
+                    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+                    context.load_cert_chain(
+                        certfile=tls_cert_fname,
+                        keyfile=tls_key_fname
+                    )
+
+                    self._client_socket = context.wrap_socket(self._client_socket, server_side=True)
+            except:
+                self._log("ERROR: TLS initialization failed")
+                return 3
 
             # Process session requests
             while 1:
@@ -377,14 +400,41 @@ class TestServiceBase:
                     break
 
         # Exit application
-        return (0)
+        return 0
 
     # end main()
 # end class TestServiceBase()
 
 
+def file_exists(filename: str) -> bool:
+    """ Verify that specified file exists. """
+
+    path = pathlib.Path(filename)
+    return path.is_file()
+
+
 """ Example Test Service (TS) entry point """
 if __name__ == '__main__':
 
+    # Get command line parameters
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--cert", default="", help="Path to the TLS certificate file")
+    parser.add_argument("--key", default="", help="Path to the TLS private key file")
+
+    args = parser.parse_args()
+
+    # Verify command line parameters
+    if (args.cert == "") != (args.key == ""):
+        parser.error("ERROR: --cert and --key must be specified together")
+
+    if args.cert != "" and file_exists(args.cert) is False:
+        parser.error(f"ERROR: TLS certificate file does not exist: {args.cert}")
+
+    if args.key != "" and file_exists(args.key) is False:
+        parser.error(f"ERROR: TLS key file does not exist: {args.key}")
+
+    # Run application
     test_service = TestServiceBase()
-    exit(test_service.main(CONNECTION_ADDRESS, CONNECTION_PORT))
+    return_code = test_service.main(CONNECTION_ADDRESS, CONNECTION_PORT, args.cert, args.key)
+    exit(return_code)
