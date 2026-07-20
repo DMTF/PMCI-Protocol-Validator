@@ -86,23 +86,41 @@ class TestServiceBase:
 
         return
 
-    def _socket_recv_msg(self) -> tuple[bool, bytes|None]:
-        """ Method to receive a full PTTI message from the Test Client """
+    def __socket_recv(self, size: int) -> bytes | None:
+        """Read exactly size bytes, or return None if socket closes/errors."""
 
         try:
-            # Read packet header
-            _chunk = self._client_socket.recv(16)
-            if len(_chunk) >= 16:
+            _data = bytearray()
 
-                # Read the remainder of the packet
-                _len = int.from_bytes(_chunk[8:10], byteorder='little')
-                _chunk = _chunk + self._client_socket.recv(_len)
+            while len(_data) < size:
+                _chunk = self._client_socket.recv(size - len(_data))
 
-                # Return message
-                return (len(_chunk) > 0), _chunk
+                if not _chunk:
+                    break
+
+                _data.extend(_chunk)
+
+            if len(_data) == size:
+                return bytes(_data)
 
         except:
             pass
+
+        return None
+
+    def _socket_recv_msg(self) -> tuple[bool, bytes|None]:
+        """ Method to receive a full PTTI message from the Test Client """
+
+        # Read packet header
+        _header = self.__socket_recv(16)
+        if _header is not None:
+
+            # Read the remainder of the packet
+            _len = int.from_bytes(_header[8:10], byteorder='little')
+            _payload = self.__socket_recv(_len)
+
+            if _payload is not None:
+                return True, _header + _payload
 
         return False, None
 
