@@ -47,7 +47,6 @@ class PTTIMedium(CommMedium):
                 _context.verify_mode = ssl.CERT_NONE
                 self._socket = _context.wrap_socket(self._socket)  # Must match the certificate
 
-
             else:
                 _context.check_hostname = True
                 _context.load_verify_locations(fname_cert)
