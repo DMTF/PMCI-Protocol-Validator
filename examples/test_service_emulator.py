@@ -21,10 +21,6 @@ from pmci_protocol_validator.ptti.dsp0280 import *
 from pmci_protocol_validator.pldm.dsp0240_base import PLDM_HEADER
 from pmci_protocol_validator.pldm.dsp0240 import GetTID_Request, GetTID_Response
 
-
-### Network parameters for client connections ###
-CONNECTION_ADDRESS = 'localhost'
-CONNECTION_PORT = 49155
 DMTF_VENDOR_ID = 0x1AB4
 
 
@@ -99,16 +95,16 @@ class TestServiceBase:
             if len(_chunk) >= 16:
 
                 # Read the remainder of the packet
-                _len = int.from_bytes(_chunk[8:9], byteorder='little')
+                _len = int.from_bytes(_chunk[8:10], byteorder='little')
                 _chunk = _chunk + self._client_socket.recv(_len)
 
                 # Return message
-                return ((len(_chunk) > 0), _chunk)
+                return (len(_chunk) > 0), _chunk
 
         except:
             pass
 
-        return (False, None)
+        return False, None
 
     def _log(self, message: str):
         """ Local message logging function """
@@ -416,25 +412,38 @@ def file_exists(filename: str) -> bool:
 """ Example Test Service (TS) entry point """
 if __name__ == '__main__':
 
+    # Display banner
+    print("\n\nDMTF DSP0280 Test Service Emulator\nCopyright (c) 2023-2026 DMTF. All rights reserved.\n")
+
     # Get command line parameters
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--cert", default="", help="Path to the TLS certificate file")
-    parser.add_argument("--key", default="", help="Path to the TLS private key file")
+    parser.add_argument("--tcp-addr", default="127.0.0.1", help="Connection host address")
+    parser.add_argument("--tcp-port", type=int, default=49155, help="Connection TPC port number")
+    parser.add_argument("--tls-enable", nargs=2, default=["", ""], help="Path to the TLS certificate file and certificate host name")
 
     args = parser.parse_args()
 
     # Verify command line parameters
-    if (args.cert == "") != (args.key == ""):
-        parser.error("ERROR: --cert and --key must be specified together")
+    if args.tls_enable[0] != "":
+        if file_exists(args.tls_enable[0]) is False:
+            parser.error(f"TLS certificate file does not exist: {args.tls_enable[0]}")
 
-    if args.cert != "" and file_exists(args.cert) is False:
-        parser.error(f"ERROR: TLS certificate file does not exist: {args.cert}")
+        if file_exists(args.tls_enable[1]) is False:
+            parser.error(f"TLS key file does not exist: {args.tls_enable[1]}")
 
-    if args.key != "" and file_exists(args.key) is False:
-        parser.error(f"ERROR: TLS key file does not exist: {args.key}")
+    # Display the operational parameters
+    print(f"Connection host address: {args.tcp_addr}")
+    print(f"Connection TCP port number: {args.tcp_port}")
+
+    if args.tls_enable[0] != "":
+            print(f"TLS enabled: TRUE")
+            print(f"\tTLS certificate file: {args.tls_enable[0]}")
+            print(f"\tTLS certificate host name: {args.tls_enable[1]}\n")
+    else:
+        print(f"TLS enabled: FALSE\n")
 
     # Run application
     test_service = TestServiceBase()
-    return_code = test_service.main(CONNECTION_ADDRESS, CONNECTION_PORT, args.cert, args.key)
+    return_code = test_service.main(args.tcp_addr, args.tcp_port, args.tls_enable[0], args.tls_enable[1])
     exit(return_code)

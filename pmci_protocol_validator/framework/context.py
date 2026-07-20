@@ -18,7 +18,7 @@ from pmci_protocol_validator.framework.medium import CommMedium
 class FwkContext:
     """ Test framework context base class """
 
-    def __init__(self, comm_if: CommMedium, log_pkts: bool = False):
+    def __init__(self, comm_if: CommMedium, log_pkts: bool = False) -> None:
         """ Class constructor """
 
         assert (isinstance(comm_if, CommMedium)), "Invalid type for comm_if"
@@ -27,7 +27,7 @@ class FwkContext:
         self.log_packets: bool = log_pkts
         return
 
-    def close(self, close_comm_if: bool =False):
+    def close(self, close_comm_if: bool =False) -> None:
         """ Close down test framework """
 
         if close_comm_if is True:
@@ -36,14 +36,14 @@ class FwkContext:
         return
 
     def log_msg(self, msg_str: str) -> None:
-        """ Log a message """
+        """ protected virtual: Log a message """
 
         if self.log_packets is True:
             print(msg_str)
         return
 
     def show_pkt(self, packet: Packet) -> None:
-        """ Display the packet contents """
+        """ protected virtual: Display the packet contents """
 
         self.log_msg(str(packet.show2(dump=True)))
         return

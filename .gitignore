@@ -6,6 +6,8 @@
 *.user
 *.pcapng
 *.pcap
+*.crt
+*.key
 
 .pytest_cache/
 *.egg-info/
