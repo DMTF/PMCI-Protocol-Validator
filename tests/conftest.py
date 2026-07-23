@@ -30,8 +30,11 @@ class SetupMode(str, Enum):
 
 class FrameworkContext(PTTI_Context):
     def __init__(self, tcp_address: str, tcp_port: int, security_parameter: bytes):
-        super().__init__(tcp_address, tcp_port, True)
 
+        super().__init__(PTTIMedium(tcp_address, tcp_port), True)
+
+        self.tcp_address = tcp_address
+        self.tcp_port = tcp_port
         self.security_parameter = security_parameter
         self.test_client_id = 0
         self.tsw_connected = False

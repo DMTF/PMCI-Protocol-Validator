@@ -12,15 +12,15 @@ Brief : Example DSP0280 Test Service.
 """
 
 import socket
+import argparse
+import ssl
+import pathlib
+
 from scapy.packet import Packet
 from pmci_protocol_validator.ptti.dsp0280 import *
 from pmci_protocol_validator.pldm.dsp0240_base import PLDM_HEADER
 from pmci_protocol_validator.pldm.dsp0240 import GetTID_Request, GetTID_Response
 
-
-### Network parameters for client connections ###
-CONNECTION_ADDRESS = 'localhost'
-CONNECTION_PORT = 49155
 DMTF_VENDOR_ID = 0x1AB4
 
 
@@ -86,25 +86,43 @@ class TestServiceBase:
 
         return
 
-    def _socket_recv_msg(self) -> tuple[bool, bytes|None]:
-        """ Method to receive a full PTTI message from the Test Client """
+    def __socket_recv(self, size: int) -> bytes | None:
+        """Read exactly size bytes, or return None if socket closes/errors."""
 
         try:
-            # Read packet header
-            _chunk = self._client_socket.recv(16)
-            if len(_chunk) >= 16:
+            _data = bytearray()
 
-                # Read the remainder of the packet
-                _len = int.from_bytes(_chunk[8:9], byteorder='little')
-                _chunk = _chunk + self._client_socket.recv(_len)
+            while len(_data) < size:
+                _chunk = self._client_socket.recv(size - len(_data))
 
-                # Return message
-                return ((len(_chunk) > 0), _chunk)
+                if not _chunk:
+                    break
+
+                _data.extend(_chunk)
+
+            if len(_data) == size:
+                return bytes(_data)
 
         except:
             pass
 
-        return (False, None)
+        return None
+
+    def _socket_recv_msg(self) -> tuple[bool, bytes|None]:
+        """ Method to receive a full PTTI message from the Test Client """
+
+        # Read packet header
+        _header = self.__socket_recv(16)
+        if _header is not None:
+
+            # Read the remainder of the packet
+            _len = int.from_bytes(_header[8:10], byteorder='little')
+            _payload = self.__socket_recv(_len)
+
+            if _payload is not None:
+                return True, _header + _payload
+
+        return False, None
 
     def _log(self, message: str):
         """ Local message logging function """
@@ -309,8 +327,13 @@ class TestServiceBase:
 
         return rsp_packet
 
-    def main(self, host_name: str, host_port: int) -> int:
+    def main(self, host_name: str, host_port: int, tls_cert_fname: str = "", tls_key_fname: str = "") -> int:
         """ Main application """
+
+        # Verify parameters
+        if (tls_cert_fname == "") != (tls_key_fname == ""):
+            self._log("ERROR: TLS parameter mismatch")
+            return 1
 
         # Create the server socket
         try:
@@ -320,7 +343,7 @@ class TestServiceBase:
 
         except:
             self._log("ERROR: server socket creation failed")
-            return (1)
+            return 2
 
         # Main application processing
         _run_main = True
@@ -328,6 +351,20 @@ class TestServiceBase:
 
             # Wait for connections
             (self._client_socket, address) = self._server_socket.accept()
+
+            # If using TLS, initialize TLS connection
+            try:
+                if tls_cert_fname != "" and tls_key_fname != "":
+                    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+                    context.load_cert_chain(
+                        certfile=tls_cert_fname,
+                        keyfile=tls_key_fname
+                    )
+
+                    self._client_socket = context.wrap_socket(self._client_socket, server_side=True)
+            except:
+                self._log("ERROR: TLS initialization failed")
+                return 3
 
             # Process session requests
             while 1:
@@ -377,14 +414,54 @@ class TestServiceBase:
                     break
 
         # Exit application
-        return (0)
+        return 0
 
     # end main()
 # end class TestServiceBase()
 
 
+def file_exists(filename: str) -> bool:
+    """ Verify that specified file exists. """
+
+    path = pathlib.Path(filename)
+    return path.is_file()
+
+
 """ Example Test Service (TS) entry point """
 if __name__ == '__main__':
 
+    # Display banner
+    print("\n\nDMTF DSP0280 Test Service Emulator\nCopyright (c) 2023-2026 DMTF. All rights reserved.\n")
+
+    # Get command line parameters
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--tcp-addr", default="127.0.0.1", help="Connection host address")
+    parser.add_argument("--tcp-port", type=int, default=49155, help="Connection TPC port number")
+    parser.add_argument("--tls-enable", nargs=2, default=["", ""], help="Path to the TLS certificate file and certificate host name")
+
+    args = parser.parse_args()
+
+    # Verify command line parameters
+    if args.tls_enable[0] != "":
+        if file_exists(args.tls_enable[0]) is False:
+            parser.error(f"TLS certificate file does not exist: {args.tls_enable[0]}")
+
+        if file_exists(args.tls_enable[1]) is False:
+            parser.error(f"TLS key file does not exist: {args.tls_enable[1]}")
+
+    # Display the operational parameters
+    print(f"Connection host address: {args.tcp_addr}")
+    print(f"Connection TCP port number: {args.tcp_port}")
+
+    if args.tls_enable[0] != "":
+            print(f"TLS enabled: TRUE")
+            print(f"\tTLS certificate file: {args.tls_enable[0]}")
+            print(f"\tTLS certificate host name: {args.tls_enable[1]}\n")
+    else:
+        print(f"TLS enabled: FALSE\n")
+
+    # Run application
     test_service = TestServiceBase()
-    exit(test_service.main(CONNECTION_ADDRESS, CONNECTION_PORT))
+    return_code = test_service.main(args.tcp_addr, args.tcp_port, args.tls_enable[0], args.tls_enable[1])
+    exit(return_code)

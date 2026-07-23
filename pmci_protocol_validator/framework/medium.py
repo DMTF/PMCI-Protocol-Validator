@@ -171,7 +171,7 @@ class CommMedium:
     def _write_to_pcap(self, packet: bytes) -> None:
         """ private: Log packet to PCAP trace file """
 
-        if self.__pcapFileName is not "":
+        if self.__pcapFileName != "":
             try:
                 wrpcap(self.__pcapFileName, packet, append=self.__pcapFileAppend, linktype=12)
                 self.__pcapFileAppend = True
